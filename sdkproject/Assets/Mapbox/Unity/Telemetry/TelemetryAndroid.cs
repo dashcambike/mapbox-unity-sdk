@@ -89,10 +89,12 @@ namespace Mapbox.Unity.Telemetry
 		{
 			if (enable)
 			{
+				Debug.Log("telemetry enabled");
 				_telemInstance.Call<bool>("enable");
 			}
 			else
 			{
+				Debug.Log("telemetry disabled");
 				_telemInstance.Call<bool>("disable");
 			}
 			//_telemInstance.Call(

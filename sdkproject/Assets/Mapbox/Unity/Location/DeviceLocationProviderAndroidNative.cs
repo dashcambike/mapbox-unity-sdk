@@ -10,10 +10,12 @@
 
 	public class DeviceLocationProviderAndroidNative : AbstractLocationProvider, IDisposable
 	{
-
+		[SerializeField]
+		[Tooltip("Using higher value like 500 usually does not require to turn GPS chip on and thus saves battery power. Values like 5-10 could be used for getting best accuracy.")]
+		public float _desiredAccuracyInMeters = 5.0f;
 
 		/// <summary>
-		/// The minimum distance (measured in meters) a device must move laterally before location is updated. 
+		/// The minimum distance (measured in meters) a device must move laterally before location is updated.
 		/// https://developer.android.com/reference/android/location/LocationManager.html#requestLocationUpdates(java.lang.String,%20long,%20float,%20android.location.LocationListener)
 		/// </summary>
 		[SerializeField]
@@ -222,6 +224,7 @@
 				bool locationServiceAvailable = _gpsInstance.Call<bool>("getIsLocationServiceAvailable");
 				_currentLocation.IsLocationServiceEnabled = locationServiceAvailable;
 
+
 				// app might have been started with location OFF but switched on after start
 				// check from time to time
 				if (!locationServiceAvailable)
@@ -305,7 +308,7 @@
 			// Otherwise it is set to '0.0'
 			// https://developer.android.com/reference/android/location/Location.html#getBearing()
 			// We don't want that when we rotate a map according to the direction
-			// thes user is moving, thus don't update 'heading' with '0.0' 
+			// thes user is moving, thus don't update 'heading' with '0.0'
 			if (!hasBearing)
 			{
 				_currentLocation.IsUserHeadingUpdated = false;
@@ -330,7 +333,7 @@
 				|| timestampUpdated
 				|| speedUpdated;
 
-			// Un-comment if required. Throws a warning right now. 
+			// Un-comment if required. Throws a warning right now.
 			//bool networkEnabled = _gpsInstance.Call<bool>("getIsNetworkEnabled");
 			bool gpsEnabled = _gpsInstance.Call<bool>("getIsGpsEnabled");
 			if (!gpsEnabled)

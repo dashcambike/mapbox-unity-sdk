@@ -55,7 +55,7 @@ namespace Mapbox.Unity.Location
 		ILocationProvider _defaultLocationProvider;
 
 		/// <summary>
-		/// The default location provider. 
+		/// The default location provider.
 		/// Outside of the editor, this will be a <see cref="T:Mapbox.Unity.Location.DeviceLocationProvider"/>.
 		/// In the Unity editor, this will be an <see cref="T:Mapbox.Unity.Location.EditorLocationProvider"/>
 		/// </summary>
@@ -117,7 +117,7 @@ namespace Mapbox.Unity.Location
 		}
 
 		/// <summary>
-		/// Create singleton instance and inject the DefaultLocationProvider upon initialization of this component. 
+		/// Create singleton instance and inject the DefaultLocationProvider upon initialization of this component.
 		/// </summary>
 		protected virtual void Awake()
 		{
