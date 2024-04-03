@@ -1,4 +1,7 @@
-﻿#if UNITY_ANDROID
+﻿using System.Collections;
+using Mapbox.Unity.Utilities;
+
+#if UNITY_ANDROID
 namespace Mapbox.Unity.Telemetry
 {
 	using UnityEngine;
@@ -87,20 +90,36 @@ namespace Mapbox.Unity.Telemetry
 
 		public void SetLocationCollectionState(bool enable)
 		{
+			if (Input.location.status != LocationServiceStatus.Running)
+			{
+				Runnable.Run(TelemetryDelay(enable));
+			}
+			else
+			{
+				SetTelemetry(enable);
+			}
+		}
+
+		private void SetTelemetry(bool enable)
+		{
 			if (enable)
 			{
-				Debug.Log("telemetry enabled");
 				_telemInstance.Call<bool>("enable");
 			}
 			else
 			{
-				Debug.Log("telemetry disabled");
 				_telemInstance.Call<bool>("disable");
 			}
-			//_telemInstance.Call(
-			//	"setTelemetryEnabled"
-			//	, enable
-			//);
+		}
+
+		private IEnumerator TelemetryDelay(bool enable)
+		{
+			Input.location.Start();
+			while (Input.location.status != LocationServiceStatus.Running)
+			{
+				yield return new WaitForSeconds(1);
+			}
+			SetTelemetry(enable);
 		}
 	}
 }
