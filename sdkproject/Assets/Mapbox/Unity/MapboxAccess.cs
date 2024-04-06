@@ -1,3 +1,5 @@
+using System.Collections;
+using Mapbox.Unity.Utilities;
 using MapboxAccountsUnity;
 
 namespace Mapbox.Unity
@@ -105,10 +107,20 @@ namespace Mapbox.Unity
 				_configuration = configuration;
 
 				ConfigureFileSource();
-				ConfigureTelemetry();
+				Debug.Log("starting location service");
+				Input.location.Start();
+				Runnable.Run(TelemetryDelay());
 
 				Configured = true;
 			}
+		}
+
+		private IEnumerator TelemetryDelay()
+		{
+			yield return new WaitForSeconds(5);
+			Debug.Log("starting configure telemetry");
+			Debug.Log(Input.location.status);
+			ConfigureTelemetry();
 		}
 
 
