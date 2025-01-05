@@ -32,6 +32,19 @@ namespace Mapbox.VectorModule
         bool ContainsVisualFor(CanonicalTileId dataTileId);
     }
 
+    public enum ModifierStackExecutionMode
+    {
+        All,
+        FirstHit
+    }
+    
+    [Serializable]
+    public class VectorLayerVisualizerSettings
+    {
+        public bool MergeMeshes;
+        public ModifierStackExecutionMode StackExecutionMode;
+    }
+
     [Serializable]
     public class VectorLayerVisualizer : IVectorLayerVisualizer
     {
@@ -41,7 +54,7 @@ namespace Mapbox.VectorModule
 
         private string _vectorLayerName;
         private UnityContext _unityContext;
-        private bool _mergeMeshes; 
+        private VectorLayerVisualizerSettings _settings; 
         private Dictionary<int, ModifierStack> _stackList;
         private ObjectPool<VectorEntity> _pool;
         private Dictionary<CanonicalTileId, List<VectorEntity>> _results;
@@ -49,12 +62,12 @@ namespace Mapbox.VectorModule
         private int _defaultPoolSize = 20;
         private Transform _layerRootObject;
         
-        public VectorLayerVisualizer(string name, IMapInformation mapInformation, UnityContext unityContext, bool mergeMeshes = false)
+        public VectorLayerVisualizer(string name, IMapInformation mapInformation, UnityContext unityContext, VectorLayerVisualizerSettings settings)
         {
             _vectorLayerName = name;
             _mapInformation = mapInformation;
             _unityContext = unityContext;
-            _mergeMeshes = mergeMeshes;
+            _settings = settings;
             _stackList = new Dictionary<int, ModifierStack>();
             _pool = new ObjectPool<VectorEntity>(VectorEntityGenerator);
             _results = new Dictionary<CanonicalTileId, List<VectorEntity>>();
@@ -170,13 +183,15 @@ namespace Mapbox.VectorModule
                     
                     if (!meshDataList.ContainsKey(stack.Key)) meshDataList.Add(stack.Key, new HashSet<MeshData>());
                     meshDataList[stack.Key].Add(meshData);
+                    if (_settings.StackExecutionMode == ModifierStackExecutionMode.FirstHit)
+                        break;
                 }
             }
 
             // if (!tile.IsActive)
             //     return;
 
-            if (_mergeMeshes)
+            if (_settings.MergeMeshes)
             {
                 foreach (var pairs in meshDataList)
                 {

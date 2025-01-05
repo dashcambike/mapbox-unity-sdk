@@ -14,8 +14,8 @@ namespace Mapbox.VectorModule.Unity
 		[SerializeField] private string _vectorLayerName;
 		public string VectorLayerName => _vectorLayerName;
 		public bool IsActive = true;
-		
-		[SerializeField] private bool _mergeMeshes = false;
+
+		[SerializeField] private VectorLayerVisualizerSettings _settings;
 		[SerializeField] private List<ModifierStackObject> _modifierStackObjects;
 		private VectorLayerVisualizer _layerVisualizer;
 		
@@ -26,7 +26,7 @@ namespace Mapbox.VectorModule.Unity
 		
 		public IVectorLayerVisualizer ConstructLayerVisualizer(IMapInformation mapInformation, UnityContext unityContext)
 		{
-			_layerVisualizer = new VectorLayerVisualizer(VectorLayerName, mapInformation, unityContext, _mergeMeshes);
+			_layerVisualizer = new VectorLayerVisualizer(VectorLayerName, mapInformation, unityContext, _settings);
 			_layerVisualizer.Active = IsActive;
 			
 			foreach (var modifierStackObject in _modifierStackObjects.Where(x => x != null))
