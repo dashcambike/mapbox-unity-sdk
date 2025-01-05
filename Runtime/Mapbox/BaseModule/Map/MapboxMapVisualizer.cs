@@ -48,16 +48,8 @@ namespace Mapbox.BaseModule.Map
         public virtual IEnumerator LoadTileCoverToMemory(TileCover tileCover)
         {
             var hashsetTiles = new HashSet<CanonicalTileId>(tileCover.Tiles.Select(x => x.Canonical));
-
             var coroutines = LayerModules.Select(x => x.LoadTiles(hashsetTiles));
-            if (LayerModules.Any(x => x is ITerrainLayerModule))
-            {
-                yield return coroutines.RunSequential();
-            }
-            else
-            {
-                yield return coroutines.WaitForAll();
-            }
+            yield return coroutines.WaitForAll();
         }
       
         public virtual void Load(TileCover tileCover)
@@ -248,7 +240,6 @@ namespace Mapbox.BaseModule.Map
             {
                 var moduleFinished = module.LoadInstant(tile);
                 loaded &= moduleFinished;
-                if (!moduleFinished) break;
             }
 
             if (!loaded)
