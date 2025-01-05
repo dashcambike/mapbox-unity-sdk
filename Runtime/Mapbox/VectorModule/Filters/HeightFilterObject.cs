@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mapbox.VectorModule.Filters
 {
-    [CreateAssetMenu(menuName = "Mapbox/Modifiers/Height Filter")]
+    [CreateAssetMenu(menuName = "Mapbox/Filters/Height Filter")]
     public class HeightFilterObject : FilterBaseObject
     {
         private HeightFilter _filter;

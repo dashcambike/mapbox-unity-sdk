@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Mapbox.VectorModule.Filters
 {
-    [CreateAssetMenu(menuName = "Mapbox/Modifiers/Mesh Collider Filter")]
+    [CreateAssetMenu(menuName = "Mapbox/Filters/Mesh Collider Filter")]
     public class PolygonCollisionFilterObject : FilterBaseObject
     {
         private PolygonCollisionFilter _filter;

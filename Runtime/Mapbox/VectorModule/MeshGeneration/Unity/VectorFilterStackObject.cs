@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Mapbox.VectorModule.MeshGeneration.Unity
 {
-    [CreateAssetMenu(menuName = "Mapbox/Modifiers/Vector Filter Stack")]
+    [CreateAssetMenu(menuName = "Mapbox/Filters/Vector Filter Stack")]
     public class VectorFilterStackObject : ScriptableObject
     {
         [Expandable]
@@ -18,7 +18,7 @@ namespace Mapbox.VectorModule.MeshGeneration.Unity
         {
             return new VectorFilterStack()
             {
-                Filters = Filters.Select(x => x.Filter).ToList(),
+                Filters = Filters.Where(x => x != null).Select(x => x?.Filter).ToList(),
                 Type = this.Type
             };
         }
