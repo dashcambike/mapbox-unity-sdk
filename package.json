@@ -16,12 +16,12 @@
         {
             "displayName": "Location Based Game",
             "description": "Location Based Game",
-            "path": "Samples~/Location Based Game"
+            "path": "Samples~/LocationBasedGame"
         },
         {
             "displayName": "World Map Viewer",
             "description": "World Map Viewer",
-            "path": "Samples~/World Map Viewer"
+            "path": "Samples~/WorldMapViewer"
         }
     ]
 }
