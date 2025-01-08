@@ -5,6 +5,8 @@ namespace Mapbox.VectorModule.Filters
 {
 	public abstract class FilterBaseObject : ScriptableObject, IFilterObject
 	{
+		[SerializeField, HideInInspector] private bool m_Active = true;
+		
 		public abstract ILayerFeatureFilterComparer Filter { get; }
 	}
 	

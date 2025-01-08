@@ -10,8 +10,8 @@ namespace Mapbox.VectorModule.MeshGeneration.Unity
     [CreateAssetMenu(menuName = "Mapbox/Filters/Vector Filter Stack")]
     public class VectorFilterStackObject : ScriptableObject
     {
-        [Expandable]
-        public List<FilterBaseObject> Filters;
+        public List<FilterBaseObject> Filters = new List<FilterBaseObject>(10);
+        
         public LayerFilterCombinerOperationType Type;
 
         public VectorFilterStack GetCombiner()
