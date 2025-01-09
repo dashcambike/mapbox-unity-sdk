@@ -2,20 +2,17 @@
 
 ### Installing the Package
 
-1. **Download and Extract the Mapbox Unity SDK**  
-   - Download the Mapbox Unity SDK v3.0.
+1. **Get the Mapbox Unity SDK v3.0**  
+   - Clone the Mapbox Unity SDK v3.0 branch to local.
 
-2. **Relocate the SDK Folder**  
-   - Move the extracted folder to its final location, as Unity will not automatically clone the files.
-
-3. **Open Unity Package Manager (UPM)**  
+2. **Open Unity Package Manager (UPM)**  
    - Open your Unity project and navigate to the Unity Package Manager.
 
-4. **Add the Package from Disk**  
+3. **Add the Package from Disk**  
    - Click the **`Add package from disk`** button in the top-left corner of the UPM window.
    - Locate and select the `package.json` file within the Mapbox folder.
 
-5. **Verify Installation**  
+4. **Verify Installation**  
    - The Mapbox Unity SDK package should now appear in the Unity Package Manager window.
 
 ---
