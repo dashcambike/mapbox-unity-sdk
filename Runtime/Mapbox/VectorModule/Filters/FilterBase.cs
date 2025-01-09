@@ -1,3 +1,5 @@
+using System;
+using System.ComponentModel;
 using Mapbox.BaseModule.Utilities;
 using UnityEngine;
 
@@ -10,9 +12,9 @@ namespace Mapbox.VectorModule.Filters
 		public abstract ILayerFeatureFilterComparer Filter { get; }
 	}
 	
-	public class FilterBase : ILayerFeatureFilterComparer
+	public abstract class FilterBase : ILayerFeatureFilterComparer
 	{
-		public virtual string Key { get { return ""; } }
+		
 
 		public virtual void Initialize()
 		{

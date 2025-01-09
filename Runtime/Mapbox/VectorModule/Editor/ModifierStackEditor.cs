@@ -23,8 +23,6 @@ public class ModifierStackEditor : Editor
     
     private void OnEnable()
     {
-        
-
         m_MeshModifiers = serializedObject.FindProperty(nameof(ModifierStackObject.MeshModifiers));
         m_Editors.Add(m_MeshModifiers, new List<Editor>());
         m_GoModifiers = serializedObject.FindProperty(nameof(ModifierStackObject.GoModifiers));
@@ -41,7 +39,7 @@ public class ModifierStackEditor : Editor
         if(m_FilterStack == null || m_FilterStack.objectReferenceValue == null)
         {
             ScriptableObject component = CreateInstance(nameof(VectorFilterStackObject));
-            component.name = $"New_{nameof(VectorFilterStackObject)}";
+            component.name = $"FilterStack";
             if (EditorUtility.IsPersistent(target))
             {
                 AssetDatabase.AddObjectToAsset(component, target);
@@ -50,8 +48,6 @@ public class ModifierStackEditor : Editor
             _filterEditor = CreateEditor(component);
             m_FilterStack.objectReferenceValue = component;
             serializedObject.ApplyModifiedProperties();
-            var success = AssetDatabase.TryGetGUIDAndLocalFileIdentifier(component, out var guid, out long localId);
-            Debug.Log(success);
         }
     }
 
@@ -74,13 +70,7 @@ public class ModifierStackEditor : Editor
         if (_filterEditor != null)
         {
             CoreEditorUtils.DrawSplitter();
-            EditorGUI.BeginChangeCheck();
             _filterEditor.OnInspectorGUI();
-            if (EditorGUI.EndChangeCheck())
-            {
-                serializedObject.ApplyModifiedProperties();
-                AssetDatabase.SaveAssets();
-            }
             CoreEditorUtils.DrawSplitter();
         }
 
@@ -95,21 +85,29 @@ public class ModifierStackEditor : Editor
     
     private void DrawMeshModifiers(SerializedProperty property, Type type)
     {
-        if (property.arraySize == 0)
+        try
         {
-            EditorGUILayout.HelpBox("No modifiers added", MessageType.Info);
-        }
-        else
-        {
-            //Draw List
-            CoreEditorUtils.DrawSplitter();
-            for (int i = 0; i < property.arraySize; i++)
+            if (property.arraySize == 0)
             {
-                SerializedProperty renderFeaturesProperty = property.GetArrayElementAtIndex(i);
-                DrawModifier(property, i, ref renderFeaturesProperty);
+                EditorGUILayout.HelpBox("No modifiers added", MessageType.Info);
+            }
+            else
+            {
+                //Draw List
                 CoreEditorUtils.DrawSplitter();
+                for (int i = 0; i < property.arraySize; i++)
+                {
+                    SerializedProperty renderFeaturesProperty = property.GetArrayElementAtIndex(i);
+                    DrawModifier(property, i, ref renderFeaturesProperty);
+                    CoreEditorUtils.DrawSplitter();
+                }
             }
         }
+        catch (Exception e)
+        {
+            
+        }
+
         EditorGUILayout.Space();
         if (GUILayout.Button("Add Modifier", EditorStyles.miniButton))
         {
@@ -140,7 +138,7 @@ public class ModifierStackEditor : Editor
         serializedObject.Update();
 
         ScriptableObject component = CreateInstance((string)type);
-        component.name = $"New{(string)type}";
+        component.name = $"{(string)type}";
         Undo.RegisterCreatedObjectUndo(component, "Add modifier");
 
         // Store this new effect as a sub-asset so we can reference it safely afterwards
@@ -189,22 +187,23 @@ public class ModifierStackEditor : Editor
             // ObjectEditor
             if (displayContent)
             {
-                EditorGUI.BeginChangeCheck();
-                SerializedProperty nameProperty = serializedModifierEditor.FindProperty("m_Name");
-                nameProperty.stringValue =
-                    ValidateName(EditorGUILayout.DelayedTextField(new GUIContent("Name"), nameProperty.stringValue));
-
-                if (EditorGUI.EndChangeCheck())
-                {
-                    hasChangedProperties = true;
-
-                    // We need to update sub-asset name
-                    modifierObjRef.name = nameProperty.stringValue;
-                    AssetDatabase.SaveAssets();
-
-                    // Triggers update for sub-asset name change
-                    ProjectWindowUtil.ShowCreatedAsset(target);
-                }
+                EditorGUILayout.Space();
+                // EditorGUI.BeginChangeCheck();
+                // SerializedProperty nameProperty = serializedModifierEditor.FindProperty("m_Name");
+                // nameProperty.stringValue =
+                //     ValidateName(EditorGUILayout.DelayedTextField(new GUIContent("Name"), nameProperty.stringValue));
+                //
+                // if (EditorGUI.EndChangeCheck())
+                // {
+                //     hasChangedProperties = true;
+                //
+                //     // We need to update sub-asset name
+                //     modifierObjRef.name = nameProperty.stringValue;
+                //     AssetDatabase.SaveAssets();
+                //
+                //     // Triggers update for sub-asset name change
+                //     ProjectWindowUtil.ShowCreatedAsset(target);
+                // }
 
                 EditorGUI.BeginChangeCheck();
                 modifierEditor.OnInspectorGUI();

@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using Mapbox.BaseModule.Utilities;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -6,6 +7,8 @@ using UnityEngine.Serialization;
 namespace Mapbox.VectorModule.Filters
 {
     [CreateAssetMenu(menuName = "Mapbox/Filters/Data Filter")]
+    [DisplayName("Data Filter")]
+
     public class FeatureDataFilterObject : FilterBaseObject
     {
         [FormerlySerializedAs("Operation")] public FilterCheckOperation checkOperation;

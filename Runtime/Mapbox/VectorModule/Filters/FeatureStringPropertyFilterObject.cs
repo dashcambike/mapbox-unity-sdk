@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Mapbox.BaseModule.Utilities;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -7,6 +8,7 @@ using UnityEngine.Serialization;
 namespace Mapbox.VectorModule.Filters
 {
 	[CreateAssetMenu(menuName = "Mapbox/Filters/Type Filter")]
+	[DisplayName("String Property Filter")]
 	public class FeatureStringPropertyFilterObject : FilterBaseObject
 	{
 		[NonSerialized] private FeatureStringPropertyFilter _filter;
