@@ -27,12 +27,31 @@ namespace Mapbox.Directions
 		{
 			this.profile = profile;
 		}
+		
+		public static RoutingProfile GetProfile(RoutingProfileOptions option)
+		{
+			switch (option)
+			{
+				case RoutingProfileOptions.Driving: return RoutingProfile.Driving; break;
+				case RoutingProfileOptions.Walking: return RoutingProfile.Walking; break;
+				case RoutingProfileOptions.Cycling: return RoutingProfile.Cycling; break;
+			}
+
+			return RoutingProfile.Driving;
+		}
 
 		/// <summary> Converts the profile to a URL snippet. </summary>
 		/// <returns> A string to be appened to the direction query URL. </returns>
 		public override string ToString()
 		{
 			return this.profile;
+		}
+		
+		public enum RoutingProfileOptions
+		{
+			Driving,
+			Walking,
+			Cycling
 		}
 	}
 }

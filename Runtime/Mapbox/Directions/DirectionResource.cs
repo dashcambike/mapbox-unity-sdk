@@ -4,6 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+using System.Linq;
 using Mapbox.BaseModule.Data.Platform;
 using Mapbox.BaseModule.Data.Vector2d;
 using Mapbox.BaseModule.Utilities;
@@ -23,7 +24,7 @@ namespace Mapbox.Directions
 		private RoutingProfile profile;
 
 		// Optional
-		private Vector2d[] coordinates;
+		private LatitudeLongitude[] coordinates;
 
 		// Optional
 		private bool? alternatives;
@@ -50,7 +51,7 @@ namespace Mapbox.Directions
 		/// <param name="profile">
 		///     A routing profile, <see cref="RoutingProfile"/> for all profile options.
 		/// </param>
-		public DirectionResource(Vector2d[] coordinates, RoutingProfile profile)
+		public DirectionResource(LatitudeLongitude[] coordinates, RoutingProfile profile)
 		{
 			this.Coordinates = coordinates;
 			this.RoutingProfile = profile;
@@ -67,7 +68,7 @@ namespace Mapbox.Directions
 		///     Gets or sets the coordinates. Array of LatLng points along route,
 		///     between 2 and 25 elements in length.
 		/// </summary>
-		public Vector2d[] Coordinates {
+		public LatitudeLongitude[] Coordinates {
 			get {
 				return this.coordinates;
 			}
@@ -239,7 +240,7 @@ namespace Mapbox.Directions
 			return Constants.Map.BaseAPI +
 							this.ApiEndpoint +
 							this.RoutingProfile +
-							GetUrlQueryFromArray<Vector2d>(this.Coordinates, ";") +
+							string.Join(";", this.Coordinates.Select(item => item.ToStringLonLat()).ToArray()) +
 							".json" +
 							EncodeQueryString(opts);
 		}
