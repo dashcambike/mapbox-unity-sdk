@@ -4,16 +4,14 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+using System.Collections.Generic;
 using Mapbox.BaseModule.Data.Vector2d;
 using Mapbox.BaseModule.Utilities.JsonConverters;
 using Newtonsoft.Json;
 
-namespace Mapbox.Directions
+namespace Mapbox.Directions.Response
 {
-    using System.Collections.Generic;
-    using Mapbox.Utils;
-
-    /// <summary>
+	/// <summary>
     /// A step from a Directions API call.
     /// </summary>
     public class Step

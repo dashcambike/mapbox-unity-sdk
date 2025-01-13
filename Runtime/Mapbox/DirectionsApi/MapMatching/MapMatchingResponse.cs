@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 
-namespace Mapbox.BaseModule.Map.MapMatching
+namespace Mapbox.Directions.MapMatching
 {
 	/// <summary> Base geocode response. </summary>
 #if !WINDOWS_UWP

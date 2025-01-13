@@ -7,7 +7,7 @@
 
 using Mapbox.BaseModule.Utilities.Attributes;
 
-namespace Mapbox.BaseModule.Map.MapMatching
+namespace Mapbox.Directions.MapMatching
 {
 	/// <summary>Directions profile id</summary>
 	public enum Profile

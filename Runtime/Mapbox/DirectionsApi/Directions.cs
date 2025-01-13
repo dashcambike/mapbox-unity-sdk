@@ -7,6 +7,7 @@
 using Mapbox.BaseModule.Data.DataFetchers;
 using Mapbox.BaseModule.Data.Platform;
 using Mapbox.BaseModule.Utilities.JsonConverters;
+using Mapbox.Directions.Response;
 using Newtonsoft.Json;
 
 namespace Mapbox.Directions
@@ -42,7 +43,7 @@ namespace Mapbox.Directions
 		{
 			return _fileSource.Request(
 				direction.GetUrl(),
-				(Response response) =>
+				response =>
 				{
 					var str = Encoding.UTF8.GetString(response.Data);
 

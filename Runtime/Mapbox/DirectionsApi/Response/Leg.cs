@@ -4,13 +4,11 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Mapbox.Directions
+namespace Mapbox.Directions.Response
 {
-	using System.Collections.Generic;
-
-
 	/// <summary>
 	/// A Leg from a Directions API call.
 	/// </summary>

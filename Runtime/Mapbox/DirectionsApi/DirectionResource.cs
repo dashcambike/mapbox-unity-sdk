@@ -13,7 +13,6 @@ namespace Mapbox.Directions
 {
     using System;
     using System.Collections.Generic;
-    using Mapbox.Utils;
 
     /// <summary> A directions request. </summary>
     public class DirectionResource : Resource

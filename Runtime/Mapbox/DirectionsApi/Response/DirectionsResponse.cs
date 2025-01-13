@@ -4,12 +4,11 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Mapbox.Directions {
-	using System;
-	using System.Collections.Generic;
-
+namespace Mapbox.Directions.Response {
 	/// <summary>
 	/// Directions response.
 	/// </summary>

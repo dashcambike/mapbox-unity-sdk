@@ -6,7 +6,7 @@
 
 using Newtonsoft.Json;
 
-namespace Mapbox.Directions
+namespace Mapbox.Directions.Response
 {
 	/// <summary>
 	/// <para>An annotations object contains additional details about each line segment along the route geometry.</para>

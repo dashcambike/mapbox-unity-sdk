@@ -4,10 +4,10 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-using Mapbox.Directions;
+using Mapbox.Directions.Response;
 using Newtonsoft.Json;
 
-namespace Mapbox.BaseModule.Map.MapMatching
+namespace Mapbox.Directions.MapMatching
 {
 	/// <summary>
     /// A Waypoint from a Directions API call.

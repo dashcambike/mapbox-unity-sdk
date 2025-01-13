@@ -10,7 +10,7 @@ using Mapbox.BaseModule.Data.Platform;
 using Mapbox.BaseModule.Utilities.JsonConverters;
 using Newtonsoft.Json;
 
-namespace Mapbox.BaseModule.Map.MapMatching
+namespace Mapbox.Directions.MapMatching
 {
 	/// <summary>
 	///     Wrapper around the <see href="https://www.mapbox.com/api-documentation/navigation/#map-matching">
@@ -43,7 +43,7 @@ namespace Mapbox.BaseModule.Map.MapMatching
 			string url = match.GetUrl();
 			return _fileSource.Request(
 				url,
-				(Response response) =>
+				(BaseModule.Data.Platform.Response response) =>
 				{
 					var str = Encoding.UTF8.GetString(response.Data);
 					var data = Deserialize<MapMatchingResponse>(str);

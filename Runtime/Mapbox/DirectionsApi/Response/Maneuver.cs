@@ -7,11 +7,9 @@
 using Mapbox.BaseModule.Data.Vector2d;
 using Newtonsoft.Json;
 
-namespace Mapbox.Directions
+namespace Mapbox.Directions.Response
 {
-    using Mapbox.Utils;
-
-    /// <summary>
+	/// <summary>
     /// A Maneuver from a directions API call.
     /// </summary>
     public class Maneuver
