@@ -16,14 +16,14 @@ namespace Mapbox.DirectionsApi.MapMatching
 	///     Wrapper around the <see href="https://www.mapbox.com/api-documentation/navigation/#map-matching">
 	///     Mapbox Map Matching API</see>.
 	/// </summary>
-	public class MapMatcher
+	public class MapboxMapMatcherApi
 	{
 		private readonly IFileSource _fileSource;
 		private int _timeout;
 
-		/// <summary> Initializes a new instance of the <see cref="MapMatcher" /> class. </summary>
+		/// <summary> Initializes a new instance of the <see cref="MapboxMapMatcherApi" /> class. </summary>
 		/// <param name="fileSource"> Network access abstraction. </param>
-		public MapMatcher(IFileSource fileSource, int timeout)
+		public MapboxMapMatcherApi(IFileSource fileSource, int timeout)
 		{
 			_fileSource = fileSource;
 			_timeout = timeout;

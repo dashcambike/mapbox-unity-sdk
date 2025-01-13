@@ -19,13 +19,13 @@ namespace Mapbox.DirectionsApi
     ///     Mapbox Directions API</see>. The Mapbox Directions API will show you how to get where
     ///     you're going.
     /// </summary>
-    public sealed class DirectionsApi
+    public sealed class MapboxDirectionsApi
 	{
 		private readonly IFileSource _fileSource;
 		
-		/// <summary> Initializes a new instance of the <see cref="DirectionsApi" /> class. </summary>
+		/// <summary> Initializes a new instance of the <see cref="MapboxDirectionsApi" /> class. </summary>
 		/// <param name="fileSource"> Data source abstraction. </param>
-		public DirectionsApi(IFileSource fileSource)
+		public MapboxDirectionsApi(IFileSource fileSource)
 		{
 			_fileSource = fileSource;
 		}

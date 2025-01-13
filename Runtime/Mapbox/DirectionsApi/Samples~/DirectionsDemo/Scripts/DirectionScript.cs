@@ -22,7 +22,7 @@ namespace Mapbox.DirectionsApi.Samples
 		public MapBehaviourCore MapCore;
 		private IFileSource _fileSource;
 		private IMapInformation _mapInformation;
-		private DirectionsApi _directions;
+		private MapboxDirectionsApi _mapboxDirections;
 		private Camera _camera;
 
 		public GameObject Label;
@@ -70,14 +70,14 @@ namespace Mapbox.DirectionsApi.Samples
 			{
 				if (_fileSource == null)
 					_fileSource = map.MapService.FileSource;
-				_directions = new DirectionsApi(_fileSource);
+				_mapboxDirections = new MapboxDirectionsApi(_fileSource);
 				_mapInformation = map.mapInformation;
 			};
 		}
 
 		public void Update()
 		{
-			if (_directions == null) return;
+			if (_mapboxDirections == null) return;
 
 			Label.transform.position = _camera.WorldToScreenPoint(FirstPoint);
 
@@ -128,7 +128,7 @@ namespace Mapbox.DirectionsApi.Samples
 				Alternatives = false
 			};
 
-			_directions.Query(directionParameters, response =>
+			_mapboxDirections.Query(directionParameters, response =>
 			{
 				if (response == null)
 					return;
