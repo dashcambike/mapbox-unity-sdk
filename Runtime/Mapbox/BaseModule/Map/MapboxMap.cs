@@ -15,14 +15,14 @@ namespace Mapbox.BaseModule.Map
         [NonSerialized] public IMapVisualizer MapVisualizer;
         [NonSerialized] public TileCover TileCover;
         [NonSerialized] public InitializationStatus Status = InitializationStatus.WaitingForInitialization;
-        
-        private MapService _mapService;
-        
-        public MapboxMap(IMapInformation information, MapService mapService)
+
+        public MapService MapService { get; private set; }
+
+        public MapboxMap(IMapInformation information, MapService mapMapService)
         {
             mapInformation = information;
             TileCover = new TileCover();
-            _mapService = mapService;
+            MapService = mapMapService;
         }
 
         public IEnumerator Initialize()
@@ -39,7 +39,7 @@ namespace Mapbox.BaseModule.Map
 
         public void MapUpdated()
         {
-            _mapService.TileCover(mapInformation, TileCover);
+            MapService.TileCover(mapInformation, TileCover);
             MapVisualizer.Load(TileCover);
         }
 
@@ -51,7 +51,7 @@ namespace Mapbox.BaseModule.Map
         public IEnumerator LoadMapViewCoroutine(Action callback)
         {
             var tileCover = new TileCover();
-            _mapService.TileCover(mapInformation, tileCover);
+            MapService.TileCover(mapInformation, tileCover);
             yield return MapVisualizer.LoadTileCoverToMemory(tileCover);
             if (Status == InitializationStatus.Initialized)
             {
@@ -74,11 +74,10 @@ namespace Mapbox.BaseModule.Map
         public void OnDestroy()
         {
             MapVisualizer?.OnDestroy();
-            _mapService.OnDestroy();
+            MapService.OnDestroy();
         }
 
-        public void UpdateTileCover() => _mapService.TileCover(mapInformation, TileCover);
-        public MapService GetMapService() => _mapService;
+        public void UpdateTileCover() => MapService.TileCover(mapInformation, TileCover);
     }
 }
 

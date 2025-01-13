@@ -3,11 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Mapbox.BaseModule.Data;
+using Mapbox.BaseModule.Data.DataFetchers;
+using Mapbox.BaseModule.Data.Platform;
 using Mapbox.BaseModule.Data.Platform.Cache;
 using Mapbox.BaseModule.Data.Vector2d;
 using Mapbox.BaseModule.Map;
 using Mapbox.BaseModule.Utilities;
 using Mapbox.Directions;
+using Mapbox.Example.Scripts.ModuleBehaviours;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -15,40 +18,65 @@ using UnityEngine.UI;
 public class DirectionScript : MonoBehaviour
 {
 	public MapBehaviourCore MapCore;
+	private IFileSource _fileSource;
 	private IMapInformation _mapInformation;
 	private Directions _directions;
 	private Camera _camera;
 
 	public GameObject Label;
 	public string _labelFormat = "Distance : {0}";
-
-	public RoutingProfile.RoutingProfileOptions RoutingOption;
-	public Vector3 FirstPoint;
-	public LatitudeLongitude FirstLatLng;
-	public Vector3 SecondPoint;
-	public LatitudeLongitude SecondLatLng;
-	public bool IsFirstPointSet = false;
-	public bool IsSecondPointSet = false;
-
-	[SerializeField] private GameObject startMarker;
-	[SerializeField] private GameObject finishMarker;
+	
+	private Vector3 FirstPoint;
+	private LatitudeLongitude FirstLatLng;
+	private Vector3 SecondPoint;
+	private LatitudeLongitude SecondLatLng;
+	private bool IsFirstPointSet = false;
+	private bool IsSecondPointSet = false;
+	private GameObject startMarker;
+	private GameObject finishMarker;
 	private List<GameObject> _gos;
 	private float _goScale = 50;
-
+	private Material _material;
+	
+	public RoutingProfile.RoutingProfileOptions RoutingOption;
+	
 	public void Start()
 	{
+		startMarker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+		startMarker.transform.parent = transform;
+		startMarker.transform.localScale = Vector3.one * 0.2f;
+		startMarker.SetActive(false);
+		var mat1 = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+		mat1.color = new Color(134f/255, 255f / 255, 121f/255, 1);
+		startMarker.GetComponent<MeshRenderer>().material = mat1;
+		
+		finishMarker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+		finishMarker.transform.parent = transform;
+		finishMarker.transform.localScale = Vector3.one * 0.2f;
+		finishMarker.SetActive(false);
+		var mat2 = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+		mat2.color = new Color(85f/255, 217f/255, 248f/255, 1);
+		finishMarker.GetComponent<MeshRenderer>().material = mat2;
+		
+		
+		_material = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+		_material.color = new Color(1, 132f / 255, 0, 1);
 		_camera = Camera.main;
-		var mapboxContext = new MapboxContext();
-
 		_gos = new List<GameObject>();
-		_directions =
-			new Directions(
-				new ResilientWebRequestFileSource(mapboxContext.GetAccessToken(), mapboxContext.GetSkuToken));
-		MapCore.Initialized += map => { _mapInformation = map.mapInformation; };
+		
+		MapCore.Initialized += map =>
+		{
+			if(_fileSource == null)
+				_fileSource = map.MapService.FileSource;
+			_directions = new Directions(_fileSource);
+			_mapInformation = map.mapInformation;
+		};
 	}
 
 	public void Update()
 	{
+		if (_directions == null) return;
+		
 		Label.transform.position = _camera.WorldToScreenPoint(FirstPoint);
 
 		if (Input.GetKey(KeyCode.LeftCommand) && Input.GetMouseButtonDown(0))
@@ -87,7 +115,7 @@ public class DirectionScript : MonoBehaviour
 		}
 	}
 
-	private async void CreateRequest()
+	private void CreateRequest()
 	{
 		var directionParameters = new DirectionResource(new[]
 		{
@@ -118,7 +146,6 @@ public class DirectionScript : MonoBehaviour
 				};
 
 				var meshData = new MeshData();
-				//_stackObject.RunMeshModifiers(vectorEntity.Feature, meshData, _mapInformation);
 				var lineMeshCore = new LineMeshCore(new LineMeshParameters()
 				{
 					Width = 10
@@ -137,10 +164,11 @@ public class DirectionScript : MonoBehaviour
 					vertices = meshData.Vertices.ToArray(),
 					triangles = meshData.Triangles[0].ToArray()
 				};
+				vectorEntity.GameObject.transform.position += new Vector3(0.0f, 1 / _mapInformation.Scale, 0.0f);
+				vectorEntity.MeshRenderer.material = _material;
 				_gos.Add(vectorEntity.GameObject);
 			}
-
-
+			
 			Label.GetComponentInChildren<Text>().text = string.Format(_labelFormat, response.Routes[0].Distance);
 			Label.SetActive(true);
 		});

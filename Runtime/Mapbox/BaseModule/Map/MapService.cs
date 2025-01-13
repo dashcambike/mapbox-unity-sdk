@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Mapbox.BaseModule.Data.DataFetchers;
 using Mapbox.BaseModule.Data.Interfaces;
+using Mapbox.BaseModule.Data.Platform;
 using Mapbox.BaseModule.Unity;
 
 namespace Mapbox.BaseModule.Map
@@ -9,13 +10,10 @@ namespace Mapbox.BaseModule.Map
     {
         protected UnityContext _unityContext;
         protected MapboxContext _mapboxContext;
-        protected List<Source> _dataSources;
+        protected List<Source> _dataSources = new();
         private bool _allSourcesReady = false;
-        
-        protected MapService()
-        {
-            _dataSources = new List<Source>();
-        }
+
+        public virtual IFileSource FileSource => null;
 
         public bool IsReady()
         {

@@ -4,6 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+using Mapbox.BaseModule.Data.DataFetchers;
 using Mapbox.BaseModule.Data.Platform;
 using Mapbox.BaseModule.Utilities.JsonConverters;
 using Newtonsoft.Json;
@@ -20,13 +21,13 @@ namespace Mapbox.Directions
     /// </summary>
     public sealed class Directions
 	{
-		private readonly IFileSource fileSource;
-
+		private readonly IFileSource _fileSource;
+		
 		/// <summary> Initializes a new instance of the <see cref="Directions" /> class. </summary>
-		/// <param name="fileSource"> Network access abstraction. </param>
+		/// <param name="fileSource"> Data source abstraction. </param>
 		public Directions(IFileSource fileSource)
 		{
-			this.fileSource = fileSource;
+			_fileSource = fileSource;
 		}
 
 		/// <summary> Performs asynchronously a directions lookup. </summary>
@@ -39,7 +40,7 @@ namespace Mapbox.Directions
 		/// </returns>
 		public IAsyncRequest Query(DirectionResource direction, Action<DirectionsResponse> callback)
 		{
-			return this.fileSource.Request(
+			return _fileSource.Request(
 				direction.GetUrl(),
 				(Response response) =>
 				{
@@ -56,7 +57,7 @@ namespace Mapbox.Directions
 		/// </summary>
 		/// <param name="str">JSON String.</param>
 		/// <returns>A <see cref="DirectionsResponse"/>.</returns>
-		public DirectionsResponse Deserialize(string str)
+		private DirectionsResponse Deserialize(string str)
 		{
 			return JsonConvert.DeserializeObject<DirectionsResponse>(str, JsonConverters.Converters);
 		}

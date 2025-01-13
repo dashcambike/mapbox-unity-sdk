@@ -3,6 +3,7 @@ using System.Linq;
 using Mapbox.BaseModule;
 using Mapbox.BaseModule.Data.DataFetchers;
 using Mapbox.BaseModule.Data.Interfaces;
+using Mapbox.BaseModule.Data.Platform;
 using Mapbox.BaseModule.Data.Platform.Cache;
 using Mapbox.BaseModule.Data.Platform.Cache.SQLiteCache;
 using Mapbox.BaseModule.Map;
@@ -23,6 +24,8 @@ namespace Mapbox.UnityMapService
 		private MapboxCacheManager _cacheManager;
 		private DataFetchingManager _fetchingManager;
 
+		public override IFileSource FileSource => _fetchingManager;
+
 		public MapUnityService(
 			UnityContext unityContext,
 			MapboxContext mapboxContext,
@@ -32,11 +35,9 @@ namespace Mapbox.UnityMapService
 		{
 			_unityContext = unityContext;
 			_mapboxContext = mapboxContext;
-			//_unityContext.TileDefaultMaterial?.SetFloat("_FlipUV", 0);
 			_tileProvider = tileProvider;
 			_fetchingManager = fetchingManager ?? new DataFetchingManager(mapboxContext.GetAccessToken(), mapboxContext.GetSkuToken);
 			_cacheManager = cacheManager ?? new MapboxCacheManager(unityContext, new MemoryCache(), new FileCache(_unityContext.TaskManager), new SqliteCache(_unityContext.TaskManager, 1000));
-			//_sourceFactory = GetObject<ISourceFactory>();
 		}
 
 		private T GetObject<T>()
@@ -87,8 +88,6 @@ namespace Mapbox.UnityMapService
 			_dataSources.Add(vectorSource);
 			return vectorSource;
 		}
-
-		public TileProvider GetTileProvider() => _tileProvider;
 		
 		public MapboxCacheManager GetCacheManager() => _cacheManager;
 		public DataFetchingManager GetFetchingManager() => _fetchingManager;
