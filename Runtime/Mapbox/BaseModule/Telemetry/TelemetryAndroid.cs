@@ -36,7 +36,7 @@ namespace Mapbox.BaseModule.Telemetry
 		private string _mapsMausEnumName = "MAPS_MAUS";
 		private string _mapboxTurnstileEventClassName = "com.mapbox.common.TurnstileEvent";
 		private string _sendTurnstileEventMethodName = "sendTurnstileEvent";
-		private string _mapboxSdkInformationName = "Unity_SDK_" + Application.unityVersion;
+		private string _mapboxSdkInformationName = "Unity_SDK";
 		private string _mapboxSdkInformationVersion = "3.0.0";
 		private string _mapboxSdkInformationPackageName = "package_Name";
 		private string _eventsServiceNullMessage = "events service null";
