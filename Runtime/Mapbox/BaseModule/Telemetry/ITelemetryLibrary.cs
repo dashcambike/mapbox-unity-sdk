@@ -5,5 +5,6 @@ namespace Mapbox.BaseModule.Telemetry
 		void Initialize(string accessToken);
 		void SendTurnstile();
 		void SetLocationCollectionState(bool enable);
+		void SendSdkEvent();
 	}
 }

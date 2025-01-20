@@ -20,7 +20,9 @@ namespace Mapbox.BaseModule.Telemetry
 		
 		[DllImport("__Internal")] private static extern void setEventsCollectionStateForEnableCollection(bool state);
 		
-		[DllImport("__Internal")] private static extern void sendTurnstileEvent();
+		[DllImport("__Internal")] private static extern void sendTurnstileEvent(string sdkIdentifier, string version);
+		
+		[DllImport("__Internal")] private static extern void sendSdkEvent(string sdkIdentifier, string version);
 		
 
 		public void Initialize(string accessToken)
@@ -51,7 +53,12 @@ namespace Mapbox.BaseModule.Telemetry
 
 		public void SendTurnstile()
 		{
-			sendTurnstileEvent();
+			sendTurnstileEvent(Constants.SDK_IDENTIFIER, Constants.SDK_VERSION);
+		}
+
+		public void SendSdkEvent()
+		{
+			sendSdkEvent(Constants.SDK_IDENTIFIER, Constants.SDK_VERSION);
 		}
 
 		public void SetLocationCollectionState(bool enable)

@@ -25,5 +25,10 @@ namespace Mapbox.BaseModule.Telemetry
 		{
 			// empty.
 		}
+
+		public void SendSdkEvent()
+		{
+			// empty.
+		}
 	}
 }

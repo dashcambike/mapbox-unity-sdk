@@ -36,6 +36,10 @@ namespace Mapbox.BaseModule.Telemetry
 				PlayerPrefs.SetString(Constants.Path.TELEMETRY_TURNSTILE_LAST_TICKS_FALLBACK_KEY, ticks.ToString());
 			}
 		}
+		
+		public void SendSdkEvent()
+		{
+		}
 
 		string GetPostBody()
 		{
@@ -104,9 +108,7 @@ namespace Mapbox.BaseModule.Telemetry
 
 		private string GetSDKIdentifier()
 		{
-			var sdkIdentifier = string.Format("MapboxEventsUnity{0}",
-										  Application.platform
-										 );
+			var sdkIdentifier = string.Format("MapboxEventsUnity{0}", Application.platform);
 			return sdkIdentifier;
 		}
 

@@ -38,6 +38,10 @@ namespace Mapbox.BaseModule.Telemetry
 			}
 		}
 
+		public void SendSdkEvent()
+		{
+		}
+
 		string GetPostBody()
 		{
 			List<Dictionary<string, object>> eventList = new List<Dictionary<string, object>>();

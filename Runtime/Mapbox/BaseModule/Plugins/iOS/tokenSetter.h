@@ -5,5 +5,6 @@ extern "C" {
     char* getAccessToken();
     MBXTelemetryService* getOrCreateTelemetryService();
     void setEventsCollectionStateForEnableCollection(bool state);
-    void sendTurnstileEvent();
+    void sendTurnstileEvent(const char* sdkIdentifier, const char* version);
+    void sendSdkEvent(const char* sdkIdentifier, const char* version);
 }

@@ -4,8 +4,9 @@ namespace Mapbox.BaseModule.Utilities
 {
 	public static class Constants
 	{
-		public const string SDK_VERSION = "2.1.1";
+		public const string SDK_VERSION = "3.0.0";
 		public const string SDK_SKU_ID = "05";
+		public const string SDK_IDENTIFIER = "Unity_SDK";
 
 		public static class Map
 		{
