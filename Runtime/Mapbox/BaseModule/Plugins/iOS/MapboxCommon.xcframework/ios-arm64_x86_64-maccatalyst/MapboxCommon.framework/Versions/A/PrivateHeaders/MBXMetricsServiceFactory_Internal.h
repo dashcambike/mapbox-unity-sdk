@@ -16,5 +16,6 @@ __attribute__((visibility ("default")))
 
 + (void)reset;
 + (nonnull MBXMetricsService *)getInstance __attribute((ns_returns_retained));
++ (nonnull MBXMetricsService *)getInstanceForLogging __attribute((ns_returns_retained));
 
 @end

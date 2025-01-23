@@ -6,6 +6,7 @@
 @interface MBXSettingsService ()
 - (nonnull MBXExpected<NSNull *, NSString *> *)setForKey:(nonnull NSString *)key
                                                    value:(nonnull id)value __attribute((ns_returns_retained));
+- (nonnull MBXExpected<NSNull *, NSString *> *)setFromFileForFilePath:(nonnull NSString *)filePath __attribute((ns_returns_retained));
 - (nonnull MBXExpected<id, NSString *> *)getForKey:(nonnull NSString *)key __attribute((ns_returns_retained));
 - (nonnull MBXExpected<id, NSString *> *)getForKey:(nonnull NSString *)key
                                       defaultValue:(nonnull id)defaultValue __attribute((ns_returns_retained));

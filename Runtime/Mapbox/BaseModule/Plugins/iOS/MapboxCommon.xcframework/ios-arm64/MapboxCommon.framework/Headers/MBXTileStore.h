@@ -2,11 +2,14 @@
 
 #import <Foundation/Foundation.h>
 #import <MapboxCommon/MBXTileDataDomain.h>
+#import <MapboxCommon/MBXTileRegionEstimateProgressCallback.h>
 #import <MapboxCommon/MBXTileRegionLoadProgressCallback.h>
 
 @class MBXResourceDescription;
 @class MBXResourceLoadOptions;
+@class MBXTileRegionEstimateOptions;
 @class MBXTileRegionLoadOptions;
+@class MBXTileStoreAmbientCacheFilterOptions;
 @class MBXTilesetDescriptor;
 @protocol MBXCancelable;
 @protocol MBXTileStoreObserver;
@@ -66,6 +69,7 @@ __attribute__((visibility ("default")))
  * Removes a tile region from the existing packages list. The actual resources
  * eviction might be deferred. All pending loading operations for the tile region
  * with the given id will fail with Canceled error.
+ * When a tile region is removed associated resources will move to the ambient cache.
  *
  * @param id The tile region identifier.
  */

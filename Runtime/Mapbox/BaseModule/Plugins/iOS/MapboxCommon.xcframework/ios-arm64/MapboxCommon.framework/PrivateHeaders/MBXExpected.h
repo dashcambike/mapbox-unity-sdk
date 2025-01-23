@@ -1,3 +1,6 @@
+#ifndef MBXExpected_h
+#define MBXExpected_h
+
 #import <Foundation/Foundation.h>
 
 NS_SWIFT_NAME(Expected)
@@ -13,3 +16,5 @@ __attribute__((visibility ("default")))
 @property (nonatomic, strong, readonly, null_unspecified) ErrorType error;
 
 @end
+
+#endif /* MBXExpected_h */

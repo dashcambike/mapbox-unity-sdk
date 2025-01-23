@@ -19,7 +19,7 @@ NS_SWIFT_NAME(HttpServiceInterface)
                      callback:(nonnull MBXHttpResponseCallback)callback;
 - (void)cancelRequestForId:(uint64_t)id_
                   callback:(nonnull MBXResultCallback)callback;
-- (BOOL)supportsKeepCompression;
+- (BOOL)supportsKeepCompression __attribute__((deprecated));
 - (uint64_t)downloadForOptions:(nonnull MBXDownloadOptions *)options
                       callback:(nonnull MBXDownloadStatusCallback)callback;
 - (uint64_t)uploadForOptions:(nonnull MBXUploadOptions *)options

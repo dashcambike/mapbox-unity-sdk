@@ -11,5 +11,6 @@ typedef NS_ENUM(NSInteger, MBXResourceLoadFlags)
     MBXResourceLoadFlagsForceLoad = 4,
     MBXResourceLoadFlagsSkipDataLoading = 8,
     MBXResourceLoadFlagsSkipDataTransfer = 24,
-    MBXResourceLoadFlagsForceExpired = 32
+    MBXResourceLoadFlagsForceExpired = 32,
+    MBXResourceLoadFlagsSkipDecompression = 64
 } NS_SWIFT_NAME(ResourceLoadFlags);

@@ -7,7 +7,7 @@
 #import <MapboxCommon/MBXTurnstileEvent_Internal.h>
 #import <MapboxCommon/MBXUserSKUIdentifier_Internal.h>
 #import <MapboxCommon/MBXTelemetryUtils_Internal.h>
-#import <MapboxCommon/MBXSdkInformation_Internal.h>
+#import <MapboxCommon/MBXSdkInformation.h>
 #import <MapboxCommon/MBXEventsServerOptions_Internal.h>
 
 NSString* CreateNSString (const char* string)
@@ -61,7 +61,7 @@ void sendTurnstileEvent(const char* sdkIdentifier, const char* sdkversion)
                                                                   deferredDeliveryServiceOptions:nil];
     MBXEventsService *service = [MBXEventsService getOrCreateForOptions:options];
     
-    MBXTurnstileEvent *turnstile = [[MBXTurnstileEvent alloc] initWithSkuId:MBXUserSKUIdentifierMapsMAUS];
+    MBXTurnstileEvent *turnstile = [[MBXTurnstileEvent alloc] initWithSkuId:MBXUserSKUIdentifierUnityMAUS];
     [service sendTurnstileEventForTurnstileEvent:turnstile callback:^(MBXExpected<NSNull *, MBXEventsServiceError *> * _Nonnull result) {
                 // place to check and log result if needed
             }];
@@ -75,7 +75,7 @@ void sendSdkEvent(const char* sdkIdentifier, const char* sdkversion)
     MBXBillingService *service = [MBXBillingServiceFactory getInstance];
     
     [service triggerUserBillingEventForSdkInformation:information
-                                         skuIdentifier:MBXUserSKUIdentifierMapsMAUS
+                                         skuIdentifier:MBXUserSKUIdentifierUnityMAUS
                                                callback:^(MBXBillingServiceError * _Nonnull error) {
         // No action needed in this block
     }];
@@ -84,7 +84,7 @@ void sendSdkEvent(const char* sdkIdentifier, const char* sdkversion)
 char* getUserSKUToken() 
 {
     MBXBillingService *service = [MBXBillingServiceFactory getInstance];
-    const NSString *nsStringUtf8 = [service getUserSKUTokenForSkuIdentifier:MBXUserSKUIdentifierMapsMAUS];
+    const NSString *nsStringUtf8 = [service getUserSKUTokenForSkuIdentifier:MBXUserSKUIdentifierUnityMAUS];
     return convertNSStringToCString(nsStringUtf8);
 }
 

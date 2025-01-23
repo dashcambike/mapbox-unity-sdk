@@ -9,12 +9,12 @@
 #import <MapboxCommon/MapboxFeatureTelemetry_Internal.h>
 #import <MapboxCommon/MapboxHttp_Internal.h>
 #import <MapboxCommon/MapboxHttpBackend_Internal.h>
+#import <MapboxCommon/MapboxMapboxOptions_Internal.h>
 #import <MapboxCommon/MapboxMeter_Internal.h>
 #import <MapboxCommon/MapboxLogging_Internal.h>
 #import <MapboxCommon/MapboxOfflineSwitch_Internal.h>
 #import <MapboxCommon/MapboxReachability_Internal.h>
 #import <MapboxCommon/MapboxSdkInfoRegistry_Internal.h>
-#import <MapboxCommon/MapboxSdkInformation_Internal.h>
 #import <MapboxCommon/MapboxSettingsService_Internal.h>
 #import <MapboxCommon/MapboxStream_Internal.h>
 #import <MapboxCommon/MapboxSystemInformation_Internal.h>
@@ -30,4 +30,8 @@
 #import <MapboxCommon/MapboxMovement_Internal.h>
 #import <MapboxCommon/MapboxMetrics_Internal.h>
 #import <MapboxCommon/MapboxMetricsService_Internal.h>
+#import <MapboxCommon/MapboxPersistentStorage_Internal.h>
 #import <MapboxCommon/NSStream+MBXAdditions.h>
+#import <MapboxCommon/MapboxGeofencing_Internal.h>
+#import <MapboxCommon/MapboxMemoryMonitor_Internal.h>
+#import <MapboxCommon/MapboxWssBackend_Internal.h>

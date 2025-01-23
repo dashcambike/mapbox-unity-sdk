@@ -8,5 +8,6 @@ typedef NS_ENUM(NSInteger, MBXResourceLoadErrorType)
     MBXResourceLoadErrorTypeErrored,
     MBXResourceLoadErrorTypeUnsatisfied,
     MBXResourceLoadErrorTypeCanceled,
-    MBXResourceLoadErrorTypeInvalidArgument
+    MBXResourceLoadErrorTypeInvalidArgument,
+    MBXResourceLoadErrorTypeInsufficientStorage
 } NS_SWIFT_NAME(ResourceLoadErrorType);

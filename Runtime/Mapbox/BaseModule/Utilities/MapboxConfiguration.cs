@@ -32,7 +32,7 @@ namespace Mapbox.BaseModule.Utilities
 			private string _mapboxBillingFactoryGetMethodName = "getInstance";
 			private string _mapboxSdkInformationClassName = "com.mapbox.common.SdkInformation";
 			private string _mapboxUserSkuIdentifierClassName = "com.mapbox.common.UserSKUIdentifier";
-			private string _mapsMausEnumName = "MAPS_MAUS";
+			private string _unityMausEnumName = "UNITY_MAUS";
 			private string _mapboxSdkInformationName = "Unity_SDK";
 			private string _mapboxSdkInformationVersion = "3.0.0";
 			private string _mapboxSdkInformationPackageName = "package_Name";
@@ -44,7 +44,7 @@ namespace Mapbox.BaseModule.Utilities
 				var billingService = billingServiceFactory.CallStatic<AndroidJavaObject>(_mapboxBillingFactoryGetMethodName);
 			
 				var skuid = new AndroidJavaObject(_mapboxUserSkuIdentifierClassName);
-				return billingService.Call<string>(_mapboxSkuTokenMethodName, skuid.GetStatic<AndroidJavaObject>(_mapsMausEnumName));
+				return billingService.Call<string>(_mapboxSkuTokenMethodName, skuid.GetStatic<AndroidJavaObject>(_unityMausEnumName));
 			}
 		#endif
 	}

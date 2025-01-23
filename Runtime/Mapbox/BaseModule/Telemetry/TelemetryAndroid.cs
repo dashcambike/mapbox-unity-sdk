@@ -40,7 +40,7 @@ namespace Mapbox.BaseModule.Telemetry
 		private string _mapboxSdkEventMethodName = "triggerUserBillingEvent";
 
 		//Turnstile
-		private string _mapsMausEnumName = "MAPS_MAUS";
+		private string _unityMausEnumName = "UNITY_MAUS";
 		private string _mapboxTurnstileEventClassName = "com.mapbox.common.TurnstileEvent";
 		private string _sendTurnstileEventMethodName = "sendTurnstileEvent";
 		private string _mapboxSdkInformationName = "Unity_SDK";
@@ -105,7 +105,7 @@ namespace Mapbox.BaseModule.Telemetry
 					}
 
 					var skuid = new AndroidJavaObject(_mapboxUserSkuIdentifierClassName);
-					using (AndroidJavaObject turnstileEvent = new AndroidJavaObject(_mapboxTurnstileEventClassName, skuid.GetStatic<AndroidJavaObject>(_mapsMausEnumName)))
+					using (AndroidJavaObject turnstileEvent = new AndroidJavaObject(_mapboxTurnstileEventClassName, skuid.GetStatic<AndroidJavaObject>(_unityMausEnumName)))
 					{
 						_mapboxEventService.Call(_sendTurnstileEventMethodName, turnstileEvent, null);
 					}
@@ -125,7 +125,7 @@ namespace Mapbox.BaseModule.Telemetry
 				       _mapboxSdkInformationPackageName))
 			{
 				var skuid = new AndroidJavaObject(_mapboxUserSkuIdentifierClassName);
-				billingService.Call(_mapboxSdkEventMethodName, sdkInformation, skuid.GetStatic<AndroidJavaObject>(_mapsMausEnumName), null);
+				billingService.Call(_mapboxSdkEventMethodName, sdkInformation, skuid.GetStatic<AndroidJavaObject>(_unityMausEnumName), null);
 			}
 		}
 

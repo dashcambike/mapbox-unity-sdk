@@ -6,21 +6,35 @@
 	<array>
 		<dict>
 			<key>NSPrivacyAccessedAPITypeReasons</key>
-			<string>CA92.1</string>
+			<array>
+				<string>CA92.1</string>
+			</array>
 			<key>NSPrivacyAccessedAPIType</key>
 			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
 		</dict>
 		<dict>
 			<key>NSPrivacyAccessedAPITypeReasons</key>
-			<string>E174.1</string>
+			<array>
+				<string>E174.1</string>
+			</array>
 			<key>NSPrivacyAccessedAPIType</key>
 			<string>NSPrivacyAccessedAPICategoryDiskSpace</string>
 		</dict>
 		<dict>
 			<key>NSPrivacyAccessedAPITypeReasons</key>
-			<string>C617.1</string>
+			<array>
+				<string>C617.1</string>
+			</array>
 			<key>NSPrivacyAccessedAPIType</key>
 			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>35F9.1</string>
+			</array>
 		</dict>
 	</array>
 	<key>NSPrivacyCollectedDataTypes</key>

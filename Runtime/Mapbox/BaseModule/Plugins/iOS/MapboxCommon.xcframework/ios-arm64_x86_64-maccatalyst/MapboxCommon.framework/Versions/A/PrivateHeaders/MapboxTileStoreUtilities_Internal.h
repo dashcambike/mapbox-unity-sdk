@@ -1,8 +1,10 @@
 // This file is generated and will be overwritten automatically.
 
+#import "MBXTileStoreAmbientCacheType_Internal.h"
 #import "MBXResourceLoadFlags_Internal.h"
 #import "MBXResourceLoadStatus_Internal.h"
 #import "MBXResourceLoadErrorType_Internal.h"
+#import "MBXTileStoreAmbientCacheFilterOptions_Internal.h"
 #import "MBXResourceDescription_Internal.h"
 #import "MBXResourceLoadOptions_Internal.h"
 #import "MBXResourceLoadProgress_Internal.h"
@@ -14,6 +16,8 @@
 #import "MBXTileRegionGeometryCallback_Internal.h"
 #import "MBXTileRegionMetadataCallback_Internal.h"
 #import "MBXTileRegionBooleanCallback_Internal.h"
+#import "MBXAmbientCacheClearingCallback_Internal.h"
 #import "MBXResourceLoadProgressCallback_Internal.h"
 #import "MBXResourceLoadResultCallback_Internal.h"
+#import "MBXTileRegionEstimateResultCallback_Internal.h"
 #import "MBXTileRegion_Internal.h"

@@ -36,6 +36,16 @@ __attribute__((visibility ("default")))
  * `(architecture; deviceInfo)`, `(architecture)`, `(deviceInfo)` or empty in case all fields are empty.
  */
 - (nonnull NSString *)getPrettyDeviceName __attribute((ns_returns_retained));
+/**
+ * @return Application running time, in nanoseconds. The running time is calculated as the delta between the
+ * application start time point and the time point at the time the method is called.
+ */
+- (NSTimeInterval)runningTime;
+/**
+ * @return Total memory on the device in bytes. This function does not check if memory is free or used
+ * but just returns how much memory is installed on the device.
+ */
+- (uint64_t)totalMemory;
 
 @property (nonatomic, readonly) MBXPlatform platform;
 @property (nonatomic, readonly, nonnull, copy) NSString *platformName;

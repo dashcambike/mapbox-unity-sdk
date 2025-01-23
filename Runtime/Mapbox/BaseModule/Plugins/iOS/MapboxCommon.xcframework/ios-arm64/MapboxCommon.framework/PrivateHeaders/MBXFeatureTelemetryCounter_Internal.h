@@ -2,6 +2,7 @@
 
 #import <Foundation/Foundation.h>
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(FeatureTelemetryCounter)
 __attribute__((visibility ("default")))
 @interface MBXFeatureTelemetryCounter : NSObject
