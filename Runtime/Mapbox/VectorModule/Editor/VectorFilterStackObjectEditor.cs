@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Mapbox.Editor;
 using Mapbox.VectorModule.Filters;
 using Mapbox.VectorModule.MeshGeneration.Unity;
 using UnityEditor;
@@ -40,6 +41,8 @@ namespace Mapbox.VectorModule.Editor
         List<UnityEditor.Editor> m_Editors = new List<UnityEditor.Editor>();
         [SerializeField] private bool falseBool = false;
         private SerializedProperty m_FalseBool;
+        private Texture2D _magnifier;
+
         
         private void OnEnable()
         {
@@ -47,6 +50,8 @@ namespace Mapbox.VectorModule.Editor
             UpdateEditorList();
             var editorObj = new SerializedObject(this);
             m_FalseBool = editorObj.FindProperty(nameof(falseBool));
+            _magnifier = EditorGUIUtility.FindTexture("d_ViewToolZoom");
+
         }
         
         public override void OnInspectorGUI()
@@ -59,7 +64,6 @@ namespace Mapbox.VectorModule.Editor
                 UpdateEditorList();
 
             serializedObject.Update();
-
             
             // EditorGUI.BeginChangeCheck();
             // SerializedProperty nameProperty = serializedObject.FindProperty("m_Name");
@@ -76,8 +80,8 @@ namespace Mapbox.VectorModule.Editor
         
         private void DrawFilterList()
         {
-            EditorGUILayout.LabelField(Styles.RenderFeatures, EditorStyles.boldLabel);
-            EditorGUILayout.Space();
+            // EditorGUILayout.LabelField(Styles.RenderFeatures, EditorStyles.boldLabel);
+            // EditorGUILayout.Space();
 
             if (m_filters.arraySize == 0)
             {
@@ -96,11 +100,16 @@ namespace Mapbox.VectorModule.Editor
             }
             EditorGUILayout.Space();
 
-            //Add filter
-            if (GUILayout.Button("Add filter", EditorStyles.miniButton))
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Add filter", (GUIStyle)"minibuttonleft"))
             {
                 AddPassMenu();
             }
+            if (GUILayout.Button(_magnifier, (GUIStyle)"minibuttonright", GUILayout.Width(30)))
+            {
+                ScriptableCreatorWindow.Open(typeof(FilterBaseObject), m_filters);
+            }
+            EditorGUILayout.EndHorizontal();
         }
         
         private void AddPassMenu()
@@ -207,6 +216,7 @@ namespace Mapbox.VectorModule.Editor
                 // ObjectEditor
                 if (displayContent)
                 {
+                    EditorGUILayout.ObjectField(renderFeatureProperty);
                     EditorGUILayout.Space();
                     //EditorGUI.BeginChangeCheck();
                     // SerializedProperty nameProperty = serializedFilterEditor.FindProperty("m_Name");

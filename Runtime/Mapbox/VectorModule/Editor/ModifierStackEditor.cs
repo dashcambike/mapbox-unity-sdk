@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Mapbox.Editor;
 using Mapbox.VectorModule.Editor;
 using Mapbox.VectorModule.MeshGeneration.MeshModifiers;
 using Mapbox.VectorModule.MeshGeneration.Unity;
@@ -18,7 +19,7 @@ public class ModifierStackEditor : Editor
     private SerializedProperty m_FilterStack;
     [SerializeField] private bool falseBool = false;
     private SerializedProperty m_FalseBool;
-    
+    private Texture2D _magnifier;
     private Editor _filterEditor;
     
     private void OnEnable()
@@ -27,10 +28,18 @@ public class ModifierStackEditor : Editor
         m_Editors.Add(m_MeshModifiers, new List<Editor>());
         m_GoModifiers = serializedObject.FindProperty(nameof(ModifierStackObject.GoModifiers));
         m_Editors.Add(m_GoModifiers, new List<Editor>());
+        _magnifier = EditorGUIUtility.FindTexture("d_ViewToolZoom");
         
         var editorObj = new SerializedObject(this);
         m_FalseBool = editorObj.FindProperty(nameof(falseBool));
         UpdateEditorList();
+        
+        ScriptableCreatorWindow.WindowClosed += () =>
+        {
+            m_MeshModifiers = serializedObject.FindProperty(nameof(ModifierStackObject.MeshModifiers));
+            m_GoModifiers = serializedObject.FindProperty(nameof(ModifierStackObject.GoModifiers));
+            UpdateEditorList();
+        };
     }
 
     private void CreateFilterStack()
@@ -62,25 +71,50 @@ public class ModifierStackEditor : Editor
 
         serializedObject.Update();
         
+        EditorGUILayout.Space();
         SerializedProperty nameProperty = serializedObject.FindProperty("m_Name");
-        EditorGUILayout.LabelField(nameProperty.stringValue);
+        EditorGUILayout.LabelField(nameProperty.stringValue, EditorStyles.whiteLargeLabel);
         
         if(_filterEditor == null) 
             _filterEditor = CreateEditor(m_FilterStack.objectReferenceValue);
         if (_filterEditor != null)
         {
+            EditorGUILayout.Space();
             CoreEditorUtils.DrawSplitter();
-            _filterEditor.OnInspectorGUI();
+            EditorGUILayout.Space();
             CoreEditorUtils.DrawSplitter();
+            EditorGUILayout.Space();
+           
+            EditorGUILayout.LabelField("Filters");
+            {
+                CoreEditorUtils.DrawSplitter();
+                _filterEditor.OnInspectorGUI();
+                
+            }
+        }
+        EditorGUILayout.Space();
+        CoreEditorUtils.DrawSplitter();
+        EditorGUILayout.Space();
+        CoreEditorUtils.DrawSplitter();
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Mesh Modifiers");
+        {
+            DrawMeshModifiers(m_MeshModifiers, typeof(ScriptableMeshModifierObject));
         }
 
-        EditorGUILayout.LabelField(new GUIContent("Mesh Modifiers"), EditorStyles.boldLabel);
         EditorGUILayout.Space();
-        DrawMeshModifiers(m_MeshModifiers, typeof(ScriptableMeshModifierObject));
-        EditorGUILayout.LabelField(new GUIContent("GameObject Modifiers"), EditorStyles.boldLabel);
+        CoreEditorUtils.DrawSplitter();
         EditorGUILayout.Space();
-        DrawMeshModifiers(m_GoModifiers, typeof(ScriptableGameObjectModifierObject));
-        //DrawRendererFeatureList();
+        CoreEditorUtils.DrawSplitter();
+        EditorGUILayout.Space();
+        
+        EditorGUILayout.LabelField("Gameobject Modifiers");
+        {
+            DrawMeshModifiers(m_GoModifiers, typeof(ScriptableGameObjectModifierObject));
+        }
+        EditorGUILayout.Space();
+        CoreEditorUtils.DrawSplitter();
+
     }
     
     private void DrawMeshModifiers(SerializedProperty property, Type type)
@@ -109,10 +143,16 @@ public class ModifierStackEditor : Editor
         }
 
         EditorGUILayout.Space();
-        if (GUILayout.Button("Add Modifier", EditorStyles.miniButton))
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Add Modifier", (GUIStyle)"minibuttonleft"))
         {
             AddPassMenu(property, type);
         }
+        if (GUILayout.Button(_magnifier, (GUIStyle)"minibuttonright", GUILayout.Width(30)))
+        {
+            ScriptableCreatorWindow.Open(type, property);
+        }
+        EditorGUILayout.EndHorizontal();
     }
     
     private void AddPassMenu(SerializedProperty property, Type modType)
@@ -188,22 +228,11 @@ public class ModifierStackEditor : Editor
             if (displayContent)
             {
                 EditorGUILayout.Space();
-                // EditorGUI.BeginChangeCheck();
-                // SerializedProperty nameProperty = serializedModifierEditor.FindProperty("m_Name");
-                // nameProperty.stringValue =
-                //     ValidateName(EditorGUILayout.DelayedTextField(new GUIContent("Name"), nameProperty.stringValue));
-                //
-                // if (EditorGUI.EndChangeCheck())
-                // {
-                //     hasChangedProperties = true;
-                //
-                //     // We need to update sub-asset name
-                //     modifierObjRef.name = nameProperty.stringValue;
-                //     AssetDatabase.SaveAssets();
-                //
-                //     // Triggers update for sub-asset name change
-                //     ProjectWindowUtil.ShowCreatedAsset(target);
-                // }
+                
+                //if (AssetDatabase.IsMainAsset(modifierObjRef))
+                {
+                    EditorGUILayout.ObjectField(renderFeatureProperty);
+                }
 
                 EditorGUI.BeginChangeCheck();
                 modifierEditor.OnInspectorGUI();
@@ -247,23 +276,27 @@ public class ModifierStackEditor : Editor
         menu.DropDown(new Rect(position, Vector2.zero));
     }
     
-    private void RemoveComponent(SerializedProperty sproperty, int id)
+    private void RemoveComponent(SerializedProperty arrayProperty, int id)
     {
-        SerializedProperty property = sproperty.GetArrayElementAtIndex(id);
+        SerializedProperty property = arrayProperty.GetArrayElementAtIndex(id);
         Object component = property.objectReferenceValue;
         property.objectReferenceValue = null;
 
         Undo.SetCurrentGroupName(component == null ? "Remove Modifier" : $"Remove {component.name}");
 
         // remove the array index itself from the list
-        sproperty.DeleteArrayElementAtIndex(id);
+        arrayProperty.DeleteArrayElementAtIndex(id);
         UpdateEditorList();
         serializedObject.ApplyModifiedProperties();
 
+        
+        // var isAssetFile = AssetDatabase.TryGetGUIDAndLocalFileIdentifier(component, out var guid, out long localId);
+        // var isStackFile = AssetDatabase.TryGetGUIDAndLocalFileIdentifier(serializedObject.targetObject, out var stackGuid, out long stackLocalId);
+        
         // Destroy the setting object after ApplyModifiedProperties(). If we do it before, redo
         // actions will be in the wrong order and the reference to the setting object in the
         // list will be lost.
-        if (component != null)
+        if (component != null && !AssetDatabase.IsMainAsset(component)) //guid == stackGuid
         {
             Undo.DestroyObjectImmediate(component);
         }
