@@ -9,6 +9,8 @@ namespace Mapbox.VectorModule.MeshGeneration.Unity
 {
     public abstract class ScriptableMeshModifierObject : ScriptableObject, IMeshModifier
     {
+        [SerializeField, HideInInspector] private bool m_Active = true;
+        
         protected abstract MeshModifier _meshModifierImplementation { get; }
 
         public virtual void ConstructModifier(UnityContext unityContext)
