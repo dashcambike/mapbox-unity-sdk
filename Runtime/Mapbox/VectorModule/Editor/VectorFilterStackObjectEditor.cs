@@ -64,17 +64,6 @@ namespace Mapbox.VectorModule.Editor
                 UpdateEditorList();
 
             serializedObject.Update();
-            
-            // EditorGUI.BeginChangeCheck();
-            // SerializedProperty nameProperty = serializedObject.FindProperty("m_Name");
-            // nameProperty.stringValue = ValidateName(EditorGUILayout.DelayedTextField(new GUIContent("Name"), nameProperty.stringValue));
-            // if (EditorGUI.EndChangeCheck())
-            // {
-            //     target.name = nameProperty.stringValue;
-            //     ForceSave();
-            //     ProjectWindowUtil.ShowCreatedAsset(serializedObject.targetObject);
-            // }
-            
             DrawFilterList();
         }
         
@@ -118,12 +107,6 @@ namespace Mapbox.VectorModule.Editor
             TypeCache.TypeCollection types = TypeCache.GetTypesDerivedFrom<FilterBaseObject>();
             foreach (Type type in types)
             {
-                var data = target as VectorFilterStackObject;
-                // if (data.DuplicateFeatureCheck(type))
-                // {
-                //     continue;
-                // }
-
                 var displayName = type
                     .GetCustomAttributes(typeof(DisplayNameAttribute), true)
                     .FirstOrDefault() as DisplayNameAttribute;
@@ -218,21 +201,6 @@ namespace Mapbox.VectorModule.Editor
                 {
                     EditorGUILayout.ObjectField(renderFeatureProperty);
                     EditorGUILayout.Space();
-                    //EditorGUI.BeginChangeCheck();
-                    // SerializedProperty nameProperty = serializedFilterEditor.FindProperty("m_Name");
-                    // nameProperty.stringValue = ValidateName(EditorGUILayout.DelayedTextField(Styles.PassNameField, nameProperty.stringValue));
-                    //
-                    // if (EditorGUI.EndChangeCheck())
-                    // {
-                    //     hasChangedProperties = true;
-                    //
-                    //     // We need to update sub-asset name
-                    //     filterObjRef.name = nameProperty.stringValue;
-                    //     AssetDatabase.SaveAssets();
-                    //
-                    //     // Triggers update for sub-asset name change
-                    //     ProjectWindowUtil.ShowCreatedAsset(target);
-                    // }
 
                     EditorGUI.BeginChangeCheck();
                     filterEditor.OnInspectorGUI();
