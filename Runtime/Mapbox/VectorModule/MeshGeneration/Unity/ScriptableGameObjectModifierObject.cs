@@ -1,3 +1,4 @@
+using Mapbox.BaseModule.Data.Tiles;
 using Mapbox.BaseModule.Map;
 using Mapbox.BaseModule.Unity;
 using Mapbox.BaseModule.Utilities;
@@ -32,9 +33,9 @@ namespace Mapbox.VectorModule.MeshGeneration.Unity
             _gameObjectModifierImplementation.ClearCaches();
         }
 
-        public void Unregister(UnityMapTile tile)
+        public void Unregister(CanonicalTileId tileId)
         {
-            _gameObjectModifierImplementation.Unregister(tile);
+            _gameObjectModifierImplementation.Unregister(tileId);
         }
     }
 }

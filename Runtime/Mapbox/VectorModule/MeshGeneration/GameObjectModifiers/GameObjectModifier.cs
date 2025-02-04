@@ -1,4 +1,5 @@
 using System;
+using Mapbox.BaseModule.Data.Tiles;
 using Mapbox.BaseModule.Map;
 using Mapbox.BaseModule.Unity;
 using Mapbox.BaseModule.Utilities;
@@ -11,7 +12,7 @@ namespace Mapbox.VectorModule.MeshGeneration.GameObjectModifiers
         void OnPoolItem(VectorEntity vectorEntity);
         void Clear();
         void ClearCaches();
-        void Unregister(UnityMapTile tile);
+        void Unregister(CanonicalTileId tileId);
     }
 
     [Serializable]
@@ -37,7 +38,7 @@ namespace Mapbox.VectorModule.MeshGeneration.GameObjectModifiers
 
         }
 
-        public virtual void Unregister(UnityMapTile tile)
+        public virtual void Unregister(CanonicalTileId tileId)
         {
 			
         }

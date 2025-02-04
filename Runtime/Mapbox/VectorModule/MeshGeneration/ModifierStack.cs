@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Mapbox.BaseModule.Data;
+using Mapbox.BaseModule.Data.Tiles;
 using Mapbox.BaseModule.Map;
 using Mapbox.BaseModule.Utilities;
 using Mapbox.VectorModule.MeshGeneration.GameObjectModifiers;
@@ -59,6 +60,14 @@ namespace Mapbox.VectorModule.MeshGeneration
             for (int i = 0; i < counter; i++)
             {
                 GoModifiers[i].Run(entity, mapInformation);
+            }
+        }
+
+        public void UnregisterTile(CanonicalTileId tileId)
+        {
+            foreach (var goModifier in GoModifiers)
+            {
+                goModifier.Unregister(tileId);
             }
         }
     }

@@ -39,9 +39,9 @@ namespace Mapbox.VectorModule
         public string VectorLayerName => _vectorLayerName;
         public bool Active { get; set; }
 
+        private VectorLayerVisualizerSettings _settings;
         private string _vectorLayerName;
         private UnityContext _unityContext;
-        private bool _mergeMeshes; 
         private Dictionary<int, ModifierStack> _stackList;
         private ObjectPool<VectorEntity> _pool;
         private Dictionary<CanonicalTileId, List<VectorEntity>> _results;
@@ -49,16 +49,17 @@ namespace Mapbox.VectorModule
         private int _defaultPoolSize = 20;
         private Transform _layerRootObject;
         
-        public VectorLayerVisualizer(string name, IMapInformation mapInformation, UnityContext unityContext, bool mergeMeshes = false)
+        public VectorLayerVisualizer(string name, IMapInformation mapInformation, UnityContext unityContext, VectorLayerVisualizerSettings settings)
         {
             _vectorLayerName = name;
             _mapInformation = mapInformation;
             _unityContext = unityContext;
-            _mergeMeshes = mergeMeshes;
+            _settings = settings;
             _stackList = new Dictionary<int, ModifierStack>();
             _pool = new ObjectPool<VectorEntity>(VectorEntityGenerator);
             _results = new Dictionary<CanonicalTileId, List<VectorEntity>>();
             _layerRootObject = new GameObject(_vectorLayerName + " layer objects").transform;
+            _layerRootObject.transform.position += _settings.Offset;
             _layerRootObject.SetParent(_unityContext.RuntimeGenerationRoot);
         }
 
@@ -68,7 +69,12 @@ namespace Mapbox.VectorModule
             {
                 foreach (var entity in visuals)
                 {
-                    _mapInformation.PositionObjectFor(entity.GameObject, canonicalTileId);
+                    _mapInformation.PositionObjectFor(canonicalTileId, out var position, out var scale);
+                    entity.GameObject.transform.localPosition = new Vector3(
+                        position.x - _layerRootObject.transform.position.x, 
+                        0, 
+                        position.z - _layerRootObject.transform.position.z); //position - _layerRootObject.transform.position;
+                    entity.GameObject.transform.localScale = scale;
                 }
             }
         }
@@ -133,6 +139,11 @@ namespace Mapbox.VectorModule
 
                 _results.Remove(tileId);
             }
+
+            foreach (var modifierStack in _stackList.Values)
+            {
+                modifierStack.UnregisterTile(tileId);
+            }
         }
         
         public void OnDestroy()
@@ -176,7 +187,7 @@ namespace Mapbox.VectorModule
             // if (!tile.IsActive)
             //     return;
 
-            if (_mergeMeshes)
+            if (_settings.MergeMeshes)
             {
                 foreach (var pairs in meshDataList)
                 {
@@ -370,5 +381,12 @@ namespace Mapbox.VectorModule
         // 	}
         // }
         
+    }
+
+    [Serializable]
+    public class VectorLayerVisualizerSettings
+    {
+        public bool MergeMeshes = true;
+        public Vector3 Offset = Vector3.zero;
     }
 }
