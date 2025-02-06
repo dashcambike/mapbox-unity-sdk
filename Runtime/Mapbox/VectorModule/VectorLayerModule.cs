@@ -260,7 +260,13 @@ namespace Mapbox.VectorModule
 					}
 					else if (result.ResultType == TaskResultType.Cancelled)
 					{
-						
+						if (result.GeneratedObjects != null)
+						{
+							foreach (var gameObject in result.GeneratedObjects)
+							{
+								GameObject.Destroy(gameObject);
+							}
+						}
 					}
 					callback?.Invoke(result);;
 				}));
