@@ -25,7 +25,6 @@ namespace Mapbox.VectorModule.MeshGeneration.MeshModifiers
 		private float _scaledWidth;
 		private readonly float _cosHalfSharpCorner = Mathf.Cos(75f / 2f * (Mathf.PI / 180f));
 		private readonly float _sharpCornerOffset = 15f;
-		private float _tileSize;
 		private List<Vector3> _vertexList;
 		private List<Vector3> _normalList;
 		private List<int> _triangleList;
@@ -373,10 +372,29 @@ namespace Mapbox.VectorModule.MeshGeneration.MeshModifiers
 			}
 		}
 
-		private bool IsOnEdge(Vector3 p1, Vector3 p2, float tolerance)
+		private bool IsOnEdge(Vector3 pointA, Vector3 pointB, float tolerance)
 		{
-			return ((Math.Abs(Math.Abs(p1.x) - (_tileSize / 2)) < tolerance && Math.Abs(Math.Abs(p2.x) - (_tileSize / 2)) < tolerance && Math.Sign(p1.x) == Math.Sign(p2.x)) ||
-			        (Math.Abs(Math.Abs(p1.z) - (_tileSize / 2)) < tolerance && Math.Abs(Math.Abs(p2.z) - (_tileSize / 2)) < tolerance && Math.Sign(p1.z) == Math.Sign(p2.z)));
+			bool IsClose(float value, float target, float tol)
+			{
+				return Math.Abs(value - target) <= tol;
+			}
+			
+			float minX = 0f, maxX = 1f, minZ = -1f, maxZ = 0f;
+
+			// Check if both points are on the same edge within tolerance
+			if (IsClose(pointA.x, minX, tolerance) && IsClose(pointB.x, minX, tolerance))
+				return true; // Left Edge
+        
+			if (IsClose(pointA.x, maxX, tolerance) && IsClose(pointB.x, maxX, tolerance))
+				return true; // Right Edge
+        
+			if (IsClose(pointA.z, minZ, tolerance) && IsClose(pointB.z, minZ, tolerance))
+				return true; // Bottom Edge
+        
+			if (IsClose(pointA.z, maxZ, tolerance) && IsClose(pointB.z, maxZ, tolerance))
+				return true; // Top Edge
+        
+			return false;
 		}
 
 		private void ResetFields()
