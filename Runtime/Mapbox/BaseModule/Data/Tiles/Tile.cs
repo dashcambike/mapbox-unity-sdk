@@ -30,6 +30,7 @@ namespace Mapbox.BaseModule.Data.Tiles
 		Loading,/// <summary> Loading data. </summary>
 		Loaded,/// <summary> Data loaded and parsed. </summary>
 		Canceled,/// <summary> Data loading cancelled. </summary>
+		Errored, /// <summary> Data loading errored. </summary>
 		Updated,/// <summary> Data has been loaded before and got updated. </summary>
 		Processing,
 		Destroyed

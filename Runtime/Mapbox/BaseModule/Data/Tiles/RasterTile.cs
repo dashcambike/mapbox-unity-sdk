@@ -112,7 +112,7 @@ namespace Mapbox.BaseModule.Data.Tiles
 			}
 			else if (webRequestResponse.Result == WebResponseResult.Failed)
 			{
-				TileState = TileState.Canceled;
+				TileState = TileState.Errored;
 				AddLog(string.Format("{0} - {1}", Time.unscaledTime, " tile errored"));
 			}
 			

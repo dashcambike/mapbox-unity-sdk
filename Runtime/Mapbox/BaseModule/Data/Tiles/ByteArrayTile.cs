@@ -126,7 +126,8 @@ namespace Mapbox.BaseModule.Data.Tiles
 			//callback has to be called here
 			//otherwise requests are never complete (success or failure) and pipeline gets blocked
 			
-			if (webRequestResponse.Result == WebResponseResult.Success)
+			if (webRequestResponse.Result == WebResponseResult.Success ||
+			    webRequestResponse.Result == WebResponseResult.NoData)
 			{
 				StatusCode = webRequestResponse.StatusCode;
 				byteData = webRequestResponse.Data;
@@ -152,7 +153,7 @@ namespace Mapbox.BaseModule.Data.Tiles
 			}
 			else if (webRequestResponse.Result == WebResponseResult.Failed)
 			{
-				TileState = TileState.Canceled;
+				TileState = TileState.Errored;
 				AddLog(string.Format("{0} - {1}", Time.unscaledTime, " tile errored"));
 			}
 			

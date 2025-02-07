@@ -57,6 +57,7 @@ namespace Mapbox.BaseModule.Data.Platform
 		Cancelled,
 		Success,
 		Retrying,
-		Failed
+		Failed,
+		NoData
 	}
 }

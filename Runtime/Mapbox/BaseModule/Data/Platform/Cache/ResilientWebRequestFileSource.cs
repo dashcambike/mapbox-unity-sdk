@@ -113,7 +113,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 						//some services return 404 if there isn't data. vector in ocean is a 404
 						else if (webRequest.responseCode == 404)
 						{
-							response.Result = WebResponseResult.Success;
+							response.Result = WebResponseResult.NoData;
 							callback(response);
 							yield break;
 						}
@@ -153,6 +153,13 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 					}
 					else
 					{
+						if (webRequest.result == UnityWebRequest.Result.ProtocolError && webRequest.responseCode == 404)
+						{
+							response.Result = WebResponseResult.NoData;
+							callback(response);
+							yield break;
+						}
+						
 						response.Result = WebResponseResult.Failed;
 						response.IsRetrying = false;
 						response.AddException(new Exception(webRequest.error));
