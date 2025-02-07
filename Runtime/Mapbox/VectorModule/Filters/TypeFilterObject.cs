@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Mapbox.BaseModule.Utilities;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -46,7 +47,10 @@ namespace Mapbox.VectorModule.Filters
 
 		public override bool Try(VectorFeatureUnity feature)
 		{
-			return _types.Contains(feature.Properties[TypeFilterSettings.PropertyName].ToString().ToLowerInvariant());
+			var featureStuff = feature.Properties[TypeFilterSettings.PropertyName].ToString().ToLowerInvariant().Split(',');
+			var reverseCheck = _types.Any(x => featureStuff.Contains(x));
+			return _types.Contains(feature.Properties[TypeFilterSettings.PropertyName].ToString().ToLowerInvariant()) ||
+			       reverseCheck;
 		}
 	}
 
