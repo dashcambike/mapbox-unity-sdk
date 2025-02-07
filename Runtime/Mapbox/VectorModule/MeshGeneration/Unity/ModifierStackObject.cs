@@ -51,5 +51,10 @@ namespace Mapbox.VectorModule.MeshGeneration.Unity
 		{
 			_modifierStack.RunGoModifiers(entity, mapInformation);
 		}
+
+		public void Finalize(VectorEntity entity)
+		{
+			_modifierStack.Finalize(entity);
+		}
 	}
 }

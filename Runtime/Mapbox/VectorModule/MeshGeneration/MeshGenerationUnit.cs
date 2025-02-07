@@ -29,16 +29,9 @@ namespace Mapbox.VectorModule.MeshGeneration
 		
         public void MeshGeneration(VectorData data, Action<MeshGenerationTaskResult> callback)
         {
-            if (_activeTasks.ContainsKey(data.TileId))
-            {
-                //data.AddLog("dropped to same task is already running");
-                callback(null);
-            }
-
             if (data.Data == null)
             {
-                //callback(new MeshGenerationTaskResult(TaskResultType.Success));
-                callback(null);
+                callback(new MeshGenerationTaskResult(TaskResultType.Success));
             }
 
             var meshTask = new MeshGenTaskWrapper(data.TileId.GenerateKey(data.TilesetId, "VectorTile"))
@@ -47,7 +40,7 @@ namespace Mapbox.VectorModule.MeshGeneration
                 TileId = data.TileId,
                 MeshGen = () =>
                 {
-                    var result = new MeshGenTaskWrapperResult(); //new Dictionary<string, Dictionary<int, HashSet<MeshData>>>();
+                    var result = new MeshGenTaskWrapperResult();
                     try
                     {
                         var decompressed = Compression.Decompress(data.Data);
@@ -131,7 +124,6 @@ namespace Mapbox.VectorModule.MeshGeneration
                     _activeTasks.Remove(data.TileId);
                     var failResult = new MeshGenerationTaskResult(TaskResultType.Cancelled);
                     callback(failResult);
-                    //Debug.Log("mesh creation cancelled " + data.Id);
                 },
                 Info = "VectorTile.HandleTileResponse"
             };
