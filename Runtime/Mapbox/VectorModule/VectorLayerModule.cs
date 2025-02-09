@@ -257,6 +257,7 @@ namespace Mapbox.VectorModule
 					else if (result.ResultType == TaskResultType.DataProcessingFailure)
 					{
 						_vectorSource.InvalidateData(vectorData.TileId);
+						Debug.Log(result.ExceptionsAsString);
 					}
 					else if (result.ResultType == TaskResultType.Cancelled)
 					{
