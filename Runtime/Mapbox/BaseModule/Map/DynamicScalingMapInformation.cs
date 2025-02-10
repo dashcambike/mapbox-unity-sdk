@@ -14,6 +14,12 @@ namespace Mapbox.BaseModule.Map
         [SerializeField] private bool _useDynamicScaling = false;
         [SerializeField] private AnimationCurveContainer ScaleCurve;
 
+        public override float Scale
+        {
+            get => _initialScale * ScaleCurve.Evaluate(Zoom);
+            protected set => _scale = value;
+        }
+        
         public DynamicScalingMapInformation(string latitudeLongitudeString, float initialScale, bool useDynamicScaling, AnimationCurveContainer scaleCurve) : base(latitudeLongitudeString)
         {
             _initialScale = initialScale;
@@ -32,7 +38,7 @@ namespace Mapbox.BaseModule.Map
             if(_isInitialized) return;
             
             SetLatitudeLongitude(latitudeLongitude);
-            _initialScale = Scale;
+            _initialScale = _scale;
             if (_useDynamicScaling)
             {
                 Scale = _initialScale * ScaleCurve.Evaluate(Zoom);

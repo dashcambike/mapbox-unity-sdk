@@ -18,7 +18,7 @@ namespace Mapbox.BaseModule.Map
         [Tooltip("Initial camera position bearing")]
         [SerializeField] private float _bearing;
         [Tooltip("Initial world scale")]
-        [SerializeField] private float _scale = 1000;
+        [SerializeField] protected float _scale = 1000;
         
         [Tooltip("World center latitude longitude as comma separated values")]
         [Geocode] [SerializeField] protected string _latitudeLongitudeString;
@@ -57,7 +57,7 @@ namespace Mapbox.BaseModule.Map
             get => _bearing;
             private set => _bearing = value;
         }
-        public float Scale
+        public virtual float Scale
         {
             get => _scale; 
             protected set => _scale = value;
