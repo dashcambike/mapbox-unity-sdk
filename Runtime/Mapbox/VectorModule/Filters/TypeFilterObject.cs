@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Mapbox.BaseModule.Utilities;
 using UnityEngine;
@@ -8,6 +9,7 @@ using UnityEngine.Serialization;
 namespace Mapbox.VectorModule.Filters
 {
 	[CreateAssetMenu(menuName = "Mapbox/Modifiers/Type Filter")]
+	[DisplayName("Type Filter Filter")]
 	public class TypeFilterObject : FilterBaseObject
 	{
 		[NonSerialized] private TypeFilter _filter;
