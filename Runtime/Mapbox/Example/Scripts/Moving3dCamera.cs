@@ -118,13 +118,21 @@ namespace Mapbox.Example.Scripts.MapInput
             /// |  / 
             /// | /
             /// c
+            var newScaleWillBe = mapInformation.GetScaleFor(postZoom);
+            var latlng = mapInformation.ConvertPositionToLatLng(position);
+            var postZoomPos = mapInformation.ConvertLatLngToPositionForScale(latlng, newScaleWillBe);
+            
+            var targetPoslatlng = mapInformation.ConvertPositionToLatLng(_targetPosition);
+            var postZoomTarget = mapInformation.ConvertLatLngToPositionForScale(targetPoslatlng, newScaleWillBe);
+            
+            
             var preDistance = CalculateCameraDistance(mapInformation, ZoomValue);
             var camDistanceToMouse = Vector3.Distance(_camera.transform.position, position);
             ZoomValue = postZoom;
             var postDistance = CalculateCameraDistance(mapInformation, postZoom);
             var newCamDistanceToMouse = camDistanceToMouse * (postDistance / preDistance);
             CameraDistance = CalculateCameraDistance(mapInformation, ZoomValue);
-            _targetPosition = Vector3.LerpUnclamped(_targetPosition, position, (camDistanceToMouse - newCamDistanceToMouse) / camDistanceToMouse);
+            _targetPosition = Vector3.LerpUnclamped(postZoomTarget, postZoomPos, (camDistanceToMouse - newCamDistanceToMouse) / camDistanceToMouse);
         }
 
         private void SetCamPositionByMapInfo(IMapInformation start)

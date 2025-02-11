@@ -20,6 +20,16 @@ namespace Mapbox.BaseModule.Map
             return Conversions.WebMercatorToLatLon(mercator);
         }
         
+        public static Vector3 ConvertLatLngToPositionForScale(this IMapInformation mapInfo, LatitudeLongitude latlng, float scale)
+        {
+            var mercator = Conversions.LatitudeLongitudeToWebMercator(latlng);
+            var deltaMercator = mercator - mapInfo.CenterMercator;
+            var scaledDeltaMercator = deltaMercator / scale;
+            var scaledDeltaMercatorVector3 = scaledDeltaMercator.ToVector3xz();
+            
+            return scaledDeltaMercatorVector3;
+        }
+        
         public static Vector3 ConvertLatLngToPosition(this IMapInformation mapInfo, LatitudeLongitude latlng)
         {
             var mercator = Conversions.LatitudeLongitudeToWebMercator(latlng);
