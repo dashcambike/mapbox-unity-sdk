@@ -13,6 +13,7 @@ namespace Mapbox.BaseModule.Telemetry
 {
 	public class TelemetryEditor : ITelemetryLibrary
 	{
+		
 		string _url;
 
 		static ITelemetryLibrary _instance = new TelemetryEditor();
@@ -53,7 +54,7 @@ namespace Mapbox.BaseModule.Telemetry
 			jsonDict.Add("created", unixTimestamp);
 			jsonDict.Add("userId", SystemInfo.deviceUniqueIdentifier);
 			jsonDict.Add("enabled.telemetry", false);
-			jsonDict.Add("sdkIdentifier", GetSDKIdentifier());
+			jsonDict.Add("sdkIdentifier", Constants.SDK_IDENTIFIER);
 			jsonDict.Add("skuId", Constants.SDK_SKU_ID);
 			jsonDict.Add("sdkVersion", Constants.SDK_VERSION);
 			eventList.Add(jsonDict);
@@ -129,14 +130,6 @@ namespace Mapbox.BaseModule.Telemetry
 				 Constants.SDK_VERSION
 			);
 			return userAgent;
-		}
-
-		private string GetSDKIdentifier()
-		{
-			var sdkIdentifier = string.Format("MapboxEventsUnity{0}",
-										  Application.platform
-										 );
-			return sdkIdentifier;
 		}
 
 		public void SetLocationCollectionState(bool enable)

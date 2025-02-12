@@ -14,13 +14,24 @@ namespace Mapbox.BaseModule.Utilities
 		#if UNITY_EDITOR
 			[NonSerialized] private MapboxAccounts mapboxAccounts = new MapboxAccounts();
 
+			public void Initialize()
+			{
+			
+			}
+			
 			public string GetMapsSkuToken()
 			{
 				return mapboxAccounts.ObtainMapsSkuUserToken(Application.persistentDataPath);
 			}
 			
 		#elif UNITY_IOS
+			[DllImport("__Internal")] private static extern void setAccessTokenForToken(string accessToken);
 			[DllImport("__Internal")] private static extern string getUserSKUToken();
+
+			public void Initialize()
+			{
+				setAccessTokenForToken(AccessToken);
+			}
 		
 			public string GetMapsSkuToken()
 			{
@@ -38,6 +49,29 @@ namespace Mapbox.BaseModule.Utilities
 			private string _mapboxSdkInformationPackageName = "package_Name";
 			private string _mapboxSkuTokenMethodName = "getUserSKUToken";
 		
+			//Mapbox Options
+			private string _mapboxoptionsClassName = "com.mapbox.common.MapboxOptions";
+			private string _mapboxOptionsSetAccessTokenMethodName = "setAccessToken";
+			private string _couldNotGetMapboxOptionsMessage = "Couldn't get Mapbox Options";
+
+			public void Initialize()
+			{
+				SetAccessToken(AccessToken);
+			}
+
+			private bool SetAccessToken(string accessToken)
+			{
+				var mapboxOptionsClass = new AndroidJavaClass(_mapboxoptionsClassName);
+				if (mapboxOptionsClass == null)
+				{
+					Debug.LogError(_couldNotGetMapboxOptionsMessage);
+					return true;
+				}
+
+				mapboxOptionsClass.CallStatic(_mapboxOptionsSetAccessTokenMethodName, accessToken);
+				return false;
+			}
+
 			public string GetMapsSkuToken()
 			{
 				var billingServiceFactory = new AndroidJavaClass(_mapboxBillingServiceFactoryClassName);
@@ -47,5 +81,6 @@ namespace Mapbox.BaseModule.Utilities
 				return billingService.Call<string>(_mapboxSkuTokenMethodName, skuid.GetStatic<AndroidJavaObject>(_unityMausEnumName));
 			}
 		#endif
+		
 	}
 }

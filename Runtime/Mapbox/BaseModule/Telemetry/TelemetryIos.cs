@@ -24,32 +24,15 @@ namespace Mapbox.BaseModule.Telemetry
 		
 		[DllImport("__Internal")] private static extern void sendSdkEvent(string sdkIdentifier, string version);
 		
-
+		[DllImport("__Internal")] private static extern string getUserSKUToken();
+		
 		public void Initialize(string accessToken)
 		{
-			setAccessTokenForToken(accessToken);
-			Debug.Log("token " + getAccessToken().ToString());
 			_telemetryService = getOrCreateTelemetryService();
-			Debug.Log("telemetry service is null = " + (_telemetryService == null).ToString());
 		}
-		
-		// [DllImport("__Internal")]
-		// static extern void sendTurnstileEvent();
-		//
-		// [DllImport("__Internal")]
-		// private static extern void setLocationCollectionState(bool enable);
-		//
-		// [DllImport("__Internal")]
-		// private static extern void setSkuId(string skuId);
 
-		static ITelemetryLibrary _instance = new TelemetryIos();
-		public static ITelemetryLibrary Instance
-		{
-			get
-			{
-				return _instance;
-			}
-		}
+		static readonly ITelemetryLibrary _instance = new TelemetryIos();
+		public static ITelemetryLibrary Instance => _instance;
 
 		public void SendTurnstile()
 		{

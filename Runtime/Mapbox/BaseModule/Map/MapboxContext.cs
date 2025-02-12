@@ -47,6 +47,7 @@ namespace Mapbox.BaseModule.Map
             }
 
             var config = JsonUtility.FromJson<MapboxConfiguration>(configurationTextAsset.text);
+            config.Initialize();
             var tokenValidator = new MapboxTokenApi();
             tokenValidator.Retrieve(config.GetMapsSkuToken, config.AccessToken, (response) =>
             {

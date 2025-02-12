@@ -79,7 +79,7 @@ namespace Mapbox.BaseModule.Telemetry
 				return;
 			}
 
-			if (SetAccessToken(accessToken)) return;
+			//if (SetAccessToken(accessToken)) return;
 
 			InitializeTelemetryService();
 		}
