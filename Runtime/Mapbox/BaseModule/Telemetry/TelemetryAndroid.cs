@@ -93,7 +93,7 @@ namespace Mapbox.BaseModule.Telemetry
 				_mapboxSdkInformationClassName,
 				Constants.SDK_IDENTIFIER,
 				Constants.SDK_VERSION,
-				_mapboxSdkInformationPackageName);
+				Constants.PACKAGE_NAME);
 			
 			var sdkInfoRegistryFactory = new AndroidJavaClass(_sdkInfoRegistryFactoryClassName);
 			var sdkInfoRegistry = sdkInfoRegistryFactory.CallStatic<AndroidJavaObject>(_sdkInfoRegistryFactoryGetMethodName);

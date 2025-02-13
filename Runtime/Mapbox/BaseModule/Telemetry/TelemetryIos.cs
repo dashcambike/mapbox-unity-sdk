@@ -20,15 +20,18 @@ namespace Mapbox.BaseModule.Telemetry
 		
 		[DllImport("__Internal")] private static extern void setEventsCollectionStateForEnableCollection(bool state);
 		
-		[DllImport("__Internal")] private static extern void sendTurnstileEvent(string sdkIdentifier, string version);
+		[DllImport("__Internal")] private static extern void registerSdkInfo(string sdkIdentifier, string version, string packageName);
 		
-		[DllImport("__Internal")] private static extern void sendSdkEvent(string sdkIdentifier, string version);
+		[DllImport("__Internal")] private static extern void sendTurnstileEvent(string sdkIdentifier, string version, string packageName);
+		
+		[DllImport("__Internal")] private static extern void sendSdkEvent(string sdkIdentifier, string version, string packageName);
 		
 		[DllImport("__Internal")] private static extern string getUserSKUToken();
 		
 		public void Initialize(string accessToken)
 		{
 			_telemetryService = getOrCreateTelemetryService();
+			registerSdkInfo(Constants.SDK_IDENTIFIER, Constants.SDK_VERSION, Constants.PACKAGE_NAME);
 		}
 
 		static readonly ITelemetryLibrary _instance = new TelemetryIos();
@@ -36,12 +39,12 @@ namespace Mapbox.BaseModule.Telemetry
 
 		public void SendTurnstile()
 		{
-			sendTurnstileEvent(Constants.SDK_IDENTIFIER, Constants.SDK_VERSION);
+			sendTurnstileEvent(Constants.SDK_IDENTIFIER, Constants.SDK_VERSION, Constants.PACKAGE_NAME);
 		}
 
 		public void SendSdkEvent()
 		{
-			sendSdkEvent(Constants.SDK_IDENTIFIER, Constants.SDK_VERSION);
+			sendSdkEvent(Constants.SDK_IDENTIFIER, Constants.SDK_VERSION, Constants.PACKAGE_NAME);
 		}
 
 		public void SetLocationCollectionState(bool enable)

@@ -7,6 +7,7 @@ namespace Mapbox.BaseModule.Utilities
 		public const string SDK_VERSION = "3.0.0";
 		public const string SDK_SKU_ID = "05";
 		public const string SDK_IDENTIFIER = "Unity_SDK";
+		public const string PACKAGE_NAME = "com.mapbox.unitysdk";
 
 		public static class Map
 		{

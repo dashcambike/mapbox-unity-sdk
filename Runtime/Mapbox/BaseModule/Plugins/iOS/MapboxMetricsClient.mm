@@ -9,6 +9,8 @@
 #import <MapboxCommon/MBXTelemetryUtils_Internal.h>
 #import <MapboxCommon/MBXSdkInformation.h>
 #import <MapboxCommon/MBXEventsServerOptions_Internal.h>
+#import <MapboxCommon/MBXSdkInfORegistryFactory_Internal.h>
+#import <MapboxCommon/MBXSdkInfORegistry_Internal.h>
 
 NSString* CreateNSString (const char* string)
 {
@@ -54,9 +56,18 @@ void setEventsCollectionStateForEnableCollection(bool state)
 }
 
 
-void sendTurnstileEvent(const char* sdkIdentifier, const char* sdkversion)
+void registerSdkInfo(const char* sdkIdentifier, const char* sdkversion, const char* packageName)
 {
-    MBXSdkInformation *information = [[MBXSdkInformation alloc] initWithName:CreateNSString(sdkIdentifier) version:CreateNSString(sdkversion) packageName:@"com.mapbox.test"];
+    MBXSdkInformation *information = [[MBXSdkInformation alloc] initWithName:CreateNSString(sdkIdentifier) version:CreateNSString(sdkversion) packageName:CreateNSString(packageName)];
+    
+    MBXSdkInfoRegistry *registry = [MBXSdkInfoRegistryFactory getInstance];
+
+    [registry registerSdkInformationForInfo: information];
+}
+
+void sendTurnstileEvent(const char* sdkIdentifier, const char* sdkversion, const char* packageName)
+{
+    MBXSdkInformation *information = [[MBXSdkInformation alloc] initWithName:CreateNSString(sdkIdentifier) version:CreateNSString(sdkversion) packageName:CreateNSString(packageName)];
     MBXEventsServerOptions *options = [[MBXEventsServerOptions alloc] initWithSdkInformation:information
                                                                   deferredDeliveryServiceOptions:nil];
     MBXEventsService *service = [MBXEventsService getOrCreateForOptions:options];
@@ -67,11 +78,9 @@ void sendTurnstileEvent(const char* sdkIdentifier, const char* sdkversion)
             }];
 }
 
-void sendSdkEvent(const char* sdkIdentifier, const char* sdkversion)
+void sendSdkEvent(const char* sdkIdentifier, const char* sdkversion, const char* packageName)
 {
-    MBXSdkInformation *information = [[MBXSdkInformation alloc] initWithName:CreateNSString(sdkIdentifier)
-                                                                      version:CreateNSString(sdkversion)
-                                                                  packageName:@"com.mapbox.test"];
+    MBXSdkInformation *information = [[MBXSdkInformation alloc] initWithName:CreateNSString(sdkIdentifier) version:CreateNSString(sdkversion) packageName:CreateNSString(packageName)];
     MBXBillingService *service = [MBXBillingServiceFactory getInstance];
     
     [service triggerUserBillingEventForSdkInformation:information
