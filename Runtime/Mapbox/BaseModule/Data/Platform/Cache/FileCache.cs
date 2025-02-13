@@ -22,6 +22,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 		HashSet<string> GetFileList();
 		bool GetAsync<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new();
 		IEnumerator GetFileCoroutine<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new();
+		void DeleteByFileRelativePath(string fileRelativePath);
 	}
 
 	public class FileCache : IFileCache
@@ -60,7 +61,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 
 			try
 			{
-				string filePath = Path.Combine(PersistantCacheRootFolderPath, "MapboxTestFie.txt");
+				string filePath = RelativeFilePathToFileInfoExpects("MapboxTestFie.txt");
 				string content = "Mapbox";
 				File.WriteAllText(filePath, content);
 				string actualContent = File.ReadAllText(filePath);
@@ -82,52 +83,48 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 			}
 		}
 
-		private string TileToFilePath(CanonicalTileId tileId, string tilesetId)
+		private string TileToRelativeFilePath(CanonicalTileId tileId, string tilesetId)
 		{
-			return Path.GetFullPath(string.Format("{0}/{1}/{2}{3}{4}.{5}", PersistantCacheRootFolderPath, MapIdToFolderName(tilesetId), tileId.X, tileId.Y, tileId.Z, FileExtension));
+			return string.Format("{0}/{1}{2}{3}.{4}", MapIdToFolderName(tilesetId), tileId.X, tileId.Y, tileId.Z, FileExtension);
 		}
 		
 		public virtual bool Exists(CanonicalTileId tileId, string mapId)
 		{
-			string filePath = TileToFilePath(tileId, mapId);
-			return File.Exists(filePath);
+			var info = new FileInfo(TileToPathFileInfoExpects(tileId, mapId));
+			return info.Exists;
 		}
 
 		public virtual void Add(MapboxTileData textureCacheItem, bool forceInsert, Action<string> postSave)
 		{
-			var filePath = TileToPath(textureCacheItem);
-			var infoWrapper = new InfoWrapper(textureCacheItem, filePath, postSave);
+			var fileRelativePath = TileToRelativePath(textureCacheItem);
+			var infoWrapper = new InfoWrapper(textureCacheItem, fileRelativePath, postSave);
 			SaveInfo(infoWrapper);
 		}
 
 		public virtual bool GetAsync<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new()
 		{
-			string fullFilePath = TileToFilePath(tileId, tilesetId);
-			var fileExists = File.Exists(fullFilePath);
-			if (fileExists)
+			string relativePath = TileToRelativeFilePath(tileId, tilesetId);
+			var info = new FileInfo(RelativeFilePathToFileInfoExpects(relativePath));
+			if (info.Exists)
 			{
-
-#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-				fullFilePath = fullFilePath.Insert(0, "file://");
-#endif
-				fullFilePath = new Uri(fullFilePath).ToString();
-				_fileDataFetcher.FetchData<T>(fullFilePath, tileId, tilesetId, isTextureNonreadable, callback);
+				var fullPath = RelativePathToUnityRequestExpects(relativePath);
+				_fileDataFetcher.FetchData<T>(fullPath, tileId, tilesetId, isTextureNonreadable, callback);
+			}
+			else
+			{
+				Debug.LogErrorFormat("File {0} not found", info.FullName);
 			}
 
-			return fileExists;
+			return info.Exists;
 		}
 		
 		public virtual IEnumerator GetFileCoroutine<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new()
 		{
-			string fullFilePath = TileToFilePath(tileId, tilesetId);
-			var fileExists = File.Exists(fullFilePath);
-			if (fileExists)
+			string relativePath = TileToRelativeFilePath(tileId, tilesetId);
+			var info = new FileInfo(RelativeFilePathToFileInfoExpects(relativePath));
+			if (info.Exists)
 			{
-
-#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-				fullFilePath = fullFilePath.Insert(0, "file://");
-#endif
-				fullFilePath = new Uri(fullFilePath).ToString();
+				var fullFilePath = RelativePathToUnityRequestExpects(relativePath);
 				var finished = false;
 				yield return _fileDataFetcher.FetchDataCoroutine<T>(fullFilePath, tileId, tilesetId,
 					isTextureNonreadable,
@@ -144,6 +141,11 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 			}
 		}
 
+		public void DeleteByFileRelativePath(string fileRelativePath)
+		{
+			File.Delete(RelativeFilePathToFileInfoExpects(fileRelativePath));
+		}
+
 		public virtual void ClearAll()
 		{
 			DirectoryInfo di = new DirectoryInfo(PersistantCacheRootFolderPath);
@@ -156,7 +158,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 
 		public virtual void DeleteTileFile(MapboxTileData cacheItem)
 		{
-			var filePath = TileToPath(cacheItem);
+			var filePath = TileToRelativePath(cacheItem);
 			if (File.Exists(filePath))
 			{
 				File.Delete(filePath);
@@ -175,13 +177,15 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 					var files = directoryInfo.GetFiles();
 					foreach (var fileInfo in files)
 					{
-						pathList.Add(fileInfo.FullName);
+						pathList.Add(FullFilePathToRelativePath(fileInfo.FullName));
 					}
 				}
 			}
 
 			return pathList;
 		}
+
+		
 
 		protected virtual void SaveInfo(InfoWrapper info)
 		{
@@ -190,15 +194,12 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 				return;
 			}
 
-			string folderPath = string.Format("{0}/{1}", PersistantCacheRootFolderPath, MapIdToFolderName(info.TextureCacheItem.TilesetId));
+			string folderPath = RelativeFilePathToFileInfoExpects(MapIdToFolderName(info.TextureCacheItem.TilesetId));
 
 			if (!Directory.Exists(folderPath))
 			{
 				Directory.CreateDirectory(folderPath);
 			}
-
-			
-			//info.TextureCacheItem.FilePath = Path.GetFullPath(string.Format("{0}/{1}/{2}.{3}", PersistantCacheRootFolderPath, MapIdToFolderName(info.TilesetId), info.TileId.GenerateKey(info.TilesetId), FileExtension));
 
 			_taskManager.AddTask(
 				new TaskWrapper(info.TextureCacheItem.TileId.GenerateKey(info.TextureCacheItem.TilesetId, "FileCache"))
@@ -208,7 +209,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 					Action = () =>
 					{
 						FileStream sourceStream = new FileStream(
-							info.Path,
+							RelativeFilePathToFileInfoExpects(info.Path),
 							FileMode.Create, FileAccess.Write, FileShare.Read,
 							bufferSize: 4096, useAsync: false);
 
@@ -218,14 +219,6 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 						info.PostSaveAction(info.Path);
 						//Debug.Log(string.Format("File saved {0} - {1}", info.TextureCacheItem.TileId, info.Path));
 						OnFileSaved(info.TextureCacheItem, info.Path);
-						//this is not a good way to do it
-						// #if UNITY_EDITOR
-						// 					FileCacheDebugView.AddToLogs(string.Format("Saved {0, 20} - {1, -20}", info.TilesetId, info.TileId));
-						// #endif
-						// },
-						// ContinueWith = (t) =>
-						// {
-						
 					},
 					ContinueWith = (t) =>
 					{
@@ -237,9 +230,9 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 				}, 4);
 		}
 
-		private string TileToPath(MapboxTileData cacheItem)
+		private string TileToRelativePath(MapboxTileData cacheItem)
 		{
-			return TileToFilePath(cacheItem.TileId, cacheItem.TilesetId); //Path.GetFullPath(string.Format("{0}/{1}/{2}.{3}", PersistantCacheRootFolderPath, MapIdToFolderName(caheItem.TilesetId), caheItem.TileId.GenerateKey(caheItem.TilesetId), FileExtension));
+			return TileToRelativeFilePath(cacheItem.TileId, cacheItem.TilesetId);
 		}
 
 		protected virtual void OnFileSaved(MapboxTileData infoTextureCacheItem, string path)
@@ -287,6 +280,29 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 				Path = path;
 				PostSaveAction = postSave;
 			}
+		}
+
+		public string TileToPathFileInfoExpects(CanonicalTileId tileId, string tilesetId)
+		{
+			return RelativeFilePathToFileInfoExpects(TileToRelativeFilePath(tileId, tilesetId));
+		}
+		
+		public string RelativeFilePathToFileInfoExpects(string relativeFilePath)
+		{
+			var fullPath = Path.Combine(PersistantCacheRootFolderPath, relativeFilePath); 
+			return fullPath;
+		}
+
+		public string RelativePathToUnityRequestExpects(string relativeFilePath)
+		{
+			var fullPath = Path.Combine(PersistantCacheRootFolderPath, relativeFilePath);
+			return fullPath.Insert(0, "file://");
+		}
+		
+		private string FullFilePathToRelativePath(string fileInfoFullName)
+		{
+			return fileInfoFullName.Substring(FileCache.PersistantCacheRootFolderPath.Length,
+				fileInfoFullName.Length - FileCache.PersistantCacheRootFolderPath.Length).Trim('/');
 		}
 	}
 }

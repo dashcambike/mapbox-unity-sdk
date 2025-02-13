@@ -158,6 +158,7 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 
 		public void SyncAdd(string tilesetName, CanonicalTileId tileId, byte[] data, string path, string etag, DateTime? expirationDate, bool forceInsert)
 		{
+			Debug.Log("adding " + tileId + " to " + path);
 			try
 			{
 				// tile exists and we don't want to overwrite -> exit early
@@ -201,7 +202,7 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 							_pruneCacheCounter++;
 						}
 					}
-
+					
 					if (rowsAffected < 1)
 					{
 						throw new Exception(string.Format("tile [{0} / {1}] was not inserted, rows affected:{2}", tilesetName, tileId, rowsAffected));
@@ -437,7 +438,7 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 					TileId = tileId,
 					Action = () =>
 					{
-						//Debug.Log(string.Format("Sqlite saving {0} - {1}", tileId, path));
+						Debug.Log(string.Format("Sqlite saving {0} - {1}", tileId, path));
 						lock (_lock)
 						{
 							SyncAdd(tilesetName, tileId, data, path, etag, expirationDate, forceInsert);
@@ -445,7 +446,14 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 					},
 					ContinueWith = (t) =>
 					{
-						//Debug.Log(string.Format("Sqlite saved {0} - {1}", tileId, path));
+						if (t.IsCompleted && !t.IsFaulted)
+						{
+							Debug.Log(string.Format("Sqlite saved {0} - {1}", tileId, path));
+						}
+						else
+						{
+							Debug.Log(t.Exception.ToString() + t.Exception.Message);
+						}
 					},
 #if UNITY_EDITOR
 					Info = "SqliteCache.Add"

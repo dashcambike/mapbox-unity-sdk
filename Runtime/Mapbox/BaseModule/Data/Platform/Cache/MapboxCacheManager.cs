@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Mapbox.BaseModule.Data.DataFetchers;
 using Mapbox.BaseModule.Data.Tasks;
 using Mapbox.BaseModule.Data.Tiles;
@@ -42,6 +43,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
             {
                 if (!_sqLiteCache.IsUpToDate())
                 {
+                    Debug.Log("renewing sqlite cache file");
                     var sqliteDeleteSuccess = _sqLiteCache.ClearDatabase();
                     if (sqliteDeleteSuccess && _textureFileCache != null)
                     {
@@ -187,6 +189,9 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
             
             var sqlTileList = _sqLiteCache.GetAllTiles();
             var fileList = _textureFileCache.GetFileList();
+
+            // Debug.Log("sqlite " + string.Join(Environment.NewLine, sqlTileList.Select(x => x.tile_path)));
+            // Debug.Log("file " + string.Join(Environment.NewLine, fileList));
             
             foreach (var tile in sqlTileList)
             {
@@ -199,9 +204,9 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
             if (fileList.Count > 0)
             {
                 Debug.Log(string.Format("{0} files will be deleted to sync sqlite and file cache", fileList.Count));
-                foreach (var filePath in fileList)
+                foreach (var fileRelativePath in fileList)
                 {
-                    File.Delete(filePath);
+                    _textureFileCache.DeleteByFileRelativePath(fileRelativePath);
                 }
 
                 //double checking just in case
