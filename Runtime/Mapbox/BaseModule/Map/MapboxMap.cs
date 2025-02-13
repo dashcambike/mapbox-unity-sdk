@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Mapbox.BaseModule.Data.Interfaces;
 using Mapbox.BaseModule.Data.Vector2d;
+using Mapbox.BaseModule.Unity;
 using Mapbox.BaseModule.Utilities;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -11,16 +12,18 @@ namespace Mapbox.BaseModule.Map
     [Serializable]
     public sealed class MapboxMap
     {
-        [NonSerialized] public IMapInformation mapInformation;
+        [NonSerialized] public IMapInformation MapInformation;
         [NonSerialized] public IMapVisualizer MapVisualizer;
+        [NonSerialized] public UnityContext UnityContext;
         [NonSerialized] public TileCover TileCover;
         [NonSerialized] public InitializationStatus Status = InitializationStatus.WaitingForInitialization;
 
         public MapService MapService { get; private set; }
 
-        public MapboxMap(IMapInformation information, MapService mapMapService)
+        public MapboxMap(IMapInformation information, UnityContext unityContext, MapService mapMapService)
         {
-            mapInformation = information;
+            MapInformation = information;
+            UnityContext = unityContext;
             TileCover = new TileCover();
             MapService = mapMapService;
         }
@@ -39,7 +42,7 @@ namespace Mapbox.BaseModule.Map
 
         public void MapUpdated()
         {
-            MapService.TileCover(mapInformation, TileCover);
+            MapService.TileCover(MapInformation, TileCover);
             MapVisualizer.Load(TileCover);
         }
 
@@ -51,7 +54,7 @@ namespace Mapbox.BaseModule.Map
         public IEnumerator LoadMapViewCoroutine(Action callback)
         {
             var tileCover = new TileCover();
-            MapService.TileCover(mapInformation, tileCover);
+            MapService.TileCover(MapInformation, tileCover);
             yield return MapVisualizer.LoadTileCoverToMemory(tileCover);
             if (Status == InitializationStatus.Initialized)
             {
@@ -65,7 +68,7 @@ namespace Mapbox.BaseModule.Map
 
         public void ChangeView(LatitudeLongitude? latlng = null, float? zoom = null, float? pitch = null, float? bearing = null)
         {
-            mapInformation.SetInformation(latlng, zoom, pitch, bearing);
+            MapInformation.SetInformation(latlng, zoom, pitch, bearing);
         }
         
         public Action Initialized = () => {};
@@ -77,7 +80,7 @@ namespace Mapbox.BaseModule.Map
             MapService.OnDestroy();
         }
 
-        public void UpdateTileCover() => MapService.TileCover(mapInformation, TileCover);
+        public void UpdateTileCover() => MapService.TileCover(MapInformation, TileCover);
     }
 }
 
