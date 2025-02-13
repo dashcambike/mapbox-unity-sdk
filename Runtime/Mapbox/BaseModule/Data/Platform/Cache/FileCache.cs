@@ -107,7 +107,8 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 			var info = new FileInfo(RelativeFilePathToFileInfoExpects(relativePath));
 			if (info.Exists)
 			{
-				_fileDataFetcher.FetchData<T>(RelativePathToUnityRequestExpects(relativePath), tileId, tilesetId, isTextureNonreadable, callback);
+				var fullPath = RelativePathToUnityRequestExpects(relativePath);
+				_fileDataFetcher.FetchData<T>(fullPath, tileId, tilesetId, isTextureNonreadable, callback);
 			}
 			else
 			{
@@ -295,11 +296,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 		public string RelativePathToUnityRequestExpects(string relativeFilePath)
 		{
 			var fullPath = Path.Combine(PersistantCacheRootFolderPath, relativeFilePath);
-#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_IOS
 			return fullPath.Insert(0, "file://");
-#else
-			return fullPath;
-#endif
 		}
 		
 		private string FullFilePathToRelativePath(string fileInfoFullName)
