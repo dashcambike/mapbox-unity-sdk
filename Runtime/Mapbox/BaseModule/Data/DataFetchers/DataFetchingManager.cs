@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Mapbox.BaseModule.Data.DataFetchers
 {
-	public class DataFetchingManager
+	public class DataFetchingManager : IFileSource
 	{
 		protected Action<FetchInfo> TileInitialized = (t)=> {};
 		private const float _requestDelay = 0.2f;
@@ -140,7 +140,7 @@ namespace Mapbox.BaseModule.Data.DataFetchers
 				_tileFetchInfos.Remove(key);
 			}
 		}
-
+		
 		public virtual TileJSON GetTileJSON(int timeout = 10)
 		{
 			return new TileJSON(_fileSource, timeout);
@@ -163,6 +163,29 @@ namespace Mapbox.BaseModule.Data.DataFetchers
 			_fileSource = null;
 		}
 
-		public int TaskCount => _tileFetchInfos.Count;
+
+		#region IFileSource interface for direct access without queue
+		public IAsyncRequest Request(string uri, Action<Response> callback, int timeout = 10)
+		{
+			return _fileSource.Request(uri, callback, timeout);
+		}
+
+		public IWebRequest MapboxImageRequest(string uri, Action<WebRequestResponse> callback, string etag = "", int timeout = 10,
+			bool isNonReadable = true)
+		{
+			return _fileSource.MapboxImageRequest(uri, callback, etag, timeout, isNonReadable);	
+		}
+
+		public IWebRequest CustomImageRequest(string uri, Action<WebRequestResponse> callback, string etag = null, int timeout = 10,
+			bool isNonReadable = true)
+		{
+			return _fileSource.CustomImageRequest(uri, callback, etag, timeout, isNonReadable);
+		}
+
+		public IWebRequest MapboxDataRequest(string uri, Action<WebRequestResponse> callback, string etag = "", int timeout = 10)
+		{
+			return _fileSource.MapboxDataRequest(uri, callback, etag, timeout);
+		}
+		#endregion
 	}
 }

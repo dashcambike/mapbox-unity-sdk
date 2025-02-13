@@ -282,5 +282,10 @@ namespace Mapbox.BaseModule.Data.Vector2d
 		{
 			return string.Format(NumberFormatInfo.InvariantInfo, "{0:F5},{1:F5}", this.Latitude, this.Longitude);
 		}
+		
+		public string ToStringLonLat()
+		{
+			return string.Format(NumberFormatInfo.InvariantInfo, "{0:F5},{1:F5}", this.Longitude, this.Latitude);
+		}
 	}
 }
