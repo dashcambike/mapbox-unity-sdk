@@ -10,6 +10,8 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 {
 	public interface ISqliteCache
 	{
+		event Action<string> DataPruned;
+		
 		void ReadySqliteDatabase();
 		bool IsUpToDate();
 		

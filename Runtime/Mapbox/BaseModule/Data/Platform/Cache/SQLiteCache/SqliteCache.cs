@@ -15,6 +15,8 @@ namespace Mapbox.BaseModule.Data.Platform.Cache.SQLiteCache
 {
 	public class SqliteCache : ISqliteCache, IDisposable
 	{
+		public event Action<string> DataPruned = s => { };
+
 		public const int PruneCacheDelta = 20;
 		
 		protected static string PersistantCacheRootFolderPath;
@@ -646,21 +648,9 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 
 		private void DeleteFile(List<tiles> tilesToDelete)
 		{
-			foreach (var tileToDelete in tilesToDelete)
+			foreach (var tile in tilesToDelete)
 			{
-				if (tileToDelete != null)
-				{
-					if (File.Exists(tileToDelete.tile_path))
-					{
-						try
-						{
-							File.Delete(tileToDelete.tile_path);
-						}
-						catch
-						{
-						}
-					}
-				}
+				DataPruned(tile.tile_path);
 			}
 		}
 

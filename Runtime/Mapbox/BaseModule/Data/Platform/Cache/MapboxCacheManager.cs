@@ -38,6 +38,11 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
                 if (_textureFileCache.TestAvailability() == false)
                     _textureFileCache = null;
             }
+
+            if (_sqLiteCache != null && _textureFileCache != null)
+            {
+                _sqLiteCache.DataPruned += path => _textureFileCache.DeleteByFileRelativePath(path);
+            }
             
             if (_sqLiteCache != null)
             {

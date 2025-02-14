@@ -143,7 +143,11 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 
 		public void DeleteByFileRelativePath(string fileRelativePath)
 		{
-			File.Delete(RelativeFilePathToFileInfoExpects(fileRelativePath));
+			var path = RelativeFilePathToFileInfoExpects(fileRelativePath);
+			if (File.Exists(path))
+			{
+				File.Delete(path);
+			}
 		}
 
 		public virtual void ClearAll()
