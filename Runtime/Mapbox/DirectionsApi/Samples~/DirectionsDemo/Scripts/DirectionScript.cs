@@ -71,7 +71,7 @@ namespace Mapbox.DirectionsApi.Samples
 				if (_fileSource == null)
 					_fileSource = map.MapService.FileSource;
 				_mapboxDirections = new MapboxDirectionsApi(_fileSource);
-				_mapInformation = map.mapInformation;
+				_mapInformation = map.MapInformation;
 			};
 		}
 

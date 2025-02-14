@@ -60,7 +60,7 @@ public class Geocoder : MonoBehaviour
             if (_fileSource == null)
                 _fileSource = map.MapService.FileSource;
             _mapboxGeocoder = new MapboxGeocodingApi(_fileSource);
-            _mapInformation = map.mapInformation;
+            _mapInformation = map.MapInformation;
         };
     }
 

@@ -12,10 +12,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a17705f45444b729e601b91361775ed, type: 3}
   m_Name: BuildingStack
   m_EditorClassIdentifier: 
-  Filters: {fileID: 0}
+  Settings:
+    VisibilityZoomRange: {x: 1, y: 20}
+    MergeObjects: 0
+  Filters: {fileID: 4945166106333009198}
   MeshModifiers:
   - {fileID: 11400000, guid: 8cc899e270cfa55409994ea427d51fc8, type: 2}
   - {fileID: 11400000, guid: 4c8e9736b89728243924847058736fcd, type: 2}
   - {fileID: 11400000, guid: c38c4e377d66aad44a9ae0df1201aeea, type: 2}
   GoModifiers:
   - {fileID: 11400000, guid: 1fb9fa3ade8e73646bfd38279609e4e7, type: 2}
+--- !u!114 &4945166106333009198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb8a61183121446bbd024747630bf05c, type: 3}
+  m_Name: FilterStack
+  m_EditorClassIdentifier: 
+  Filters: []
+  Type: 0
