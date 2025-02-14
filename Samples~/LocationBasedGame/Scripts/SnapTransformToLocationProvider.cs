@@ -43,7 +43,7 @@ namespace Mapbox.Example.Scripts.LocationBehaviours
         {
             if (_map.Status >= InitializationStatus.ReadyForUpdates && enabled)
             {
-                _transform.position = _map.mapInformation.ConvertLatLngToPosition(s.LatitudeLongitude);
+                _transform.position = _map.MapInformation.ConvertLatLngToPosition(s.LatitudeLongitude);
             }
         }
     }

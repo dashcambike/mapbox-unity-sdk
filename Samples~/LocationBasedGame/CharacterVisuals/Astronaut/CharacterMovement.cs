@@ -24,8 +24,8 @@ namespace Mapbox.Examples
 		{ 
 			MapBehaviour.Initialized += map =>
 			{
-				_mapInformation = map.mapInformation;
-				_scale = map.mapInformation.Scale;
+				_mapInformation = map.MapInformation;
+				_scale = map.MapInformation.Scale;
 				_readyForUpdates = true;
 			};
 		}
