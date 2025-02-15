@@ -1,4 +1,6 @@
 using System.IO;
+using Mapbox.BaseModule.Data.Platform.Cache;
+using Mapbox.BaseModule.Data.Platform.Cache.SQLiteCache;
 using Mapbox.BaseModule.Map;
 using Mapbox.BaseModule.Utilities;
 using UnityEditor;
@@ -315,6 +317,15 @@ namespace MapboxUnitySDK.Editor
 
 			EditorGUILayout.EndHorizontal();
 
+		}
+	}
+
+	public class MapboxMenu
+	{
+		[MenuItem("Mapbox/Clear Caches")]
+		public static void DeleteAllCache()
+		{
+			MapboxCacheManager.DeleteAllCache();
 		}
 	}
 }

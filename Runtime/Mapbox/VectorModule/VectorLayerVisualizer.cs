@@ -1,14 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using Mapbox.BaseModule;
 using Mapbox.BaseModule.Map;
 using Mapbox.BaseModule.Utilities;
 using UnityEngine;
-using UnityEngine.Rendering;
 using System.Collections;
-using System.Linq;
-using CodiceApp;
 using Mapbox.BaseModule.Data;
 using Mapbox.BaseModule.Data.Tiles;
 using Mapbox.BaseModule.Unity;

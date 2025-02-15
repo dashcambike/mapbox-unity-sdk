@@ -238,8 +238,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
             key = tileId.GenerateKey(tilesetId, "ReadEtagExpiration");
             _taskManager.CancelTask(key);
         }
-
-        [MenuItem("Mapbox/Clear Caches")]
+        
         public static void DeleteAllCache()
         {
             var sqliteDeleted = SqliteCache.DeleteSqliteFolder();
