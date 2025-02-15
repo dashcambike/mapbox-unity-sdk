@@ -1,9 +1,9 @@
 {
     "name": "com.mapbox.sdk",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "displayName": "Mapbox Unity SDK",
     "description": "Mapbox Unity SDK",
-    "unity": "2020.3",
+    "unity": "2022.3",
     "dependencies": {
         "com.unity.render-pipelines.universal": "10.10.1",
 	"com.unity.nuget.newtonsoft-json": "3.2.1"
@@ -14,25 +14,25 @@
     },
     "samples": [
         {
-            "displayName": "Location Based Game",
+            "displayName": "LocationBasedGame",
             "description": "Location Based Game",
             "path": "Samples~/LocationBasedGame"
         },
         {
-            "displayName": "World Map Viewer",
+            "displayName": "WorldMapViewer",
             "description": "World Map Viewer",
             "path": "Samples~/WorldMapViewer"
         },
         {
 
-            "displayName": "Directions Api Demo",
+            "displayName": "DirectionsApiDemo",
             "description": "Directions Api Demo",
-            "path": "Runtime/Mapbox/DirectionsApi/Samples~/DirectionsDemo"
+            "path": "Runtime/Mapbox/DirectionsApi/Samples~/DirectionsApiDemo"
         },
         {
-            "displayName": "Geocoding Api Demo",
+            "displayName": "GeocodingApiDemo",
             "description": "Geocoding Api Demo",
-            "path": "Runtime/Mapbox/GeocodingApi/Samples~/Geocoding"
+            "path": "Runtime/Mapbox/GeocodingApi/Samples~/GeocodingApiDemo"
         }
     ]
 }
