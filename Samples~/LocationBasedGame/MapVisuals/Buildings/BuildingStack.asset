@@ -35,8 +35,8 @@ MonoBehaviour:
   m_Name: BuildingStack
   m_EditorClassIdentifier: 
   Settings:
-    VisibilityZoomRange: {x: 1, y: 20}
-    MergeObjects: 0
+    VisibilityZoomRange: {x: 15, y: 25}
+    MergeObjects: 1
   Filters: {fileID: 3145616547485143670}
   MeshModifiers:
   - {fileID: 1935090920381669333}
