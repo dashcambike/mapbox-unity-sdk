@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Mapbox.BaseModule.Map
 {
@@ -9,5 +10,7 @@ namespace Mapbox.BaseModule.Map
         public bool UseRetinaTextures = true;
         public bool UseNonReadableTextures = true;
         public int CacheSize = 100;
+        public int RejectTilesBelowZoom = 2;
+        public int ClampTilesToMax = 16;
     }
 }

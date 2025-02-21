@@ -33,6 +33,12 @@ namespace Mapbox.ImageModule
 		
 		public virtual void LoadTempTile(UnityMapTile unityTile)
 		{
+			if (unityTile.CanonicalTileId.Z < _settings.DataSettings.RejectTilesBelowZoom)
+			{
+				//unityTile.ImageContainer.DisableImagery();
+				return;
+			}
+			
 			var parentTileId = unityTile.CanonicalTileId;
 			for (int i = unityTile.CanonicalTileId.Z; i >= 2; i--)
 			{
@@ -47,6 +53,12 @@ namespace Mapbox.ImageModule
 
 		public virtual bool LoadInstant(UnityMapTile unityTile)
 		{
+			if (unityTile.CanonicalTileId.Z < _settings.DataSettings.RejectTilesBelowZoom)
+			{
+				//unityTile.ImageContainer.DisableImagery();
+				return true;
+			}
+			
 			if (_rasterSource.GetInstantData(unityTile.CanonicalTileId, out var instantData))
 			{
 				unityTile.ImageContainer.SetImageData(instantData);

@@ -7,12 +7,20 @@ using Mapbox.BaseModule.Map;
 using Mapbox.BaseModule.Unity;
 using Mapbox.BaseModule.Utilities;
 using Mapbox.ImageModule;
+using UnityEngine;
 
 namespace Mapbox.Example.Scripts.ModuleBehaviours
 {
 	public class StaticApiLayerModuleScript : ModuleConstructorScript
 	{
-		public StaticLayerModuleSettings Settings;
+		public StaticLayerModuleSettings Settings = new StaticLayerModuleSettings()
+		{
+			DataSettings = new ImageSourceSettings()
+			{
+				RejectTilesBelowZoom = 5,
+				ClampTilesToMax = 25
+			}
+		};
 		public override ILayerModule ModuleImplementation { get; protected set; }
 
 		private void Start()
