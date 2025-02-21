@@ -1,5 +1,6 @@
 using System;
 using Mapbox.BaseModule.Data.Tiles;
+using UnityEngine;
 
 namespace Mapbox.BaseModule.Data.DataFetchers
 {
@@ -11,7 +12,7 @@ namespace Mapbox.BaseModule.Data.DataFetchers
         public string ETag;
         public DateTime? ExpirationDate;
         public bool HasError = false;
-        public byte[] Data;
+        [HideInInspector] public byte[] Data;
 
         public virtual void Dispose()
         {
