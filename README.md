@@ -25,7 +25,9 @@
      - `World Map Viewer`
 
 2. **Import the Demo Scenes**  
-   - Click the **Import** button to create a `Samples` folder at the root of your project.
+   - In the Package Manager, select the Mapbox Unity SDK package.
+   - Go to the "Samples" tab.
+   - Hit the **Import** button to create a `Samples` folder at the root of your project.
    - Unity will copy the demo scene files into this folder.
 
 3. **Configure Your Access Token**  
