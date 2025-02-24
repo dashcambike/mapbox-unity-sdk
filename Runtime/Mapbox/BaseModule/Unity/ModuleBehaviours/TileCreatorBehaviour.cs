@@ -10,7 +10,7 @@ namespace Mapbox.Example.Scripts.ModuleBehaviours
 {
     public class TileCreatorBehaviour : MonoBehaviour
     {
-        [NonSerialized] private TileCreator _tileCreator;
+        [NonSerialized] private ITileCreator _tileCreator;
         
         [Tooltip("Materials for base map tile mesh and gameobject")]
         public Material[] TileMaterials;
@@ -20,7 +20,7 @@ namespace Mapbox.Example.Scripts.ModuleBehaviours
 
         public int CacheSize = 25;
     
-        public TileCreator GetTileCreator(UnityContext unityContext)
+        public ITileCreator GetTileCreator(UnityContext unityContext)
         {
             if (_tileCreator != null) return _tileCreator;
 

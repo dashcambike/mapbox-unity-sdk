@@ -7,7 +7,13 @@ using UnityEngine;
 
 namespace Mapbox.BaseModule.Map
 {
-    public class TileCreator
+    public interface ITileCreator
+    {
+        IEnumerator Initialize();
+        UnityMapTile GetTile();
+        void PutTile(UnityMapTile tile);
+    }
+    public class TileCreator : ITileCreator
     {
         public Material[] TileMaterials;
         private readonly int UsingLinearColorspace = Shader.PropertyToID("_UsingLinearColorspace");

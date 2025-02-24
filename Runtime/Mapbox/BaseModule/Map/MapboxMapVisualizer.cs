@@ -17,7 +17,7 @@ namespace Mapbox.BaseModule.Map
         public Dictionary<UnwrappedTileId, UnityMapTile> ActiveTiles { get; private set; }
         protected UnityContext _unityContext;
         protected IMapInformation _mapInformation;
-        protected TileCreator _tileCreator;
+        protected ITileCreator _tileCreator;
 
         private HashSet<UnwrappedTileId> _toRemove;
         private HashSet<CanonicalTileId> _retainedTiles;
@@ -25,7 +25,7 @@ namespace Mapbox.BaseModule.Map
         private int _tilePerFrameLimit = 20;
         private int _tileCreatedThisFrame = 0;
 
-        public MapboxMapVisualizer(IMapInformation mapInformation, UnityContext unityContext, TileCreator tileCreator)
+        public MapboxMapVisualizer(IMapInformation mapInformation, UnityContext unityContext, ITileCreator tileCreator)
         {
             _unityContext = unityContext;
             _mapInformation = mapInformation;
