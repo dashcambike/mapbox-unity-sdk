@@ -23,7 +23,7 @@ namespace Mapbox.GeocodingApi
 		/// </summary>
 		/// <value>The GeoJSON geometry type.</value>
 		[JsonProperty("type")]
-		public string Type { get; set; }
+		public string Type;
 
 		/// <summary>
 		///     Gets or sets coordinates. Because they are points, Geocode results will always be  a single Geocoordinate.
@@ -31,6 +31,6 @@ namespace Mapbox.GeocodingApi
 		/// <value>The coordinates.</value>
 		[JsonConverter(typeof(LonLatToVector2dConverter))]
 		[JsonProperty("coordinates")]
-		public Vector2d Coordinates { get; set; }
+		public Vector2d Coordinates;
 	}
 }

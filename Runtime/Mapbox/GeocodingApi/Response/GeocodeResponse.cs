@@ -16,27 +16,28 @@ namespace Mapbox.GeocodingApi
 	//http://stackoverflow.com/a/12903628
 	[Serializable]
 #endif
-	public abstract class GeocodeResponse {
+	public abstract class GeocodeResponse
+	{
 		/// <summary>
 		/// Gets or sets the type.
 		/// </summary>
 		/// <value>The type.</value>
 		[JsonProperty("type", Order = 0)]
-		public string Type { get; set; }
+		public string Type;
 
 		/// <summary>
 		/// Gets or sets the features.
 		/// </summary>
 		/// <value>The features.</value>
 		[JsonProperty("features", Order = 2)]
-		public List<Feature> Features { get; set; }
+		public List<Feature> Features;
 
 		/// <summary>
 		/// Gets or sets the attribution.
 		/// </summary>
 		/// <value>The attribution.</value>
 		[JsonProperty("attribution", Order = 3)]
-		public string Attribution { get; set; }
+		public string Attribution;
 	}
 
 	/// <summary>
@@ -46,13 +47,14 @@ namespace Mapbox.GeocodingApi
 	//http://stackoverflow.com/a/12903628
 	[Serializable]
 #endif
-	public class ReverseGeocodeResponse : GeocodeResponse {
+	public class ReverseGeocodeResponse : GeocodeResponse
+	{
 		/// <summary>
 		/// Gets or sets the query.
 		/// </summary>
 		/// <value>The query.</value>
 		[JsonProperty("query", Order = 1)]
-		public List<double> Query { get; set; }
+		public List<double> Query;
 	}
 
 	/// <summary>
@@ -62,12 +64,13 @@ namespace Mapbox.GeocodingApi
 	//http://stackoverflow.com/a/12903628
 	[Serializable]
 #endif
-	public class ForwardGeocodeResponse : GeocodeResponse {
+	public class ForwardGeocodeResponse : GeocodeResponse
+	{
 		/// <summary>
 		/// Gets or sets the query.
 		/// </summary>
 		/// <value>The query.</value>
 		[JsonProperty("query", Order = 1)]
-		public List<string> Query { get; set; }
+		public List<string> Query;
 	}
 }
