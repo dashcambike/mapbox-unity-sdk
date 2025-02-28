@@ -18,7 +18,7 @@ namespace Mapbox.BaseModuleTests
     [TestFixture]
     internal class FileCacheTests
     {
-        private IFileCache _fileCache;
+        private FileCache _fileCache;
         private MockTaskManager _taskManager;
         private string _testTilesetName = "test_tilesetId";
         private CanonicalTileId _testTileId = new CanonicalTileId(16, 5, 7);
@@ -63,7 +63,7 @@ namespace Mapbox.BaseModuleTests
                 resultFilePath = s;
             });
             Assert.IsNotEmpty(resultFilePath);
-            Assert.True(File.Exists(Path.Combine(FileCache.PersistantCacheRootFolderPath, resultFilePath)));
+            Assert.True(File.Exists(Path.Combine(_fileCache.PersistantCacheRootFolderPath, resultFilePath)));
         }
 
         [Test]

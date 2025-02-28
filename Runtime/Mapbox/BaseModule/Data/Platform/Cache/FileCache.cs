@@ -29,9 +29,9 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 	{
 		public event Action<MapboxTileData, string> FileSaved = (cacheItem, s) => { };
 
-		protected static string CacheRootFolderName = "Mapbox/FileCache";
-		public static string PersistantCacheRootFolderPath;
-		private static string FileExtension = "png";
+		protected string CacheRootFolderName = "Mapbox/FileCache";
+		public string PersistantCacheRootFolderPath;
+		private string FileExtension = "png";
 
 		protected FileDataFetcher _fileDataFetcher;
 		protected Dictionary<string, string> MapIdToFolderNameDictionary;
@@ -174,7 +174,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 			var pathList = new HashSet<string>();
 			if (Directory.Exists(PersistantCacheRootFolderPath))
 			{
-				var dir = Directory.GetDirectories(FileCache.PersistantCacheRootFolderPath);
+				var dir = Directory.GetDirectories(PersistantCacheRootFolderPath);
 				foreach (var rasterDirectory in dir)
 				{
 					var directoryInfo = new DirectoryInfo(rasterDirectory);
@@ -312,18 +312,21 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 		
 		private string FullFilePathToRelativePath(string fileInfoFullName)
 		{
-			return fileInfoFullName.Substring(FileCache.PersistantCacheRootFolderPath.Length,
-				fileInfoFullName.Length - FileCache.PersistantCacheRootFolderPath.Length).Trim('/');
+			return fileInfoFullName.Substring(PersistantCacheRootFolderPath.Length,
+				fileInfoFullName.Length - PersistantCacheRootFolderPath.Length).Trim('/');
 		}
 
 		public static bool ClearAllFiles()
 		{
 			try
 			{
-				DirectoryInfo di = new DirectoryInfo(Path.Combine(Application.persistentDataPath, CacheRootFolderName));
+				DirectoryInfo di = new DirectoryInfo(Path.Combine(Application.persistentDataPath, "Mapbox"));
 				foreach (DirectoryInfo folder in di.GetDirectories())
 				{
-					folder.Delete(true);
+					if (folder.Name.StartsWith("FileCache"))
+					{
+						folder.Delete(true);
+					}
 				}
 
 				return true;

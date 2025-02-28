@@ -19,8 +19,8 @@ namespace Mapbox.BaseModule.Data.Platform.Cache.SQLiteCache
 
 		public const int PruneCacheDelta = 20;
 		
-		protected static string PersistantCacheRootFolderPath;
-		protected static string CacheRootFolderName = "Mapbox/SqliteCache";
+		protected string PersistantCacheRootFolderPath;
+		protected string CacheRootFolderName = "Mapbox/SqliteCache";
 		protected string cacheFileName = "cache.db";
 		protected TaskManager _taskManager;
 		protected const int DATABASE_CODE_VERSION = 2;
@@ -421,31 +421,36 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 		
 		public static bool DeleteSqliteFolder()
 		{
-			string cacheDirectory = Path.Combine(Application.persistentDataPath, CacheRootFolderName);
+			string cacheDirectory = Path.Combine(Application.persistentDataPath, "Mapbox");
 			if (!Directory.Exists(cacheDirectory)) { return true; }
 
+			DirectoryInfo di = new DirectoryInfo(cacheDirectory);
 			var isDeletedSuccesfully = true;
-			foreach (var filePath in Directory.GetFiles(cacheDirectory))
+			foreach (DirectoryInfo folder in di.GetDirectories())
 			{
-				var error = string.Empty;
-				for (int i = 0; i < 5; i++)
+				if (folder.Name.StartsWith("SqliteCache"))
 				{
-					Thread.Sleep(10);
-					try
+					var error = string.Empty;
+					for (int i = 0; i < 5; i++)
 					{
-						isDeletedSuccesfully = true;
-						File.Delete(filePath);
+						Thread.Sleep(10);
+						try
+						{
+							folder.Delete(true);
+							isDeletedSuccesfully = true;
+							break;
+						}
+						catch (Exception e)
+						{
+							isDeletedSuccesfully = false;
+							error = e.ToString();
+						}
 					}
-					catch (Exception e)
-					{
-						isDeletedSuccesfully = false;
-						error = e.ToString();
-					}
-				}
 
-				if (!isDeletedSuccesfully)
-				{
-					Debug.LogError(error);
+					if (!isDeletedSuccesfully)
+					{
+						Debug.LogError(error);
+					}
 				}
 			}
 
@@ -610,7 +615,7 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 		}
 		#endregion
 
-		private static string GetFullDbPath(string dbName)
+		private string GetFullDbPath(string dbName)
 		{
 			string dbPath = PersistantCacheRootFolderPath; //Path.Combine(Application.persistentDataPath, "cache");
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN || UNITY_WSA
