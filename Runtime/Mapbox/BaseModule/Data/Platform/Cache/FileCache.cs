@@ -148,6 +148,10 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 			{
 				File.Delete(path);
 			}
+			else
+			{
+				Debug.Log($"File {path} does not exist");
+			}
 		}
 
 		public virtual void ClearAll()

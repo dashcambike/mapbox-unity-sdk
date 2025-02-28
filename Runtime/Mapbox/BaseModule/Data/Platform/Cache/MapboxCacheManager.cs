@@ -197,8 +197,8 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
             var sqlTileList = _sqLiteCache.GetAllTiles();
             var fileList = _textureFileCache.GetFileList();
 
-            // Debug.Log("sqlite " + string.Join(Environment.NewLine, sqlTileList.Select(x => x.tile_path)));
-            // Debug.Log("file " + string.Join(Environment.NewLine, fileList));
+            Debug.Log("sqlite " + string.Join(Environment.NewLine, sqlTileList.Select(x => x.tile_path)));
+            Debug.Log("file " + string.Join(Environment.NewLine, fileList));
             
             foreach (var tile in sqlTileList)
             {
