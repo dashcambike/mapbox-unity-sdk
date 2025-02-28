@@ -41,7 +41,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 		public FileCache(TaskManager taskManager, string folderNamePostFix = "")
 		{
 			CacheRootFolderName += folderNamePostFix;
-			PersistantCacheRootFolderPath = Path.Combine(Application.persistentDataPath, CacheRootFolderName);
+			PersistantCacheRootFolderPath = Path.GetFullPath(Path.Combine(Application.persistentDataPath, CacheRootFolderName));
 			_taskManager = taskManager;
 			_fileDataFetcher = new FileDataFetcher();
 			MapIdToFolderNameDictionary = new Dictionary<string, string>();
@@ -299,13 +299,15 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 		
 		public string RelativeFilePathToFileInfoExpects(string relativeFilePath)
 		{
-			var fullPath = Path.Combine(PersistantCacheRootFolderPath, relativeFilePath); 
+			var fullPath = Path.GetFullPath(Path.Combine(PersistantCacheRootFolderPath, relativeFilePath)); 
 			return fullPath;
 		}
 
 		public string RelativePathToUnityRequestExpects(string relativeFilePath)
 		{
-			var fullPath = Path.Combine(PersistantCacheRootFolderPath, relativeFilePath);
+			var fullPath = Path.GetFullPath(Path.Combine(PersistantCacheRootFolderPath, relativeFilePath));
+			//I'm not sure if there's a better way to do this "file://" thing but unity needs that
+			//otherwise it adds https which of course fails the web requests
 			return fullPath.Insert(0, "file://");
 		}
 		
