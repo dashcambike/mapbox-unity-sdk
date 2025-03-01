@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2191227331595030479}
-  - component: {fileID: 2191227331595030478}
+  - component: {fileID: 4242477449877085341}
   m_Layer: 0
   m_Name: MapUtility
   m_TagString: Untagged
@@ -24,17 +24,18 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2191227331595030477}
+  serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2191227333257808753}
   - {fileID: 2191227333556155973}
   - {fileID: 2191227332896685621}
   m_Father: {fileID: 2191227332467405504}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2191227331595030478
+--- !u!114 &4242477449877085341
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -43,15 +44,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 2191227331595030477}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 607ab9099d534f3eaa893b2983edb87b, type: 3}
+  m_Script: {fileID: 11500000, guid: ff83a02b3b6fd473eb30821c7866cac8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   TileProvider:
-    Transform: {fileID: 0}
-    MinX: -2
-    MaxX: 2
-    MinY: -2
-    MaxY: 2
+    TilesToWest: 2
+    TilesToEast: 2
+    TilesToNorth: 2
+    TilesToSouth: 2
 --- !u!1 &2191227332467405517
 GameObject:
   m_ObjectHideFlags: 0
@@ -80,13 +80,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2191227332467405517}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2191227331595030479}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2191227332467405519
 MonoBehaviour:
@@ -101,45 +102,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MapInformation:
-    Pitch: 60
-    Bearing: 0
-    Scale: 1
+    _pitch: 0
+    _bearing: 0
+    _scale: 1
     _latitudeLongitudeString: 60.1712373,24.9435977
     _zoom: 16
-    _useDynamicScaling: 1
-    ScaleCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 5
-        inSlope: -0.60116035
-        outSlope: -0.60116035
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.07216758
-      - serializedVersion: 3
-        time: 20
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
   UnityContext:
-    CoroutineStarter: {fileID: 2191227332467405519}
     MapRoot: {fileID: 2191227332467405504}
     BaseTileRoot: {fileID: 0}
     RuntimeGenerationRoot: {fileID: 0}
-    TileMaterials:
-    - {fileID: 2100000, guid: 07844c7dc8ee041a398536fea1b205f0, type: 2}
   _tileCreatorBehaviour: {fileID: 2191227332467405507}
-  TileProvider: {fileID: 2191227331595030478}
+  TileProvider: {fileID: 4242477449877085341}
   DataFetcher: {fileID: 0}
   CacheManager: {fileID: 0}
   InitializeOnStart: 0
@@ -155,6 +128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fa13573d971f40649081b02ffc8366c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TileMaterials: []
   Settings:
     modificationOptions:
       SimplificationFactor: 1
@@ -166,6 +140,7 @@ MonoBehaviour:
       wallHeight: 10
       wallMaterial: {fileID: 0}
     TileMeshSize: 1
+  CacheSize: 25
 --- !u!114 &2191227332467405508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -200,8 +175,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Settings:
     ElevationLayerType: 0
-    SourceType: 0
-    CustomSourceId: 
     LoadBackgroundTextures: 0
     UseShaderTerrain: 1
     DataSettings:
@@ -220,8 +193,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13ef846e428d4d41b3827620e39b8a6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _sourceType: 2
-  CustomSourceTilesetName: mapbox.mapbox-streets-v8,mapbox.mpl-v2
+  vectorModuleSettings:
+    SourceType: 0
+    CustomSourceId: 
+    LoadBackgroundData: 0
+    DataSettings:
+      CacheSize: 100
+      ActiveZoomLevelRange: {x: 12, y: 16}
   _layerVisualizers:
   - {fileID: 11400000, guid: 86f58468535852c4fb74fc6d373a02ee, type: 2}
 --- !u!1 &2191227332896685617
@@ -250,12 +228,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2191227332896685617}
+  serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0.40000007}
   m_LocalScale: {x: 999, y: 998.99976, z: 998.99976}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2191227331595030479}
-  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2191227332896685620
 MeshFilter:
@@ -276,6 +255,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -314,9 +294,17 @@ MeshCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2191227332896685617}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 4
+  serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
@@ -346,12 +334,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2191227333257808764}
+  serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0.40000007}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2191227331595030479}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2191227333257808752
 MonoBehaviour:
@@ -431,12 +420,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2191227333556155969}
+  serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0.40000007}
   m_LocalScale: {x: 0.2, y: 0.19999996, z: 0.19999996}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2191227331595030479}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2191227333556155972
 MeshFilter:

@@ -46,7 +46,7 @@ namespace Mapbox.MapDebug.Scripts.Logging
         [ContextMenu("Initialize Map")]
         public void Initialize()
         {
-            _mapLogger = gameObject.GetComponent<MapLogger>();
+            _mapLogger = FindObjectOfType<MapLogger>();
 #if UNITY_RECORDER
             _mapLogger.AddLogger(_infoSequence);
             _infoSequence = FindObjectOfType<SequenceControllerBehaviour>() ?? gameObject.AddComponent<SequenceControllerBehaviour>();

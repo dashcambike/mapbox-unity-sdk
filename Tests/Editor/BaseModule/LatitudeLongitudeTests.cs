@@ -33,7 +33,7 @@ namespace Mapbox.BaseModuleTests
         public void WashingtonDCLatitudeLontitude()
         {
             var lngLat = new LatitudeLongitude(-77.0295, 38.9165);
-            Assert.AreEqual("-77.02950,38.91650", lngLat.ToString());
+            Assert.AreEqual("-77.0295,38.9165", lngLat.ToString());
         }
         
         [Test]
