@@ -188,7 +188,7 @@ namespace Mapbox.VectorModule
 		
 		private bool IsZinSupportedRange(int targetZ)
 		{
-			return _vectorModuleSettings.DataSettings.ActiveZoomLevelRange.x <= targetZ && _vectorModuleSettings.DataSettings.ActiveZoomLevelRange.y >= targetZ && _vectorSource.IsZinSupportedRange(targetZ);
+			return _vectorModuleSettings.RejectTilesOutsideZoom.x <= targetZ && _vectorModuleSettings.RejectTilesOutsideZoom.y >= targetZ && _vectorSource.IsZinSupportedRange(targetZ);
 		}
 		
 		private void UpdateRetainedTiles(HashSet<CanonicalTileId> retainedTiles)
@@ -199,7 +199,7 @@ namespace Mapbox.VectorModule
 				var targetId = GetTargetTileId(tileId);
 				if (IsZinSupportedRange(targetId.Z))
 				{
-					if(targetId.Z < _vectorModuleSettings.DataSettings.ActiveZoomLevelRange.x)
+					if(targetId.Z < _vectorModuleSettings.RejectTilesOutsideZoom.x)
 						continue;
 					_retainedTiles.Add(targetId);
 				}
@@ -208,7 +208,7 @@ namespace Mapbox.VectorModule
 				{
 					if (!_readyTiles.Contains(targetId))
 					{
-						for (int i = targetId.Z; i >= _vectorModuleSettings.DataSettings.ActiveZoomLevelRange.x; i--)
+						for (int i = targetId.Z; i >= _vectorModuleSettings.RejectTilesOutsideZoom.x; i--)
 						{
 							targetId = targetId.Parent;
 							if (_readyTiles.Contains(targetId))
@@ -224,7 +224,7 @@ namespace Mapbox.VectorModule
 		
 		private CanonicalTileId GetTargetTileId(CanonicalTileId tileId)
 		{
-			var maxZoom = (int)_vectorModuleSettings.DataSettings.ActiveZoomLevelRange.y;
+			var maxZoom = (int)_vectorModuleSettings.RejectTilesOutsideZoom.y;
 			if (tileId.Z >= maxZoom)
 			{
 				return tileId.Z > maxZoom

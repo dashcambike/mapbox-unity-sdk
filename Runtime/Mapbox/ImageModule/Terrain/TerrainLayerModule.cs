@@ -38,7 +38,8 @@ namespace Mapbox.ImageModule.Terrain
 
         public virtual void LoadTempTile(UnityMapTile unityTile)
         {
-            if (_settings.ElevationLayerType == ElevationLayerType.FlatTerrain)
+            if (_settings.ElevationLayerType == ElevationLayerType.FlatTerrain || 
+                unityTile.CanonicalTileId.Z < _settings.RejectTilesOutsideZoom.x)
             {
                 unityTile.TerrainContainer.DisableTerrain();
                 return;
@@ -59,7 +60,8 @@ namespace Mapbox.ImageModule.Terrain
         
         public virtual bool LoadInstant(UnityMapTile unityTile)
         {
-            if (_settings.ElevationLayerType == ElevationLayerType.FlatTerrain)
+            if (_settings.ElevationLayerType == ElevationLayerType.FlatTerrain || 
+                unityTile.CanonicalTileId.Z < _settings.RejectTilesOutsideZoom.x)
             {
                 unityTile.TerrainContainer.DisableTerrain();
                 return true;
@@ -151,11 +153,17 @@ namespace Mapbox.ImageModule.Terrain
         //PRIVATE METHODS
         private CanonicalTileId GetDataId(CanonicalTileId tileId)
         {
-            var currentZ = tileId.Z;
-            var targetZ = currentZ - 2;
-            targetZ = Mathf.Clamp(targetZ, 2, 14);
-
-            return tileId.ParentAt(targetZ);
+            var maxZoom = _settings.DataSettings.ClampDataLevelToMax;
+            if (tileId.Z >= maxZoom)
+            {
+                return tileId.Z > maxZoom
+                    ? tileId.ParentAt(maxZoom)
+                    : tileId;
+            }
+            else
+            {
+                return tileId;
+            }
         }
         
         private IEnumerable<CanonicalTileId> GetDataId(IEnumerable<CanonicalTileId> tileIdList)

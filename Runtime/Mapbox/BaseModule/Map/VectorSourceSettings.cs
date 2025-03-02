@@ -9,7 +9,8 @@ namespace Mapbox.BaseModule.Map
     {
         [NonSerialized] public string TilesetId;
         public int CacheSize = 100;
-        [Tooltip("Tile will be processed using data from this range, values bigger or smaller will be clipped to this.")]
-        public Vector2 ActiveZoomLevelRange = new Vector2(12, 16);
+        
+        [Tooltip("Maximum data level that'll be used for this module. Tiles can be higher zoom level but data will be lower level.")]
+        public int ClampDataLevelToMax = 16;
     }
 }

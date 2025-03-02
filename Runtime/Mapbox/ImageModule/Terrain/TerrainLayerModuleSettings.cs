@@ -1,6 +1,7 @@
 using System;
 using Mapbox.BaseModule.Data.Interfaces;
 using Mapbox.BaseModule.Map;
+using UnityEngine;
 
 namespace Mapbox.ImageModule.Terrain
 {
@@ -12,5 +13,8 @@ namespace Mapbox.ImageModule.Terrain
         public bool LoadBackgroundTextures = false;
         public bool UseShaderTerrain = true;
         public ImageSourceSettings DataSettings;
+        
+        [Tooltip("Tile outside this range will be rejected.")]
+        public Vector2 RejectTilesOutsideZoom = new Vector2(12, 16);
     }
 }

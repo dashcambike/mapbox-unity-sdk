@@ -10,12 +10,20 @@ using Mapbox.ImageModule;
 using Mapbox.ImageModule.Terrain;
 using Mapbox.ImageModule.Terrain.Settings;
 using Mapbox.ImageModule.Terrain.TerrainStrategies;
+using UnityEngine;
 
 namespace Mapbox.Example.Scripts.ModuleBehaviours
 {
 	public class TerrainLayerModuleScript : ModuleConstructorScript
 	{
-		public TerrainLayerModuleSettings Settings;
+		public TerrainLayerModuleSettings Settings = new TerrainLayerModuleSettings()
+		{
+			RejectTilesOutsideZoom = new Vector2(10, 25),
+			DataSettings = new ImageSourceSettings()
+			{
+				ClampDataLevelToMax = 14
+			}
+		};
 
 		public override ILayerModule ModuleImplementation { get; protected set; }
 
