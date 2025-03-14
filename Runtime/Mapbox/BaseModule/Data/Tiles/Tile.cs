@@ -74,7 +74,6 @@ namespace Mapbox.BaseModule.Data.Tiles
 				return _key;
 			}
 		}
-		public Action Cancelled = () => { };
 		protected List<string> _logs;
 
 		protected Tile()
@@ -196,7 +195,6 @@ namespace Mapbox.BaseModule.Data.Tiles
 
 			TileState = TileState.Canceled;
 			AddLog(string.Format("{0} - {1}", Time.unscaledTime, " state cancelled with cancel call"));
-			Cancelled();
 		}
 
 		// Get the tile resource (raster/vector/etc).

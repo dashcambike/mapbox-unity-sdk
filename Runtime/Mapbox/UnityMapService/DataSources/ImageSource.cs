@@ -84,7 +84,6 @@ namespace Mapbox.UnityMapService.DataSources
                 var tile = _waitingList[unityTileId];
                 if (tile != null)
                 {
-                    tile.Cancel();
                     CancelFetching(tile, _tilesetId);
                 }
 

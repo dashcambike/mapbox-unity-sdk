@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Mapbox.BaseModule.Data.DataFetchers;
 using Mapbox.BaseModule.Data.Platform;
 using Mapbox.BaseModule.Data.Platform.Cache;
 using Mapbox.BaseModule.Data.Platform.TileJSON;
+using Mapbox.BaseModule.Data.Tasks;
 using Mapbox.BaseModule.Data.Tiles;
 using UnityEngine;
 
@@ -24,12 +26,22 @@ namespace Mapbox.UnityMapService.DataSources
         private readonly DataFetchingManager _dataFetchingManager;
         private readonly MapboxCacheManager _cacheManager;
         private IAsyncRequest _tileJsonRequest;
+        private Dictionary<Tile, FetchInfo> _activeRequests;
 
         protected UnitySource(DataFetchingManager dataFetchingManager, MapboxCacheManager cacheManager, string tilesetId)
         {
             _tilesetId = tilesetId;
             _dataFetchingManager = dataFetchingManager;
             _cacheManager = cacheManager;
+            _activeRequests = new Dictionary<Tile, FetchInfo>();
+            _dataFetchingManager.FetchFinished += info =>
+            {
+                _activeRequests.Remove(info.Tile);
+            };
+            _dataFetchingManager.FetchCancelled += info =>
+            {
+                _activeRequests.Remove(info.Tile);
+            };
         }
 
         public override IEnumerator Initialize()
@@ -61,13 +73,19 @@ namespace Mapbox.UnityMapService.DataSources
 
         protected void WebRequestData(Tile tile, Action<DataFetchingResult> callback)
         {
-            _dataFetchingManager.EnqueueForFetching(new FetchInfo(tile, callback));
+            var fetchInfo = new FetchInfo(tile, callback);
+            _activeRequests.Add(tile, fetchInfo);
+            _dataFetchingManager.EnqueueForFetching(fetchInfo);
         }
 		
         protected void CancelFetching(Tile tile, string tilesetId)
         {
+            tile.Cancel();
             _cacheManager.CancelFetching(tile.Id, tilesetId);
-            _dataFetchingManager.CancelFetching(tile, tilesetId);
+            //we removed data fetching cancel here as data fetching now track
+            //removal through the tile.Cancel
+            //no further calls are necessary
+            // _dataFetchingManager.CancelFetching(tile, tilesetId);
         }
 
         public void SaveBlob(MapboxTileData vectorCacheItem, bool forceInsert)

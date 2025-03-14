@@ -50,6 +50,18 @@ namespace Mapbox.BaseModule.Map
         {
             Runnable.Instance.StartCoroutine(LoadMapViewCoroutine(callback));
         }
+        
+        public void LoadMapView(Action callback, LatitudeLongitude coordinates)
+        {
+            Status = InitializationStatus.Initialized;
+            MapInformation.SetInformation(coordinates);
+            Runnable.Instance.StartCoroutine(LoadMapViewCoroutine(() =>
+            {
+                Status = InitializationStatus.ViewLoaded;
+                callback();
+                Status = InitializationStatus.ReadyForUpdates;
+            }));
+        }
 
         public IEnumerator LoadMapViewCoroutine(Action callback)
         {

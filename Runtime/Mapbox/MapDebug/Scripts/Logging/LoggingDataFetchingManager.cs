@@ -27,6 +27,8 @@ namespace Mapbox.MapDebug.Scripts.Logging
                 TotalRequestCount++;
                 Records[f].StartTime = Time.realtimeSinceStartup;
             };
+
+            base.FetchCancelled += info => { TotalCancelledCount++; };
         }
 
         public override void EnqueueForFetching(FetchInfo info)
@@ -47,42 +49,30 @@ namespace Mapbox.MapDebug.Scripts.Logging
             base.EnqueueForFetching(info);
         }
 
-        public override void CancelFetching(Tile tile, string tilesetId)
-        {
-            if (_tileFetchInfos.ContainsKey(tile.Key))
-            {
-                TotalCancelledCount++;
-                var record = Records[_tileFetchInfos[tile.Key]];
-                record.IsCancelled = true;
-                record.CancelTime = Time.realtimeSinceStartup;
-            }
-            base.CancelFetching(tile, tilesetId);
-        }
-
         public override TileJSON GetTileJSON(int timeout = 10)
         {
             return base.GetTileJSON(timeout);
         }
 
-        public Queue<int> GetTileOrderQueue()
-        {
-            return _tileOrder;
-        }
-
-        public Dictionary<int, FetchInfo> GetFetchInfoQueue()
-        {
-            return _tileFetchInfos;
-        }
+        // public Queue<int> GetTileOrderQueue()
+        // {
+        //     return _tileOrder;
+        // }
+        //
+        // public Dictionary<int, FetchInfo> GetFetchInfoQueue()
+        // {
+        //     return _tileFetchInfos;
+        // }
 
         public int GetActiveRequestLimit()
         {
             return _activeRequestLimit;
         }
 
-        public Dictionary<int, Tile> GetActiveRequests()
-        {
-            return _globalActiveRequests;
-        }
+        // public Dictionary<int, Tile> GetActiveRequests()
+        // {
+        //     return _globalActiveRequests;
+        // }
 
         public void ClearLogsAndStats()
         {
@@ -134,7 +124,7 @@ namespace Mapbox.MapDebug.Scripts.Logging
 
         public string PrintScreen()
         {
-            return string.Format("Web Requests | Queue: {0}, Running: {1}, Total: {2}, Cancelled: {3}", _tileFetchInfos.Count, _globalActiveRequests.Count, TotalRequestCount, TotalCancelledCount);
+            return string.Format("Web Requests | Queue: {0}, Running: {1}, Total: {2}, Cancelled: {3}", 0, _globalActiveRequests.Count, TotalRequestCount, TotalCancelledCount);
         }
 
         private JObject CreateLogEntry(KeyValuePair<FetchInfo, LoggingDataFetchingManager.InfoRecord> pair)
