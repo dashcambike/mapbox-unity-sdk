@@ -15,7 +15,7 @@ namespace Mapbox.BaseModule.Data.DataFetchers
 		/// <summary>
 		/// A fetch command in queue is about the get started.
 		/// </summary>
-		public Action<FetchInfo> TileInitialized = (t)=> {};
+		public Action<FetchInfo> FetchInitialized = (t)=> {};
 		
 		/// <summary>
 		/// This doesn't mean success or failure, it shows a fetch command fired from queue
@@ -85,11 +85,9 @@ namespace Mapbox.BaseModule.Data.DataFetchers
 					{
 						_fetchQueue.Dequeue();
 						_globalActiveRequests.Add(info);
-						TileInitialized(info);
+						FetchInitialized(info);
 						info.Tile.Initialize(
 							_fileSource,
-							info.Tile.Id,
-							info.Tile.TilesetId,
 							(dataFetchingResult) =>
 							{
 								_globalActiveRequests.Remove(info);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mapbox.BaseModule.Data.DataFetchers;
 using Mapbox.BaseModule.Data.Platform.Cache;
+using Mapbox.BaseModule.Data.Tasks;
 using Mapbox.BaseModule.Data.Tiles;
 using Mapbox.BaseModule.Map;
 using Mapbox.BaseModule.Utilities;
@@ -106,17 +107,32 @@ namespace Mapbox.UnityMapService.DataSources
         #region coroutines
         public override IEnumerator LoadTileCoroutine(CanonicalTileId requestedDataTileId, Action<T> callback = null)
         {
-            var isDone = false;
             T resultData = null;
-            LoadTileCore(requestedDataTileId, (result) =>
+            if (GetInstantData(requestedDataTileId, out resultData))
             {
-                isDone = true;
-                resultData = result;
-            });
+                
+            }
+            else if (_waitingList.ContainsKey(requestedDataTileId))
+            {
+                while(_waitingList.ContainsKey(requestedDataTileId))
+                {
+                    yield return null;
+                }
+                _memoryCache.Get(requestedDataTileId, out resultData);
+            }
+            else
+            {
+                var isDone = false;
+                LoadTileCore(requestedDataTileId, (result) =>
+                {
+                    isDone = true;
+                    resultData = result;
+                });
 
-            while (!isDone)
-            {
-                yield return null;
+                while (!isDone)
+                {
+                    yield return null;
+                }
             }
 
             callback?.Invoke(resultData);

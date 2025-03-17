@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Mapbox.BaseModule.Data.DataFetchers;
 using Mapbox.BaseModule.Data.Tiles;
 using Mapbox.BaseModule.Utilities;
 using UnityEngine;
@@ -12,13 +13,12 @@ namespace Mapbox.BaseModule.Data.Tasks
 	public class TaskManager
 	{
 		public Action<TaskWrapper> TaskStarted = (t) => { };
-		public Action<CanonicalTileId> TaskCancelled = (t) => { };
+		public Action<TaskWrapper> TaskCancelled = (t) => { };
 		public int ActiveTaskLimit = 10;
+		protected const float _requestDelay = 0.2f;
 		
 		protected HashSet<TaskWrapper> _runningTasks;
-		protected Dictionary<int, TaskWrapper> _allTasks;
-		protected Queue<int>[] _taskQueueList;
-		protected Dictionary<CanonicalTileId, HashSet<int>> _tasksByTile = new Dictionary<CanonicalTileId, HashSet<int>>();
+		protected List<Queue<TaskWrapper>> _taskQueue;
 		private bool _isDestroying = false;
 		private CancellationTokenSource _globalCancellationTokenSource;
 
@@ -28,18 +28,14 @@ namespace Mapbox.BaseModule.Data.Tasks
 		{
 			_runningTasks = new HashSet<TaskWrapper>();
 			_globalCancellationTokenSource = new CancellationTokenSource();
-			_taskQueueList = new Queue<int>[5]
+			_taskQueue = new List<Queue<TaskWrapper>>()
 			{
-				new Queue<int>(),
-				new Queue<int>(),
-				new Queue<int>(),
-				new Queue<int>(),
-				new Queue<int>()
+				new Queue<TaskWrapper>(),
+				new Queue<TaskWrapper>(),
+				new Queue<TaskWrapper>(),
+				new Queue<TaskWrapper>(),
+				new Queue<TaskWrapper>()
 			};
-			_allTasks = new Dictionary<int, TaskWrapper>();
-
-			_tasksByTile = new Dictionary<CanonicalTileId, HashSet<int>>();
-			//_taskPriorityQueue = new PriorityQueue<TaskWrapper, int>();
 		}
 
 		public void Initialize()
@@ -50,7 +46,7 @@ namespace Mapbox.BaseModule.Data.Tasks
 
 		private bool TaskQueueAny()
 		{
-			foreach (var queue in _taskQueueList)
+			foreach (var queue in _taskQueue)
 			{
 				if (queue.Count != 0)
 					return true;
@@ -59,9 +55,9 @@ namespace Mapbox.BaseModule.Data.Tasks
 			return false;
 		}
 
-		private int TaskQueuePeek()
+		private TaskWrapper TaskQueuePeek()
 		{
-			foreach (var queue in _taskQueueList)
+			foreach (var queue in _taskQueue)
 			{
 				if (queue.Count != 0)
 				{
@@ -69,12 +65,12 @@ namespace Mapbox.BaseModule.Data.Tasks
 				}
 			}
 
-			return -1;
+			return null;
 		}
 
-		private int TaskQueueDequeue()
+		private TaskWrapper TaskQueueDequeue()
 		{
-			foreach (var queue in _taskQueueList)
+			foreach (var queue in _taskQueue)
 			{
 				if (queue.Count != 0)
 				{
@@ -82,58 +78,52 @@ namespace Mapbox.BaseModule.Data.Tasks
 				}
 			}
 
-			return -1;
+			return null;
 		}
 
-		public IEnumerator UpdateTaskManager()
+		protected IEnumerator UpdateTaskManager()
 		{
 			while (!_isDestroying)
 			{
 				while (TaskQueueAny() && _runningTasks.Count <= ActiveTaskLimit)
 				{
-					var firstPeek = TaskQueuePeek();
-					// if (_allTasks.ContainsKey(firstPeek) &&
-					// 	_allTasks[firstPeek].EnqueueFrame > Time.frameCount - 15 && Application.isPlaying)
-					// {
-					// 	yield return null;
-					// }
-					// else
+					var task = TaskQueuePeek();
+					if (task.IsCancelled)
 					{
-						var wrapperId = TaskQueueDequeue();
-						TaskWrapper wrapper;
-						if (!_allTasks.ContainsKey(wrapperId))
-						{
-							continue;
-						}
-						
-						wrapper = _allTasks[wrapperId];
+						TaskQueueDequeue();
+						TaskCancelled(task);
+						continue;
+					}
 
-						//Debug.Log("running " + wrapper.Info);
-						if (wrapper is MeshGenTaskWrapper meshWrapper)
+					if (QueueTimeHasMatured(task.EnqueueFrame, _requestDelay) || !Application.isPlaying)
+					{
+						TaskQueueDequeue();
+						_runningTasks.Add(task);
+						if (task is MeshGenTaskWrapper meshWrapper)
 						{
 							HandleMeshGenTask(meshWrapper);
 						}
 						else
 						{
-							HandleTask(wrapper);
+							HandleTask(task);
 						}
-						
+					}
+					else
+					{
+						yield return null;
 					}
 				}
-
 				yield return null;
 			}
+		}
+		
+		private bool QueueTimeHasMatured(float queueTime, float maturationAge)
+		{
+			return Time.time - queueTime >= maturationAge;
 		}
 
 		private void HandleTask(TaskWrapper wrapper)
 		{
-			_allTasks.Remove(wrapper.Id);
-			_tasksByTile[wrapper.OwnerTileId].Remove(wrapper.Id);
-			if (_tasksByTile[wrapper.OwnerTileId].Count == 0)
-			{
-				_tasksByTile.Remove(wrapper.OwnerTileId);
-			}
-						
 			TaskStarting(wrapper);
 			var task = Task.Run(wrapper.Action, _globalCancellationTokenSource.Token);
 			_runningTasks.Add(wrapper);
@@ -145,20 +135,14 @@ namespace Mapbox.BaseModule.Data.Tasks
 					Debug.Break();
 				}
 				TaskFinished(wrapper);
-				ContinueWrapper(t, wrapper);
+				_runningTasks.Remove(wrapper);
+				wrapper.ContinueWith?.Invoke(task);
 			}, TaskScheduler.FromCurrentSynchronizationContext());
 			TaskStarted(wrapper);
 		}
 
 		private void HandleMeshGenTask(MeshGenTaskWrapper wrapper)
 		{
-			_allTasks.Remove(wrapper.Id);
-			_tasksByTile[wrapper.OwnerTileId].Remove(wrapper.Id);
-			if (_tasksByTile[wrapper.OwnerTileId].Count == 0)
-			{
-				_tasksByTile.Remove(wrapper.OwnerTileId);
-			}
-						
 			TaskStarting(wrapper);
 			var task = Task.Run(wrapper.MeshGen);
 			_runningTasks.Add(wrapper);
@@ -194,120 +178,34 @@ namespace Mapbox.BaseModule.Data.Tasks
 
 		protected virtual void TaskStarting(TaskWrapper task)
 		{
-			task.StartingTime = Time.realtimeSinceStartup;
+			task.StartingTime = Time.time;
 		}
 
 		protected virtual void TaskFinished(TaskWrapper task)
 		{
-			task.FinishedTime = Time.realtimeSinceStartup;
-		}
-
-		private void ContinueWrapper(Task task, TaskWrapper taskWrapper)
-		{
-			_runningTasks.Remove(taskWrapper);
-			//taskWrapper.Finished(taskWrapper);
-			if (taskWrapper.ContinueWith != null)
-			{
-				//Debug.Log(taskWrapper.FinishedFrame - taskWrapper.StartingFrame + " task timer");
-				taskWrapper.ContinueWith(task);
-			}
+			task.FinishedTime = Time.time;
 		}
 
 		public virtual void AddTask(TaskWrapper taskWrapper, int priorityLevel = 3)
 		{
-			//Debug.Log(taskWrapper.Info);
 			lock (_lock)
 			{
-				if (taskWrapper != null)
-				{
-					if (!_allTasks.ContainsKey(taskWrapper.Id))
-					{
-						taskWrapper.EnqueueFrame = Time.frameCount;
-						_allTasks.Add(taskWrapper.Id, taskWrapper);
-
-						if (!_tasksByTile.ContainsKey(taskWrapper.OwnerTileId))
-						{
-							_tasksByTile.Add(taskWrapper.OwnerTileId, new HashSet<int>());
-						}
-						_tasksByTile[taskWrapper.OwnerTileId].Add(taskWrapper.Id);
-						//_taskQueue.Enqueue(taskWrapper.Id);
-						_taskQueueList[priorityLevel].Enqueue(taskWrapper.Id);
-					}
-					else
-					{
-						_allTasks.Remove(taskWrapper.Id);
-						if (_tasksByTile.ContainsKey(taskWrapper.OwnerTileId))
-						{
-							_tasksByTile[taskWrapper.OwnerTileId].Remove(taskWrapper.Id);
-							if (_tasksByTile[taskWrapper.OwnerTileId].Count == 0)
-							{
-								_tasksByTile.Remove(taskWrapper.OwnerTileId);
-							}
-						}
-						else
-						{
-							Debug.Log(taskWrapper.TileId);
-						}
-
-						taskWrapper.EnqueueFrame = Time.frameCount;
-						_allTasks.Add(taskWrapper.Id, taskWrapper);
-
-						if (!_tasksByTile.ContainsKey(taskWrapper.OwnerTileId))
-						{
-							_tasksByTile.Add(taskWrapper.OwnerTileId, new HashSet<int>());
-						}
-						_tasksByTile[taskWrapper.OwnerTileId].Add(taskWrapper.Id);
-						//_taskQueue.Enqueue(taskWrapper.Id);
-						_taskQueueList[priorityLevel].Enqueue(taskWrapper.Id);
-					}
-				}
-			}
-
-			//_taskPriorityQueue.Enqueue(taskWrapper, priority);
-		}
-
-		public virtual void CancelTile(CanonicalTileId cancelledTileId)
-		{
-			if (_tasksByTile.ContainsKey(cancelledTileId))
-			{
-				foreach (var taskId in _tasksByTile[cancelledTileId])
-				{
-					if (_allTasks.ContainsKey(taskId))
-					{
-						var task = _allTasks[taskId];
-						TaskCancelled(cancelledTileId);
-						_allTasks.Remove(taskId);
-						task.OnCancelled();
-					}
-				}
-
-				_tasksByTile.Remove(cancelledTileId);
+				taskWrapper.EnqueueFrame = Time.time;
+				_taskQueue[priorityLevel].Enqueue(taskWrapper);
+				//Debug.Log(taskWrapper.Info);
 			}
 		}
-
-		public virtual void CancelTask(TaskWrapper task)
-		{
-			_allTasks.Remove(task.Id);
-			task.OnCancelled();
-		}
-
-		public void CancelTask(int taskKey)
-		{
-			if (_allTasks.TryGetValue(taskKey, out var task))
-			{
-				CancelTask(task);
-			}
-		}
-
+		
 		public void OnDestroy()
 		{
 			_globalCancellationTokenSource.Cancel();
 			_isDestroying = true;
-			_allTasks.Clear();
-			_allTasks = null;
-			_tasksByTile.Clear();
-			_tasksByTile = null;
-			_taskQueueList = null;
+			// _allTasks.Clear();
+			// _allTasks = null;
+			// _tasksByTile.Clear();
+			// _tasksByTile = null;
+			//_taskQueueList = null;
+			_taskQueue.Clear();
 			TaskStarted = null;
 			TaskCancelled = null;
 		}

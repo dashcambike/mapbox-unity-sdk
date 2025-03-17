@@ -7,9 +7,6 @@ namespace Mapbox.BaseModule.Data.Tasks
     {
         public Func<MeshGenTaskWrapperResult> MeshGen; 
         public Action<MeshGenTaskWrapperResult> ContinueMeshWith;
-        public MeshGenTaskWrapper(int id) : base(id)
-        {
-        }
     }
     
     public class MeshGenTaskWrapperResult : TaskResult

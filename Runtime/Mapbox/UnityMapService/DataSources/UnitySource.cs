@@ -27,9 +27,11 @@ namespace Mapbox.UnityMapService.DataSources
         private readonly MapboxCacheManager _cacheManager;
         private IAsyncRequest _tileJsonRequest;
         private Dictionary<Tile, FetchInfo> _activeRequests;
+        protected Dictionary<CanonicalTileId, List<TaskWrapper>> _activeTasks;
 
         protected UnitySource(DataFetchingManager dataFetchingManager, MapboxCacheManager cacheManager, string tilesetId)
         {
+            _activeTasks = new Dictionary<CanonicalTileId, List<TaskWrapper>>();
             _tilesetId = tilesetId;
             _dataFetchingManager = dataFetchingManager;
             _cacheManager = cacheManager;
@@ -86,6 +88,15 @@ namespace Mapbox.UnityMapService.DataSources
             //removal through the tile.Cancel
             //no further calls are necessary
             // _dataFetchingManager.CancelFetching(tile, tilesetId);
+            
+            if(_activeTasks.TryGetValue(tile.Id, out List<TaskWrapper> taskList))
+            {
+                foreach (var task in taskList)
+                {
+                    task.Cancel();
+                }
+                _activeTasks.Remove(tile.Id);
+            }
         }
 
         public void SaveBlob(MapboxTileData vectorCacheItem, bool forceInsert)
@@ -108,14 +119,20 @@ namespace Mapbox.UnityMapService.DataSources
             _cacheManager.GetImageAsync(tileId, tilesetId, isTextureNonreadable, callback);
         }
         
-        public void GetTileInfoAsync<T1>(CanonicalTileId tileId, string tilesetid, Action<T1> callback, int priority = 1) where T1 : MapboxTileData, new()
+        public TaskWrapper GetTileInfoAsync<T1>(CanonicalTileId tileId, string tilesetid, Action<T1> callback, int priority = 1) where T1 : MapboxTileData, new()
         { 
-            _cacheManager.GetTileInfoAsync<T1>(tileId, tilesetid, callback, priority);
+            var task = _cacheManager.GetTileInfoAsync<T1>(tileId, tilesetid, callback, priority);
+            if(!_activeTasks.ContainsKey(tileId)) _activeTasks.Add(tileId, new List<TaskWrapper>());
+            _activeTasks[tileId].Add(task);
+            return task;
         }
         
-        public void ReadEtagExpiration<T1>(T1 data, Action callback, int priority = 1) where T1 : MapboxTileData, new()
+        public TaskWrapper ReadEtagExpiration<T1>(T1 data, Action callback, int priority = 1) where T1 : MapboxTileData, new()
         {
-            _cacheManager.ReadEtagExpiration(data, callback, priority);
+            var task = _cacheManager.ReadEtagExpiration(data, callback, priority);
+            if(!_activeTasks.ContainsKey(data.TileId)) _activeTasks.Add(data.TileId, new List<TaskWrapper>());
+            _activeTasks[data.TileId].Add(task);
+            return task;
         }
 
         public void UpdateExpiration(CanonicalTileId tileId, string tilesetId, DateTime date)

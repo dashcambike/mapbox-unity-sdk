@@ -34,7 +34,7 @@ namespace Mapbox.BaseModule.Telemetry
 		
 		//EventsService
 		private AndroidJavaObject _mapboxBillingService;
-		private string _mapboxBillingServiceClassName = "com.mapbox.common.BillingService";
+
 		private string _mapboxBillingServiceFactoryClassName = "com.mapbox.common.BillingServiceFactory";
 		private string _mapboxBillingFactoryGetMethodName = "getInstance";
 		private string _mapboxSdkEventMethodName = "triggerUserBillingEvent";
@@ -43,9 +43,6 @@ namespace Mapbox.BaseModule.Telemetry
 		private string _unityMausEnumName = "UNITY_MAUS";
 		private string _mapboxTurnstileEventClassName = "com.mapbox.common.TurnstileEvent";
 		private string _sendTurnstileEventMethodName = "sendTurnstileEvent";
-		private string _mapboxSdkInformationName = "Unity_SDK";
-		private string _mapboxSdkInformationVersion = "3.0.0";
-		private string _mapboxSdkInformationPackageName = "package_Name";
 		private string _eventsServiceNullMessage = "events service null";
 		private string _mapboxoptionsClassName = "com.mapbox.common.MapboxOptions";
 		
@@ -61,7 +58,7 @@ namespace Mapbox.BaseModule.Telemetry
 		private string _sdkInfoRegistryFactoryClassName = "com.mapbox.common.SdkInfoRegistryFactory";
 		private string _sdkInfoRegistryFactoryGetMethodName = "getInstance"; 
 		private string _sdkInfoRegistryRegisterMethodName = "registerSdkInformation";
-
+		
 		private AndroidJavaObject _sdkInformation;
 		
 		public void Initialize(string accessToken)

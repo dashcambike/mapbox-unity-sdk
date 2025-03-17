@@ -248,7 +248,7 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 		public virtual void UpdateExpiration(string tilesetName, CanonicalTileId tileId, DateTime expirationDate)
 		{
 			_taskManager.AddTask(
-				new TaskWrapper(tileId.GenerateKey(tilesetName, "SqliteCacheUpdateExpiration"))
+				new TaskWrapper()
 				{
 					OwnerTileId = tileId,
 					TileId = tileId,
@@ -471,7 +471,7 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 			}
 			
 			_taskManager.AddTask(
-				new TaskWrapper(tileId.GenerateKey(tilesetName, "SqliteCache"))
+				new TaskWrapper()
 				{
 					OwnerTileId = tileId,
 					TileId = tileId,

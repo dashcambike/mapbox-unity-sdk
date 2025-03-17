@@ -221,11 +221,6 @@ namespace Mapbox.BaseModule.Data.Tiles
 			return this.data.GetLayer(layerName);
 		}
 
-		public override void Prune()
-		{
-			base.Prune();
-		}
-
 		protected override TileResource MakeTileResource(string tilesetId)
 		{
 

@@ -209,35 +209,38 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 				Directory.CreateDirectory(folderPath);
 			}
 
-			_taskManager.AddTask(
-				new TaskWrapper(info.TextureCacheItem.TileId.GenerateKey(info.TextureCacheItem.TilesetId, "FileCache"))
+			//we don't track task here anymore as we don't inted to cancel it
+			//so it's fire and forget task with low priority
+			var task = new TaskWrapper()
+			{
+				TileId = info.TextureCacheItem.TileId,
+				TilesetId = info.TextureCacheItem.TilesetId,
+				Action = () =>
 				{
-					TileId = info.TextureCacheItem.TileId,
-					TilesetId = info.TextureCacheItem.TilesetId,
-					Action = () =>
-					{
-						var fullPath = RelativeFilePathToFileInfoExpects(info.Path);
-						FileStream sourceStream = new FileStream(
-							RelativeFilePathToFileInfoExpects(info.Path),
-							FileMode.Create, FileAccess.Write, FileShare.Read,
-							bufferSize: 4096, useAsync: false);
+					var fullPath = RelativeFilePathToFileInfoExpects(info.Path);
+					FileStream sourceStream = new FileStream(
+						RelativeFilePathToFileInfoExpects(info.Path),
+						FileMode.Create, FileAccess.Write, FileShare.Read,
+						bufferSize: 4096, useAsync: false);
 
-						sourceStream.Write(info.TextureCacheItem.Data, 0, info.TextureCacheItem.Data.Length);
-						sourceStream.Close();
+					sourceStream.Write(info.TextureCacheItem.Data, 0, info.TextureCacheItem.Data.Length);
+					sourceStream.Close();
 
-						var finalRelativePath = FullFilePathToRelativePath(fullPath);
-						info.PostSaveAction(finalRelativePath);
-						//Debug.Log(string.Format("File saved {0} - {1}", info.TextureCacheItem.TileId, info.Path));
-						OnFileSaved(info.TextureCacheItem, finalRelativePath);
-					},
-					ContinueWith = (t) =>
-					{
-						
-					},
+					var finalRelativePath = FullFilePathToRelativePath(fullPath);
+					info.PostSaveAction(finalRelativePath);
+					//Debug.Log(string.Format("File saved {0} - {1}", info.TextureCacheItem.TileId, info.Path));
+					OnFileSaved(info.TextureCacheItem, finalRelativePath);
+				},
+				ContinueWith = (t) =>
+				{
+
+				},
 #if UNITY_EDITOR
-					Info = "FileCache.SaveInfo"
+				Info = "FileCache.SaveInfo"
 #endif
-				}, 4);
+			};
+			
+			_taskManager.AddTask(task, 4);
 		}
 
 		

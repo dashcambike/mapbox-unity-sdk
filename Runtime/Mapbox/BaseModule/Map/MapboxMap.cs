@@ -48,16 +48,23 @@ namespace Mapbox.BaseModule.Map
 
         public void LoadMapView(Action callback)
         {
-            Runnable.Instance.StartCoroutine(LoadMapViewCoroutine(callback));
+            Status = InitializationStatus.LoadingView;
+            LoadViewStarting();
+            Runnable.Instance.StartCoroutine(LoadMapViewCoroutine(() =>
+            {
+                Status = InitializationStatus.ReadyForUpdates;
+                callback?.Invoke();
+                LoadViewCompleted();
+            }));
         }
         
         public void LoadMapView(Action callback, LatitudeLongitude coordinates)
         {
-            Status = InitializationStatus.Initialized;
+            Status = InitializationStatus.LoadingView;
+            LoadViewStarting();
             MapInformation.SetInformation(coordinates);
             Runnable.Instance.StartCoroutine(LoadMapViewCoroutine(() =>
             {
-                Status = InitializationStatus.ViewLoaded;
                 callback();
                 Status = InitializationStatus.ReadyForUpdates;
             }));
@@ -68,14 +75,7 @@ namespace Mapbox.BaseModule.Map
             var tileCover = new TileCover();
             MapService.TileCover(MapInformation, tileCover);
             yield return MapVisualizer.LoadTileCoverToMemory(tileCover);
-            if (Status == InitializationStatus.Initialized)
-            {
-                Status = InitializationStatus.ViewLoaded;
-                OnFirstViewCompleted();
-            }
-
             callback();
-            Status = InitializationStatus.ReadyForUpdates;
         }
 
         public void ChangeView(LatitudeLongitude? latlng = null, float? zoom = null, float? pitch = null, float? bearing = null)
@@ -84,7 +84,8 @@ namespace Mapbox.BaseModule.Map
         }
         
         public Action Initialized = () => {};
-        public Action OnFirstViewCompleted = () => { };
+        public Action LoadViewStarting = () => { };
+        public Action LoadViewCompleted = () => { };
         
         public void OnDestroy()
         {

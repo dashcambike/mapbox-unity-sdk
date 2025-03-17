@@ -5,7 +5,7 @@ namespace Mapbox.BaseModule.Map
         WaitingForInitialization,
         Initializing,
         Initialized,
-        ViewLoaded,
+        LoadingView,
         ReadyForUpdates
     }
 }

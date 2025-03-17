@@ -250,7 +250,11 @@ namespace Mapbox.VectorModule
 		
 		private void CreateVisual(CanonicalTileId tileId, VectorData vectorData, Action<MeshGenerationTaskResult> callback = null)
 		{
-			if (!_meshGenerationUnit.IsInWork(vectorData.TileId))
+			if (_readyTiles.Contains(tileId))
+			{
+				callback?.Invoke(new MeshGenerationTaskResult(TaskResultType.Success));
+			}
+			else if (!_meshGenerationUnit.IsInWork(vectorData.TileId))
 			{
 				_meshGenerationUnit.MeshGeneration(vectorData, (result =>
 				{

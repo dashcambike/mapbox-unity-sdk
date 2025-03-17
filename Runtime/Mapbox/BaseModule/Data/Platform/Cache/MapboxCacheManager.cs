@@ -16,8 +16,8 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
         void SaveBlob(MapboxTileData vectorCacheItem, bool forceInsert);
         void SaveImage(RasterData textureCacheItem, bool forceInsert);
         void GetImageAsync<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new();
-        void GetTileInfoAsync<T>(CanonicalTileId tileId, string tilesetid , Action<T> callback, int priority = 1) where T : MapboxTileData, new();
-        void ReadEtagExpiration<T>(T data, Action callback, int priority = 1) where T : MapboxTileData, new();
+        TaskWrapper GetTileInfoAsync<T>(CanonicalTileId tileId, string tilesetid , Action<T> callback, int priority = 1) where T : MapboxTileData, new();
+        TaskWrapper ReadEtagExpiration<T>(T data, Action callback, int priority = 1) where T : MapboxTileData, new();
         void UpdateExpiration(CanonicalTileId tileId, string tilesetId, DateTime date);
     }
 
@@ -108,66 +108,69 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
             }
         }
 
-        public void GetTileInfoAsync<T>(CanonicalTileId tileId, string tilesetid, Action<T> callback, int priority = 1) where T : MapboxTileData, new()
+        public TaskWrapper GetTileInfoAsync<T>(CanonicalTileId tileId, string tilesetid, Action<T> callback, int priority = 1) where T : MapboxTileData, new()
         {
             if (_sqLiteCache != null)
             {
                 T data = null;
-                _taskManager.AddTask(
-                    new TaskWrapper(tileId.GenerateKey(tilesetid, "GetTileInfoAsync"))
-                    {
-                        TileId = tileId,
-                        TilesetId = tilesetid,
-                        Action = () => { data = _sqLiteCache.Get<T>(tilesetid, tileId); },
-                        ContinueWith = (t) =>
-                        {
-                            if (data == null || data.HasError)
-                            {
-                                callback?.Invoke(null);
-                            }
-                            else
-                            {
-                                callback?.Invoke(data);
-                            }
-                        },
-#if UNITY_EDITOR
-                        Info = "MapboxCacheManager.GetTileInfoAsync"
-#endif
-                    }, priority);
-            }
-            else
-            {
-                callback?.Invoke(null);
-            }
-        }
-
-        public void ReadEtagExpiration<T>(T data, Action callback, int priority = 4) where T : MapboxTileData, new()
-        {
-            _taskManager.AddTask(
-                new TaskWrapper(data.TileId.GenerateKey(data.TilesetId, "ReadEtagExpiration"))
+                var task = new TaskWrapper()
                 {
-                    TileId = data.TileId,
-                    TilesetId = data.TilesetId,
-                    Action = () =>
-                    {
-                        _sqLiteCache.ReadEtagAndExpiration<T>(data);
-                    },
+                    TileId = tileId,
+                    TilesetId = tilesetid,
+                    Action = () => { data = _sqLiteCache.Get<T>(tilesetid, tileId); },
                     ContinueWith = (t) =>
                     {
-                        if (data.HasError)
+                        if (data == null || data.HasError)
                         {
-                            callback?.Invoke();
+                            callback?.Invoke(null);
                         }
                         else
                         {
-
-                            callback?.Invoke();
+                            callback?.Invoke(data);
                         }
                     },
 #if UNITY_EDITOR
-                    Info = "MapboxCacheManager.ReadEtagExpiration"
+                    Info = "MapboxCacheManager.GetTileInfoAsync"
 #endif
-                }, priority);
+                };
+                _taskManager.AddTask(task, priority);
+                return task;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public TaskWrapper ReadEtagExpiration<T>(T data, Action callback, int priority = 4) where T : MapboxTileData, new()
+        {
+            var task = new TaskWrapper()
+            {
+                TileId = data.TileId,
+                TilesetId = data.TilesetId,
+                Action = () =>
+                {
+                    _sqLiteCache.ReadEtagAndExpiration<T>(data);
+                },
+                ContinueWith = (t) =>
+                {
+                    if (data.HasError)
+                    {
+                        callback?.Invoke();
+                    }
+                    else
+                    {
+
+                        callback?.Invoke();
+                    }
+                },
+#if UNITY_EDITOR
+                Info = "MapboxCacheManager.ReadEtagExpiration"
+#endif
+            };
+                
+            _taskManager.AddTask(task, priority);
+            return task;
         }
 
         public void UpdateExpiration(CanonicalTileId tileId, string tilesetId, DateTime date)
@@ -235,10 +238,10 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 
         public void CancelFetching(CanonicalTileId tileId, string tilesetId)
         {
-            var key = tileId.GenerateKey(tilesetId, "GetTileInfoAsync");
-            _taskManager.CancelTask(key);
-            key = tileId.GenerateKey(tilesetId, "ReadEtagExpiration");
-            _taskManager.CancelTask(key);
+            // var key = tileId.GenerateKey(tilesetId, "GetTileInfoAsync");
+            // _taskManager.CancelTask(key);
+            // key = tileId.GenerateKey(tilesetId, "ReadEtagExpiration");
+            // _taskManager.CancelTask(key);
         }
         
         public static void DeleteAllCache()

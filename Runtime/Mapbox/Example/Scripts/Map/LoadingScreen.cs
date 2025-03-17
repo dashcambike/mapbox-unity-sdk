@@ -25,7 +25,7 @@ namespace Mapbox.Example.Scripts.Map
 
         private void InitializeScreen(MapboxMap map)
         {
-            map.OnFirstViewCompleted += OnMapFirstViewCompleted;
+            map.LoadViewCompleted += OnMapFirstViewCompleted;
         }
 
         private void OnMapFirstViewCompleted()
@@ -48,7 +48,7 @@ namespace Mapbox.Example.Scripts.Map
             if(MapBehaviourCore)
                 MapBehaviourCore.Initialized -= InitializeScreen;
             if(_map != null)
-                _map.OnFirstViewCompleted -= OnMapFirstViewCompleted;
+                _map.LoadViewCompleted -= OnMapFirstViewCompleted;
         }
     }
 }

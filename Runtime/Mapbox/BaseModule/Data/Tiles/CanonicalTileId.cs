@@ -184,33 +184,6 @@ namespace Mapbox.BaseModule.Data.Tiles
 
 	public static class TileIdExtensions
 	{
-		public static int GenerateKey(this CanonicalTileId tileId, string tilesetId)
-		{
-			unchecked // Overflow is fine, just wrap
-			{
-				int hash = 17;
-				hash = hash * 23 + tileId.Parent.GetHashCode();
-				hash = hash * 23 + tilesetId.GetHashCode();
-				hash = hash * 23 + tileId.GetHashCode();
-				return hash;
-			}
-		}
-
-		public static int GenerateKey(this CanonicalTileId tileId, string tilesetId, string third)
-		{
-			if(string.IsNullOrEmpty(tilesetId))
-				Debug.Log("wtf");
-			
-			unchecked // Overflow is fine, just wrap
-			{
-				int hash = 17;
-				hash = hash * 23 + third.GetHashCode();
-				hash = hash * 23 + tilesetId.GetHashCode();
-				hash = hash * 23 + tileId.GetHashCode();
-				return hash;
-			}
-		}
-		
 		public static Vector4 CalculateScaleOffsetAtZoom(this CanonicalTileId current, int zoomDiff)
 		{
 			var tileZoom = current.Z;

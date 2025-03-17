@@ -7,9 +7,8 @@ namespace Mapbox.BaseModule.Data.Tasks
 {
     public class TaskWrapper
     {
-        public int Id;
         public string TilesetId;
-        public int EnqueueFrame;
+        public float EnqueueFrame;
         public float StartingTime;
         public float FinishedTime;
         public CanonicalTileId TileId;
@@ -19,9 +18,14 @@ namespace Mapbox.BaseModule.Data.Tasks
         public Action OnCancelled = () => {};
         public string Info;
         
-        public TaskWrapper(int id)
+        private bool _isCanceled = false;
+        public bool IsCancelled { get { return _isCanceled; } }
+
+        public void Cancel()
         {
-            Id = id;
+            _isCanceled = true;
         }
+        
+        
     }
 }

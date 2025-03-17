@@ -34,7 +34,7 @@ namespace Mapbox.VectorModule.MeshGeneration
                 callback(new MeshGenerationTaskResult(TaskResultType.Success));
             }
 
-            var meshTask = new MeshGenTaskWrapper(data.TileId.GenerateKey(data.TilesetId, "VectorTile"))
+            var meshTask = new MeshGenTaskWrapper()
             {
                 OwnerTileId = data.TileId,
                 TileId = data.TileId,
@@ -136,7 +136,8 @@ namespace Mapbox.VectorModule.MeshGeneration
         {
             if (_activeTasks.TryGetValue(tileId, out var task))
             {
-                _unityContext.TaskManager.CancelTask(task);
+                task.Cancel();
+                //_unityContext.TaskManager.CancelTask(task);
             }
         }
 
@@ -198,7 +199,8 @@ namespace Mapbox.VectorModule.MeshGeneration
             foreach (var pair in toRemove)
             {
                 _activeTasks.Remove(pair.Key);
-                _unityContext.TaskManager.CancelTask(pair.Value);
+                pair.Value.Cancel();
+                //_unityContext.TaskManager.CancelTask(pair.Value);
             }
         }
 

@@ -154,15 +154,15 @@ namespace Mapbox.ImageModule.Terrain
         private CanonicalTileId GetDataId(CanonicalTileId tileId)
         {
             var maxZoom = _settings.DataSettings.ClampDataLevelToMax;
-            if (tileId.Z >= maxZoom)
+            var currentZ = tileId.Z;
+            var targetZ = currentZ - 2;
+            if (targetZ >= maxZoom)
             {
-                return tileId.Z > maxZoom
-                    ? tileId.ParentAt(maxZoom)
-                    : tileId;
+                return tileId.ParentAt(maxZoom);
             }
             else
             {
-                return tileId;
+                return tileId.ParentAt(targetZ);;
             }
         }
         
