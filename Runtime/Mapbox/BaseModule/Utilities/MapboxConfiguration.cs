@@ -10,6 +10,7 @@ namespace Mapbox.BaseModule.Utilities
 	public class MapboxConfiguration
 	{
 		public string AccessToken;
+		public bool TelemetryEnabled = true;
 		
 		#if UNITY_EDITOR
 			[NonSerialized] private MapboxAccounts mapboxAccounts = new MapboxAccounts();

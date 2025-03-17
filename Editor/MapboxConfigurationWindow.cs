@@ -79,13 +79,12 @@ namespace MapboxUnitySDK.Editor
 		{
 			Runnable.EnableRunnableInEditor();
 
-			//verify that the config file exists
-			_configurationFilePath = Path.Combine(Constants.Path.MAPBOX_RESOURCES_ABSOLUTE, Constants.Path.CONFIG_FILE);
 			if (!Directory.Exists(Constants.Path.MAPBOX_RESOURCES_ABSOLUTE))
 			{
 				Directory.CreateDirectory(Constants.Path.MAPBOX_RESOURCES_ABSOLUTE);
 			}
 
+			_configurationFilePath = Constants.Path.MAPBOX_CONFIG_ABSOLUTE;
 			if (!File.Exists(_configurationFilePath))
 			{
 				WriteConfigFile(new MapboxConfiguration(), _configurationFilePath);

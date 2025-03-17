@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Mapbox.BaseModule;
 using Mapbox.BaseModule.Telemetry;
 using Mapbox.BaseModule.Utilities;
@@ -82,7 +83,7 @@ namespace Mapbox.BaseModule.Map
             {
                 _telemetryLibrary = TelemetryFactory.GetTelemetryInstance();
                 _telemetryLibrary.Initialize(Configuration.AccessToken);
-                _telemetryLibrary.SetLocationCollectionState(GetTelemetryCollectionState());
+                _telemetryLibrary.SetLocationCollectionState(Configuration.TelemetryEnabled);
                 _telemetryLibrary.SendTurnstile();
                 _telemetryLibrary.SendSdkEvent();
             }
@@ -90,15 +91,6 @@ namespace Mapbox.BaseModule.Map
             {
                 Debug.LogErrorFormat("Error initializing telemetry: {0}", ex);
             }
-        }
-
-        private bool GetTelemetryCollectionState()
-        {
-            if (!PlayerPrefs.HasKey(Constants.Path.SHOULD_COLLECT_LOCATION_KEY))
-            {
-                PlayerPrefs.SetInt(Constants.Path.SHOULD_COLLECT_LOCATION_KEY, 1);
-            }
-            return PlayerPrefs.GetInt(Constants.Path.SHOULD_COLLECT_LOCATION_KEY) != 0;
         }
 
         public void ValidateToken(Action callback = null)
@@ -113,6 +105,31 @@ namespace Mapbox.BaseModule.Map
                 }
                 callback?.Invoke();
             });
+        }
+
+        public bool GetTelemetryCollectiongState()
+        {
+            return Configuration.TelemetryEnabled;
+        }
+        
+        public bool SetTelemetryCollectionState(bool state)
+        {
+            Configuration.TelemetryEnabled = state;
+            _telemetryLibrary.SetLocationCollectionState(Configuration.TelemetryEnabled);
+
+            try
+            {
+                var configurationFilePath = Constants.Path.MAPBOX_CONFIG_ABSOLUTE;
+                var json = JsonUtility.ToJson(Configuration);
+                File.WriteAllText(configurationFilePath, json);
+                Debug.Log("Successfully set telemetry collection state to " + state);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
         }
     }
 

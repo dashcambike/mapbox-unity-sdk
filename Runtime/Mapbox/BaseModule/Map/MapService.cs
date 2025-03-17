@@ -41,6 +41,9 @@ namespace Mapbox.BaseModule.Map
 
         public abstract Source<BuildingData> GetBuildingSource(VectorSourceSettings settings);
 
+        public bool GetTelemetryCollectionState() => _mapboxContext.GetTelemetryCollectiongState();
+        public virtual bool SetTelemetryCollectionState(bool state) => _mapboxContext.SetTelemetryCollectionState(state);
+
         public virtual void OnDestroy()
         {
             
