@@ -6,11 +6,22 @@ Critical fixes and improvements for developers using Windows OS and developers u
 - Fix a bug where long-term cache wasn't working as intended during development time on Windows machines.
 - Fix a bug where caching system caused app freezes on launch.
 - Fix a bug where JsonUtility couldn't parse response JSON on IL2CPP builds.
+- Fix LoadView procedure which allows developers to (controllably) jump to different locations on map.
 - Add new settings under image, terrain and vector modules to help limit and control their work.
 - Change TileCreator class to work through an interface.
 - Fix the compilation issues in the test module.
 - Fix and update the MapDebug module.
 - Fix a bug where vector module didn't respect zoom level limits on first view load.
+- Fix a bug where the root object for runtime generated vector entity visuals didn't positioned correctly. 
+
+New
+- Add TileLoaded and TileUnloading events to MapboxMap class, along with LoadViewStarting and LoadViewCompleted events.
+- Add MapboxAttribution prefab 
+- Add ability to enable/disable telemetry collection through attribution prefab
+
+Improvements
+- Change the scheduling system in data fetching and task management systems to decrease the complexity, making it easier to control and improve performance on highly dynamic maps.
+
 
 ### v3.0.1
 ### v3.0.0
