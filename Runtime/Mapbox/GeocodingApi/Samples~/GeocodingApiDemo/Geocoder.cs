@@ -28,8 +28,6 @@ public class Geocoder : MonoBehaviour
     private LatitudeLongitude FirstLatLng;
     private Vector3 SecondPoint;
     private LatitudeLongitude SecondLatLng;
-    private bool IsFirstPointSet = false;
-    private bool IsSecondPointSet = false;
     private string _currentValue;
 
     public void Start()

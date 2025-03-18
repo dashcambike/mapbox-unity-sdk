@@ -37,7 +37,6 @@ namespace Mapbox.DirectionsApi.Samples
 		private GameObject startMarker;
 		private GameObject finishMarker;
 		private List<GameObject> _gos;
-		private float _goScale = 50;
 		private Material _material;
 
 		public RoutingProfile.RoutingProfileOptions RoutingOption;
