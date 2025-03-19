@@ -44,8 +44,10 @@ namespace Mapbox.BaseModule.Data.Platform.TileJSON
                         }
                         callback(tileJSONResponse);
                     }
-
-                    callback(null);
+                    else
+                    {
+                        callback(null);    
+                    }
                 }
                 , _timeout
             );
