@@ -100,7 +100,7 @@ namespace Mapbox.VectorModule
 		{
 			foreach (var tileId in _readyTiles)
 			{
-				var isRetained = _retainedTiles.Contains(tileId);
+				var isRetained = _activeTiles.Contains(tileId) || _retainedTiles.Contains(tileId);
 				if (isRetained)
 				{
 					_meshGenerationUnit.UpdateForView(tileId, information);
