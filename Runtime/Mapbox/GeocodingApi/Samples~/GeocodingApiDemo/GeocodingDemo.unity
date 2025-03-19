@@ -1509,7 +1509,7 @@ MonoBehaviour:
     LoadBackgroundData: 1
     DataSettings:
       CacheSize: 100
-      ClampDataLevelToMax: 16
+      ClampDataLevelToMax: 15
     RejectTilesOutsideZoom: {x: 12, y: 16}
   _layerVisualizers:
   - {fileID: 11400000, guid: e5396ff8e8f234206aa21e18e947b635, type: 2}

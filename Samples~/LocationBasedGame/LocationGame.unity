@@ -3233,6 +3233,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Map
       objectReference: {fileID: 0}
+    - target: {fileID: 7512784584146348568, guid: 5cfb21e958bce467e966040b1be49240, type: 3}
+      propertyPath: vectorModuleSettings.DataSettings.ClampDataLevelToMax
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 7512784584146348570, guid: 5cfb21e958bce467e966040b1be49240, type: 3}
       propertyPath: m_RootOrder
       value: 1

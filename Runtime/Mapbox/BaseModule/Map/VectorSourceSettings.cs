@@ -11,6 +11,6 @@ namespace Mapbox.BaseModule.Map
         public int CacheSize = 100;
         
         [Tooltip("Maximum data level that'll be used for this module. Tiles can be higher zoom level but data will be lower level.")]
-        public int ClampDataLevelToMax = 16;
+        public int ClampDataLevelToMax = 15;
     }
 }
