@@ -7,6 +7,7 @@ using Mapbox.BaseModule.Data.Interfaces;
 using Mapbox.BaseModule.Data.Tiles;
 using Mapbox.BaseModule.Map;
 using Mapbox.BaseModule.Unity;
+using Mapbox.ImageModule.Terrain.TerrainStrategies;
 using UnityEngine;
 using TerrainData = Mapbox.BaseModule.Data.DataFetchers.TerrainData;
 
@@ -17,6 +18,7 @@ namespace Mapbox.ImageModule.Terrain
         private TerrainLayerModuleSettings _settings;
         private Source<TerrainData> _rasterSource;
         private HashSet<CanonicalTileId> _retainedTerrainTiles;
+        private TerrainStrategy _terrainStrategy;
         
         //Terrain module doesn't support cpu elevation now after TileCreator changes
         public TerrainLayerModule(Source<TerrainData> source, TerrainLayerModuleSettings settings) : base()
@@ -24,6 +26,7 @@ namespace Mapbox.ImageModule.Terrain
             _settings = settings;
             _retainedTerrainTiles = new HashSet<CanonicalTileId>();
             _rasterSource = source;
+            _terrainStrategy = new ElevatedTerrainStrategy();
         }
         
         public virtual IEnumerator Initialize()
@@ -70,6 +73,8 @@ namespace Mapbox.ImageModule.Terrain
             var targetTileId = GetDataId(unityTile.CanonicalTileId);
             if (_rasterSource.GetInstantData(targetTileId, out var instantData) && instantData.IsElevationDataReady)
             {
+                _terrainStrategy.RegisterTile(unityTile, false);
+                Debug.Log(unityTile.CanonicalTileId.Z + " using " + instantData.TileId.Z);
                 unityTile.TerrainContainer.SetTerrainData(instantData, _settings.UseShaderTerrain);
                 return true;
             }
@@ -77,8 +82,7 @@ namespace Mapbox.ImageModule.Terrain
             return false;
         }
         
-        public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles,
-            Dictionary<UnwrappedTileId, UnityMapTile> activeTiles)
+        public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles, Dictionary<UnwrappedTileId, UnityMapTile> activeTiles)
         {
             if (_settings.ElevationLayerType == ElevationLayerType.FlatTerrain)
                 return true;
