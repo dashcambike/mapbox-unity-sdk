@@ -58,8 +58,13 @@ namespace Mapbox.BaseModule.Telemetry
 		private string _sdkInfoRegistryFactoryClassName = "com.mapbox.common.SdkInfoRegistryFactory";
 		private string _sdkInfoRegistryFactoryGetMethodName = "getInstance"; 
 		private string _sdkInfoRegistryRegisterMethodName = "registerSdkInformation";
+
+		private string _unityMausEnumString = "UnityMAUS";
+		private string _valuesMethodNameForEnums = "values";
+		private string _toStringMethodName = "toString";
 		
 		private AndroidJavaObject _sdkInformation;
+		private AndroidJavaObject _unityEnum;
 		
 		public void Initialize(string accessToken)
 		{
@@ -80,6 +85,19 @@ namespace Mapbox.BaseModule.Telemetry
 			{
 				Debug.LogError(_couldNotGETCurrentActivityMessage);
 				return;
+			}
+			
+			var skuidClass = new AndroidJavaClass(_mapboxUserSkuIdentifierClassName);
+			var skuValuesArray = skuidClass.CallStatic<AndroidJavaObject>(_valuesMethodNameForEnums);
+			var convertedArray = AndroidJNIHelper.ConvertFromJNIArray<AndroidJavaObject[]>(skuValuesArray.GetRawObject());
+			foreach (var javaEnumObject in convertedArray)
+			{
+				var enumString = javaEnumObject.Call<string>(_toStringMethodName);
+				if (enumString == _unityMausEnumString)
+				{
+					_unityEnum = javaEnumObject;
+					break;
+				}
 			}
 			
 			// SdkInformation testInformation = new SdkInformation(applicationName, packageVersion, packageName);
@@ -113,13 +131,8 @@ namespace Mapbox.BaseModule.Telemetry
 					Debug.Log(_eventsServiceNullMessage);
 					return;
 				}
-
-				var skuid = new AndroidJavaClass(_mapboxUserSkuIdentifierClassName);
-				AndroidJavaObject valueArray = skuid.CallStatic<AndroidJavaObject>("values");
-				var array = AndroidJNIHelper.ConvertFromJNIArray<AndroidJavaObject[]>(valueArray.GetRawObject());
-				var unityEnum = array[7];
 				
-				using (AndroidJavaObject turnstileEvent = new AndroidJavaObject(_mapboxTurnstileEventClassName, unityEnum))
+				using (AndroidJavaObject turnstileEvent = new AndroidJavaObject(_mapboxTurnstileEventClassName, _unityEnum))
 				{
 					_mapboxEventService.Call(_sendTurnstileEventMethodName, turnstileEvent, null);
 				}
@@ -130,14 +143,8 @@ namespace Mapbox.BaseModule.Telemetry
 		{
 			var billingServiceFactory = new AndroidJavaClass(_mapboxBillingServiceFactoryClassName);
 			var billingService = billingServiceFactory.CallStatic<AndroidJavaObject>(_mapboxBillingFactoryGetMethodName);
-
-			var skuid = new AndroidJavaClass(_mapboxUserSkuIdentifierClassName);
-			AndroidJavaObject valueArray = skuid.CallStatic<AndroidJavaObject>("values");
-			var array = AndroidJNIHelper.ConvertFromJNIArray<AndroidJavaObject[]>(valueArray.GetRawObject());
-			var unityEnum = array[7];
-				
 			
-			billingService.Call(_mapboxSdkEventMethodName, _sdkInformation, unityEnum, null);
+			billingService.Call(_mapboxSdkEventMethodName, _sdkInformation, _unityEnum, null);
 		}
 
 		public void SetLocationCollectionState(bool enable)

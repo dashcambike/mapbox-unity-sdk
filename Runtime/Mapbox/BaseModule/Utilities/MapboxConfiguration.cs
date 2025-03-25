@@ -54,10 +54,27 @@ namespace Mapbox.BaseModule.Utilities
 			private string _mapboxoptionsClassName = "com.mapbox.common.MapboxOptions";
 			private string _mapboxOptionsSetAccessTokenMethodName = "setAccessToken";
 			private string _couldNotGetMapboxOptionsMessage = "Couldn't get Mapbox Options";
+			private string _unityMausEnumString = "UnityMAUS";
+			private string _valuesMethodNameForEnums = "values";
+			private string _toStringMethodName = "toString";
+			private AndroidJavaObject _unityEnum;
 
 			public void Initialize()
 			{
 				SetAccessToken(AccessToken);
+
+				var skuidClass = new AndroidJavaClass(_mapboxUserSkuIdentifierClassName);
+				var skuValuesArray = skuidClass.CallStatic<AndroidJavaObject>(_valuesMethodNameForEnums);
+				var convertedArray = AndroidJNIHelper.ConvertFromJNIArray<AndroidJavaObject[]>(skuValuesArray.GetRawObject());
+				foreach (var javaEnumObject in convertedArray)
+				{
+					var enumString = javaEnumObject.Call<string>(_toStringMethodName);
+					if (enumString == _unityMausEnumString)
+					{
+						_unityEnum = javaEnumObject;
+						break;
+					}
+				}
 			}
 
 			private bool SetAccessToken(string accessToken)
@@ -77,9 +94,7 @@ namespace Mapbox.BaseModule.Utilities
 			{
 				var billingServiceFactory = new AndroidJavaClass(_mapboxBillingServiceFactoryClassName);
 				var billingService = billingServiceFactory.CallStatic<AndroidJavaObject>(_mapboxBillingFactoryGetMethodName);
-			
-				var skuid = new AndroidJavaObject(_mapboxUserSkuIdentifierClassName);
-				return billingService.Call<string>(_mapboxSkuTokenMethodName, skuid.GetStatic<AndroidJavaObject>(_unityMausEnumName));
+				return billingService.Call<string>(_mapboxSkuTokenMethodName, _unityEnum);
 			}
 		#endif
 		
