@@ -230,7 +230,7 @@ namespace Mapbox.VectorModule
 		
 		private CanonicalTileId GetTargetTileId(CanonicalTileId tileId)
 		{
-			var maxZoom = (int)_vectorModuleSettings.RejectTilesOutsideZoom.y;
+			var maxZoom = _vectorModuleSettings.DataSettings.ClampDataLevelToMax;
 			if (tileId.Z >= maxZoom)
 			{
 				return tileId.Z > maxZoom
