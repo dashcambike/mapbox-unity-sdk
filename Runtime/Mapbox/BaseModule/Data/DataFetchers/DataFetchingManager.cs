@@ -78,6 +78,7 @@ namespace Mapbox.BaseModule.Data.DataFetchers
 					{
 						_fetchQueue.Dequeue();
 						FetchCancelled(info);
+						info.Callback(new DataFetchingResult() { State = WebResponseResult.Cancelled });
 						continue;
 					}
 

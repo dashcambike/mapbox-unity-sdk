@@ -26,6 +26,7 @@ namespace Mapbox.VectorModule.Unity
 			var dictionary = new Dictionary<string, IVectorLayerVisualizer>();
 			foreach (var visualizerObject in _layerVisualizers)
 			{
+				if(visualizerObject == null) continue;
 				var visualizer = visualizerObject.ConstructLayerVisualizer(mapInformation, unityContext);
 				dictionary.Add(visualizer.VectorLayerName, visualizer);
 			}

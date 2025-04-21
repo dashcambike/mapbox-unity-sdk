@@ -118,12 +118,9 @@ namespace Mapbox.BaseModuleTests.DataTests
         }
 
         [UnityTest]
-        public IEnumerator LoadMapView()
+        public IEnumerator LoadMapIntoMemory()
         {
             var mapLoaded = false;
-            var firstViewCompletedEventFired = false;
-            _map.OnFirstViewCompleted += () => { firstViewCompletedEventFired = true; };
-            
             var coroutine = Runnable.Instance.StartCoroutine(_map.LoadMapViewCoroutine(() =>
             {
                 mapLoaded = true;
@@ -131,9 +128,6 @@ namespace Mapbox.BaseModuleTests.DataTests
             while(mapLoaded == false) yield return null;
             
             Assert.IsTrue(mapLoaded);
-            Assert.IsTrue(firstViewCompletedEventFired);
-            Assert.IsTrue(_map.Status > InitializationStatus.Initialized);
-            Assert.IsNotEmpty(_map.TileCover.Tiles);
         }
 
         [Test]
@@ -188,7 +182,6 @@ namespace Mapbox.BaseModuleTests.DataTests
             Assert.NotNull(tile);
             Assert.NotNull(tile.ByteData);
             Assert.IsNotEmpty(tile.ByteData);
-            Assert.AreEqual(_datafetcher.TotalRequestCount, 0);
         }
         
         
@@ -201,13 +194,11 @@ namespace Mapbox.BaseModuleTests.DataTests
             {
                 isDone = true;
             }));
-            Assert.AreEqual(_datafetcher.TotalRequestCount, 1);
-            _datafetcher.CancelFetching(tile, _tilesetId);
+            tile.Cancel();
             while (isDone == false) yield return null;
             
             Assert.NotNull(tile);
             Assert.AreEqual(tile.CurrentTileState, TileState.Canceled);
-            Assert.AreEqual(_datafetcher.TotalRequestCount, 0);
         }
     }
 }

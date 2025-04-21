@@ -36,7 +36,7 @@ namespace Mapbox.BaseModuleTests.PlayModeTests
             void OnMapCoreInitialized(MapboxMap mapboxMap)
             {
                 _map = mapboxMap;
-                _map.OnFirstViewCompleted += () => _firstViewLoaded = true;
+                _map.LoadViewCompleted += () => _firstViewLoaded = true;
                 Assert.IsNotNull(mapboxMap);
             }
 
@@ -58,7 +58,7 @@ namespace Mapbox.BaseModuleTests.PlayModeTests
             {
                 if (mapboxMap == null) throw new ArgumentNullException(nameof(mapboxMap));
                 _map = mapboxMap;
-                _map.OnFirstViewCompleted += () => _firstViewLoaded = true;
+                _map.LoadViewCompleted += () => _firstViewLoaded = true;
                 Assert.IsNotNull(mapboxMap);
             }
 
@@ -66,7 +66,7 @@ namespace Mapbox.BaseModuleTests.PlayModeTests
 
             _mapCore.Initialize();
         
-            while(_mapCore.InitializationStatus < InitializationStatus.ViewLoaded) yield return null;
+            while(_mapCore.InitializationStatus < InitializationStatus.ReadyForUpdates) yield return null;
         
             Assert.IsNotNull(_map);
             Assert.IsTrue(_map.Status > InitializationStatus.Initialized);

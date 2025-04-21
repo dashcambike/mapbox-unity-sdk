@@ -189,11 +189,8 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 					}
 				}
 			}
-
 			return pathList;
 		}
-
-		
 
 		protected virtual void SaveInfo(InfoWrapper info)
 		{
@@ -217,19 +214,26 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 				TilesetId = info.TextureCacheItem.TilesetId,
 				Action = () =>
 				{
-					var fullPath = RelativeFilePathToFileInfoExpects(info.Path);
-					FileStream sourceStream = new FileStream(
-						RelativeFilePathToFileInfoExpects(info.Path),
-						FileMode.Create, FileAccess.Write, FileShare.Read,
-						bufferSize: 4096, useAsync: false);
+					try
+					{
+						var fullPath = RelativeFilePathToFileInfoExpects(info.Path);
+						FileStream sourceStream = new FileStream(
+							RelativeFilePathToFileInfoExpects(info.Path),
+							FileMode.Create, FileAccess.Write, FileShare.Read,
+							bufferSize: 4096, useAsync: false);
 
-					sourceStream.Write(info.TextureCacheItem.Data, 0, info.TextureCacheItem.Data.Length);
-					sourceStream.Close();
+						sourceStream.Write(info.TextureCacheItem.Data, 0, info.TextureCacheItem.Data.Length);
+						sourceStream.Close();
 
-					var finalRelativePath = FullFilePathToRelativePath(fullPath);
-					info.PostSaveAction(finalRelativePath);
-					//Debug.Log(string.Format("File saved {0} - {1}", info.TextureCacheItem.TileId, info.Path));
-					OnFileSaved(info.TextureCacheItem, finalRelativePath);
+						var finalRelativePath = FullFilePathToRelativePath(fullPath);
+						info.PostSaveAction(finalRelativePath);
+						//Debug.Log(string.Format("File saved {0} - {1}", info.TextureCacheItem.TileId, info.Path));
+						OnFileSaved(info.TextureCacheItem, finalRelativePath);
+					}
+					catch (Exception e)
+					{
+						Debug.LogException(e);
+					}
 				},
 				ContinueWith = (t) =>
 				{

@@ -138,6 +138,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
             }
             else
             {
+                callback?.Invoke(null);
                 return null;
             }
         }
