@@ -1,6 +1,7 @@
 using System;
 using Mapbox.BaseModule.Data.Interfaces;
 using Mapbox.BaseModule.Map;
+using Mapbox.ImageModule.Terrain.Settings;
 using UnityEngine;
 
 namespace Mapbox.ImageModule.Terrain

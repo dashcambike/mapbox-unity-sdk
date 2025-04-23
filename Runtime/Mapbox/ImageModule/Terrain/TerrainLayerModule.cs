@@ -26,13 +26,13 @@ namespace Mapbox.ImageModule.Terrain
             _settings = settings;
             _retainedTerrainTiles = new HashSet<CanonicalTileId>();
             _rasterSource = source;
-            _terrainStrategy = new ElevatedTerrainStrategy();
+            _terrainStrategy = new FlatTerrainStrategy(); //new ElevatedTerrainStrategy();
         }
         
         public virtual IEnumerator Initialize()
         {
             yield return _rasterSource.Initialize();
-            
+            _terrainStrategy.Initialize(_settings.ElevationLayerProperties);
             if(_settings.LoadBackgroundTextures)
             {
                 _rasterSource?.DownloadAndCacheBaseTiles();
@@ -53,9 +53,10 @@ namespace Mapbox.ImageModule.Terrain
             for (int i = parentTileId.Z; i >= 2; i--)
             {
                 parentTileId = parentTileId.Parent;
-                if (_rasterSource.GetInstantData(parentTileId, out var instantData))
+                if (_rasterSource.GetInstantData(parentTileId, out var instantData)  && instantData.IsElevationDataReady)
                 {
                     unityTile.TerrainContainer.SetTerrainData(instantData, _settings.UseShaderTerrain, TileContainerState.Temporary);
+                    _terrainStrategy.RegisterTile(unityTile, !_settings.UseShaderTerrain);
                     return;
                 }
             }
@@ -73,15 +74,14 @@ namespace Mapbox.ImageModule.Terrain
             var targetTileId = GetDataId(unityTile.CanonicalTileId);
             if (_rasterSource.GetInstantData(targetTileId, out var instantData) && instantData.IsElevationDataReady)
             {
-                _terrainStrategy.RegisterTile(unityTile, false);
-                Debug.Log(unityTile.CanonicalTileId.Z + " using " + instantData.TileId.Z);
                 unityTile.TerrainContainer.SetTerrainData(instantData, _settings.UseShaderTerrain);
+                _terrainStrategy.RegisterTile(unityTile, !_settings.UseShaderTerrain);
                 return true;
             }
             
             return false;
         }
-        
+
         public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles, Dictionary<UnwrappedTileId, UnityMapTile> activeTiles)
         {
             if (_settings.ElevationLayerType == ElevationLayerType.FlatTerrain)

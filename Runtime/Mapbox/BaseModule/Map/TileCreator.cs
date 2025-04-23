@@ -19,8 +19,6 @@ namespace Mapbox.BaseModule.Map
         private readonly int UsingLinearColorspace = Shader.PropertyToID("_UsingLinearColorspace");
         private ObjectPool<UnityMapTile> _tilePool;
         private UnityContext _unityContext;
-        private TerrainStrategy _terrainStrategy;
-        private ElevationLayerProperties _settings;
         private int _cacheSize;
 
         public UnityMapTile GetTile() => _tilePool.GetObject();
@@ -31,15 +29,12 @@ namespace Mapbox.BaseModule.Map
         {
             TileMaterials = tileMaterials;
             _unityContext = unityContext;
-            _terrainStrategy = terrainStrategy;
-            _settings = elevationProperties ?? new ElevationLayerProperties();
             _cacheSize = cacheSize;
         }
 
         public IEnumerator Initialize()
         {
             _tilePool = new ObjectPool<UnityMapTile>(() => CreateTile(_unityContext));
-            _terrainStrategy.Initialize(_settings);
             yield return _tilePool.InitializeItems(_cacheSize);
         }
 
@@ -66,8 +61,6 @@ namespace Mapbox.BaseModule.Map
             }
             
             tile.gameObject.SetActive(false);
-
-            _terrainStrategy.RegisterTile(tile, false);
             return tile;
         }
     }
