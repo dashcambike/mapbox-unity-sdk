@@ -9,7 +9,9 @@
         "UnityMapModule",
         "MapboxExamples",
         "Unity.Recorder",
-        "Unity.Recorder.Editor"
+        "Unity.Recorder.Editor",
+        "MapboxImageryModule",
+        "MapboxVectorModule"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

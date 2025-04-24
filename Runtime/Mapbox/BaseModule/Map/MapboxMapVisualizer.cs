@@ -58,7 +58,7 @@ namespace Mapbox.BaseModule.Map
         public virtual IEnumerator LoadTileCoverToMemory(TileCover tileCover)
         {
             var hashsetTiles = new HashSet<CanonicalTileId>(tileCover.Tiles.Select(x => x.Canonical));
-            var coroutines = LayerModules.Select(x => x.LoadTiles(hashsetTiles));
+            var coroutines = LayerModules.SelectMany(x => x.GetTileCoverCoroutines(hashsetTiles));
             yield return coroutines.WaitForAll();
         }
       

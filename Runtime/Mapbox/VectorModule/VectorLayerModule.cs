@@ -133,6 +133,10 @@ namespace Mapbox.VectorModule
 			return _meshGenerationUnit.TryGetLayerVisualizer(name, out visualizer);
 		}
 		
+		public IEnumerable<CanonicalTileId> GetDataId(IEnumerable<CanonicalTileId> tileIdList)
+		{
+			return tileIdList.Select(GetTargetTileId).Distinct();
+		}
 		
 		//COROUTINE METHODS only used in initialization so far
 		#region coroutines
@@ -187,6 +191,12 @@ namespace Mapbox.VectorModule
 			yield return targetTileIds.Select(LoadAndProcessTileCoroutine).WaitForAll();
 		}
 
+		public IEnumerable<IEnumerator> GetTileCoverCoroutines(IEnumerable<CanonicalTileId> tiles)
+		{
+			var targetTiles = GetTargetTileId(tiles).Distinct();
+			return targetTiles.Select(x => LoadTileData(x));
+		}
+		
 		#endregion
 		
 		

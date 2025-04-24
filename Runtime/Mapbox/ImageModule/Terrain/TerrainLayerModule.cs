@@ -145,6 +145,12 @@ namespace Mapbox.ImageModule.Terrain
                 yield return _rasterSource.LoadTilesCoroutine(GetDataId(tiles));
             }
         }
+        
+        public IEnumerable<IEnumerator> GetTileCoverCoroutines(IEnumerable<CanonicalTileId> tiles)
+        {
+            var targetTiles = GetDataId(tiles).Distinct();
+            return targetTiles.Select(x => LoadTileData(x)).Where(x => x != null);
+        }
         #endregion
         
         
@@ -166,9 +172,9 @@ namespace Mapbox.ImageModule.Terrain
             }
         }
         
-        private IEnumerable<CanonicalTileId> GetDataId(IEnumerable<CanonicalTileId> tileIdList)
+        public IEnumerable<CanonicalTileId> GetDataId(IEnumerable<CanonicalTileId> tileIdList)
         {
-            return tileIdList.Select(GetDataId).ToList();
+            return tileIdList.Select(GetDataId).Distinct();
         }
 
     }
