@@ -3,6 +3,7 @@ using Mapbox.BaseModule.Data.Platform.Cache.SQLiteCache;
 using Mapbox.BaseModule.Data.Tasks;
 using Mapbox.BaseModule.Data.Tiles;
 using Newtonsoft.Json.Linq;
+using UnityEngine;
 
 namespace Mapbox.MapDebug.Scripts.Logging
 {
@@ -33,16 +34,10 @@ namespace Mapbox.MapDebug.Scripts.Logging
             base.Add(tilesetName, tileId, data, path, etag, expirationDate, forceInsert);
         }
 
-        public override T Get<T>(string tilesetName, CanonicalTileId tileId)
+        public override T Get<T>(string tilesetName, CanonicalTileId tileId, T data = null)
         {
             _getCount++;
-            return base.Get<T>(tilesetName, tileId);
-        }
-
-        public override void ReadEtagAndExpiration<T>(T data)
-        {
-            _getExpirationCount++;
-            base.ReadEtagAndExpiration(data);
+            return base.Get<T>(tilesetName, tileId, data);
         }
 
         public override void UpdateExpiration(string tilesetName, CanonicalTileId tileId, DateTime expirationDate)

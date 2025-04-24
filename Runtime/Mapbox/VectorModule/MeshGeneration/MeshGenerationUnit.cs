@@ -36,9 +36,8 @@ namespace Mapbox.VectorModule.MeshGeneration
 
             var meshTask = new MeshGenTaskWrapper()
             {
-                OwnerTileId = data.TileId,
                 TileId = data.TileId,
-                MeshGen = () =>
+                DataAction = () =>
                 {
                     var result = new MeshGenTaskWrapperResult();
                     try
@@ -79,7 +78,7 @@ namespace Mapbox.VectorModule.MeshGeneration
                     result.ResultType = TaskResultType.Success;
                     return result;
                 },
-                ContinueMeshWith = (taskResult) =>
+                DataContinueWith = (task, taskResult) => //task may be null
                 {
                     if (!_isActive)
                         return;
@@ -95,6 +94,12 @@ namespace Mapbox.VectorModule.MeshGeneration
                         }
                         //Debug.Log(string.Format("{0} mesh gen exception: {1}", data.TileId, task.Exception.Message));
                         failResult.AddException(new Exception(string.Format("{0} mesh gen exception: {1}", data.TileId, taskResult.ExceptionsAsString)));
+                        callback(failResult);
+                        return;
+                    }
+                    else if (taskResult.ResultType == TaskResultType.Cancelled)
+                    {
+                        var failResult = new MeshGenerationTaskResult(TaskResultType.Cancelled);
                         callback(failResult);
                         return;
                     }
@@ -118,14 +123,7 @@ namespace Mapbox.VectorModule.MeshGeneration
                     }
                     callback(new MeshGenerationTaskResult(TaskResultType.Success, resultGameObjects));
                     
-                },
-                OnCancelled = () =>
-                {
-                    _activeTasks.Remove(data.TileId);
-                    var failResult = new MeshGenerationTaskResult(TaskResultType.Cancelled);
-                    callback(failResult);
-                },
-                Info = "VectorTile.HandleTileResponse"
+                }
             };
 
             _activeTasks.Add(data.TileId, meshTask);

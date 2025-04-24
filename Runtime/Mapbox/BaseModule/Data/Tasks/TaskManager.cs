@@ -92,21 +92,14 @@ namespace Mapbox.BaseModule.Data.Tasks
 					{
 						TaskQueueDequeue();
 						TaskCancelled(task);
+						task.Completed(null);
 						continue;
 					}
-
-					if (QueueTimeHasMatured(task.EnqueueFrame, _requestDelay) || !Application.isPlaying)
+					else if (QueueTimeHasMatured(task.EnqueueFrame, _requestDelay) || !Application.isPlaying)
 					{
 						TaskQueueDequeue();
 						_runningTasks.Add(task);
-						if (task is MeshGenTaskWrapper meshWrapper)
-						{
-							HandleMeshGenTask(meshWrapper);
-						}
-						else
-						{
-							HandleTask(task);
-						}
+						HandleTask(task);
 					}
 					else
 					{
@@ -136,45 +129,45 @@ namespace Mapbox.BaseModule.Data.Tasks
 				}
 				TaskFinished(wrapper);
 				_runningTasks.Remove(wrapper);
-				wrapper.ContinueWith?.Invoke(task);
+				wrapper.Completed(task);
 			}, TaskScheduler.FromCurrentSynchronizationContext());
 			TaskStarted(wrapper);
 		}
 
-		private void HandleMeshGenTask(MeshGenTaskWrapper wrapper)
-		{
-			TaskStarting(wrapper);
-			var task = Task.Run(wrapper.MeshGen);
-			_runningTasks.Add(wrapper);
-			task.ContinueWith((t) =>
-			{
-				if (t.IsFaulted)
-				{
-					// Debug.Log(t.Exception?.Message);
-					// Debug.Log(wrapper.TileId);
-					// Debug.Break();
-					//return error
-				}
-				
-				TaskFinished(wrapper);
-				_runningTasks.Remove(wrapper);
-				if (wrapper.ContinueMeshWith != null)
-				{
-					//Debug.Log(taskWrapper.FinishedFrame - taskWrapper.StartingFrame + " task timer");
-					if (!t.IsFaulted)
-					{
-						
-						wrapper.ContinueMeshWith(t.Result);
-					}
-					else
-					{
-						t.Result.ResultType = TaskResultType.MeshGenerationFailure;
-						wrapper.ContinueMeshWith(null);
-					}
-				}
-			}, TaskScheduler.FromCurrentSynchronizationContext());
-			TaskStarted(wrapper);
-		}
+		// private void HandleMeshGenTask(MeshGenTaskWrapper wrapper)
+		// {
+		// 	TaskStarting(wrapper);
+		// 	var task = Task.Run(wrapper.MeshGen);
+		// 	_runningTasks.Add(wrapper);
+		// 	task.ContinueWith((t) =>
+		// 	{
+		// 		if (t.IsFaulted)
+		// 		{
+		// 			// Debug.Log(t.Exception?.Message);
+		// 			// Debug.Log(wrapper.TileId);
+		// 			// Debug.Break();
+		// 			//return error
+		// 		}
+		// 		
+		// 		TaskFinished(wrapper);
+		// 		_runningTasks.Remove(wrapper);
+		// 		if (wrapper.ContinueMeshWith != null)
+		// 		{
+		// 			//Debug.Log(taskWrapper.FinishedFrame - taskWrapper.StartingFrame + " task timer");
+		// 			if (!t.IsFaulted)
+		// 			{
+		// 				
+		// 				wrapper.ContinueMeshWith(t.Result);
+		// 			}
+		// 			else
+		// 			{
+		// 				t.Result.ResultType = TaskResultType.MeshGenerationFailure;
+		// 				wrapper.ContinueMeshWith(null);
+		// 			}
+		// 		}
+		// 	}, TaskScheduler.FromCurrentSynchronizationContext());
+		// 	TaskStarted(wrapper);
+		// }
 
 		protected virtual void TaskStarting(TaskWrapper task)
 		{

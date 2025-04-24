@@ -5,27 +5,37 @@ using Mapbox.BaseModule.Data.Tiles;
 
 namespace Mapbox.BaseModule.Data.Tasks
 {
-    public class TaskWrapper
+    public abstract class TaskWrapper
     {
-        public string TilesetId;
         public float EnqueueFrame;
         public float StartingTime;
         public float FinishedTime;
         public CanonicalTileId TileId;
-        public CanonicalTileId OwnerTileId;
-        public Action Action;
-        public Action<Task> ContinueWith;
-        public Action OnCancelled = () => {};
-        public string Info;
         
-        private bool _isCanceled = false;
-        public bool IsCancelled { get { return _isCanceled; } }
+        public bool IsCancelled { get; private set; }
+        public void Cancel() { IsCancelled = true; }
 
-        public void Cancel()
+        public abstract void Action();
+        public abstract void Completed(Task task);
+    }
+    
+    public class DataTaskWrapper<T> : TaskWrapper
+    {
+        public T DataResult;
+        public Func<T> DataAction;
+        public Action<Task, T> DataCompleted;
+
+        public override void Action()
         {
-            _isCanceled = true;
+            DataResult = DataAction();
         }
-        
-        
+
+        public override void Completed(Task task)
+        {
+            if (DataCompleted != null)
+            {
+                DataCompleted(task, DataResult);
+            }
+        }
     }
 }

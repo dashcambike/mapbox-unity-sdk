@@ -118,26 +118,22 @@ namespace Mapbox.UnityMapService.DataSources
             _cacheManager.GetImageAsync(tileId, tilesetId, isTextureNonreadable, callback);
         }
         
-        public TaskWrapper GetTileInfoAsync<T1>(CanonicalTileId tileId, string tilesetid, Action<T1> callback, int priority = 1) where T1 : MapboxTileData, new()
+        public DataTaskWrapper<T1> GetTileInfoAsync<T1>(CanonicalTileId tileId, string tilesetid, int priority = 1) where T1 : MapboxTileData, new()
         { 
-            var task = _cacheManager.GetTileInfoAsync<T1>(tileId, tilesetid, (resultTask, response) =>
-            {
-                CompleteTask(resultTask);
-                callback(response);
-            }, priority);
-            TrackTask(task);
-            return task;
+            var taskWrapper = _cacheManager.CreateGetTileInfoTask<T1>(tileId, tilesetid, priority);
+            taskWrapper.DataCompleted += ((resultTask, result) =>  CompleteTask(taskWrapper));
+            TrackTask(taskWrapper);
+            _cacheManager.AddTask(taskWrapper);
+            return taskWrapper;
         }
         
-        public TaskWrapper ReadEtagExpiration<T1>(T1 data, Action callback, int priority = 1) where T1 : MapboxTileData, new()
+        public DataTaskWrapper<T1> ReadEtagExpiration<T1>(T1 data, int priority = 1) where T1 : MapboxTileData, new()
         {
-            var task = _cacheManager.ReadEtagExpiration(data, (resultTask) =>
-            {
-                CompleteTask(resultTask);
-                callback();
-            }, priority);
-            TrackTask(task);
-            return task;
+            var taskWrapper = _cacheManager.CreateReadEtagExpirationTask(data, priority);
+            taskWrapper.DataCompleted += ((resultTask, result) => CompleteTask(taskWrapper));
+            TrackTask(taskWrapper);
+            _cacheManager.AddTask(taskWrapper);
+            return taskWrapper;
         }
 
         public void UpdateExpiration(CanonicalTileId tileId, string tilesetId, DateTime date)

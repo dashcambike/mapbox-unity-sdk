@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Mapbox.BaseModule.Data.DataFetchers;
 using Mapbox.BaseModule.Data.Platform.Cache;
 using Mapbox.BaseModule.Data.Tiles;
@@ -278,8 +279,6 @@ namespace Mapbox.UnityMapService.DataSources
         
         protected void BackgroundLoad(CanonicalTileId tileId, string tilesetId)
         {
-            _waitingList[tileId] = null;
-
             GetImageAsync<T>(tileId, tilesetId, SystemInfo.supportsAsyncGPUReadback, (cacheItem) =>
             {
                 if (cacheItem != null)
@@ -292,7 +291,6 @@ namespace Mapbox.UnityMapService.DataSources
                 {
                     var dataTile = CreateTile(tileId, tilesetId);
                     dataTile.IsBackgroundData = true;
-                    _waitingList[tileId] = dataTile;
                     WebRequestData(dataTile, (fetchingResult) =>
                     {
                         if (dataTile.CurrentTileState != TileState.Canceled)
@@ -302,45 +300,44 @@ namespace Mapbox.UnityMapService.DataSources
                         }
                     });
                 }
-                _waitingList.Remove(tileId);
             });
         }
 
         private void CheckExpiration(T cacheItem)
         {
-            ReadEtagExpiration(cacheItem, () =>
+            var dataTask = ReadEtagExpiration(cacheItem, 4);
+            dataTask.DataCompleted += OnDataTaskDataContinueWith;
+        }
+
+        private void OnDataTaskDataContinueWith(Task task, T data)
+        {
+            if (data.ExpirationDate == null || DateTime.Compare((DateTime)data.ExpirationDate, DateTime.Now) < 0)
             {
-                if (cacheItem.ExpirationDate == null || DateTime.Compare((DateTime) cacheItem.ExpirationDate, DateTime.Now) < 0)
+                var dataTile = CreateTile(data.TileId, data.TilesetId);
+                dataTile.ETag = data.ETag;
+                WebRequestData(dataTile, (tile) =>
                 {
-                    var dataTile = CreateTile(cacheItem.TileId, cacheItem.TilesetId);
-                    dataTile.ETag = cacheItem.ETag;
-                    dataTile.IsBackgroundData = true;
-                    _waitingList.Add(cacheItem.TileId, dataTile);
-                    WebRequestData(dataTile, (tile) =>
+                    if (dataTile.CurrentTileState != TileState.Canceled)
                     {
-                        _waitingList.Remove(cacheItem.TileId);
-                        if (dataTile.CurrentTileState != TileState.Canceled)
+                        if (dataTile.StatusCode == 200)
                         {
-                            if (dataTile.StatusCode == 200)
-                            {
-                                //Debug.Log("expired and returned 200");
-                                TextureReceivedFromWeb(dataTile);
-                            }
-                            else if (dataTile.StatusCode == 304)
-                            {
-                                //not changed, just update meta?
-                                //Debug.Log("expired but not changed, just update meta?");
-                                UpdateExpiration(dataTile.Id, dataTile.TilesetId, dataTile.ExpirationDate);
-                            }
+                            //Debug.Log("expired and returned 200");
+                            TextureReceivedFromWeb(dataTile);
                         }
-                    });
-                    //Debug.Log("tile needs an update");
-                }
-                else
-                {
-                    //Debug.Log("doesnt needs an update");
-                }
-            }, 4);
+                        else if (dataTile.StatusCode == 304)
+                        {
+                            //not changed, just update meta?
+                            //Debug.Log("expired but not changed, just update meta?");
+                            UpdateExpiration(dataTile.Id, dataTile.TilesetId, dataTile.ExpirationDate);
+                        }
+                    }
+                });
+                //Debug.Log("tile needs an update");
+            }
+            else
+            {
+                //Debug.Log("doesnt needs an update");
+            }
         }
     }
     

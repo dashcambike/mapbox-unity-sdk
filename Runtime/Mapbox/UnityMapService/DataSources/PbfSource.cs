@@ -172,7 +172,8 @@ namespace Mapbox.UnityMapService.DataSources
             
             var dataTile = CreateTile(requestedDataTileId, _tilesetId);
             _waitingList[requestedDataTileId] = dataTile;
-            GetTileInfoAsync<T>(requestedDataTileId, _tilesetId, (cacheItem) =>
+            var dataTask = GetTileInfoAsync<T>(requestedDataTileId, _tilesetId, 0);
+            dataTask.DataCompleted += (task, cacheItem) =>
             {
                 if (dataTile.CurrentTileState == TileState.Canceled) return;
                 if (cacheItem != null)
@@ -180,8 +181,8 @@ namespace Mapbox.UnityMapService.DataSources
                     VectorReceivedFromSqlite(cacheItem);
                     // TextureReceivedFromFile(cacheItem);
                     CheckExpiration(cacheItem);
-                    if (_waitingList.ContainsKey(requestedDataTileId))
-                        _waitingList.Remove(requestedDataTileId);
+                    if (_waitingList.ContainsKey(cacheItem.TileId))
+                        _waitingList.Remove(cacheItem.TileId);
                     callback?.Invoke(cacheItem);
                 }
                 else
@@ -189,12 +190,12 @@ namespace Mapbox.UnityMapService.DataSources
                     WebRequestData(dataTile, (fetchingResult) =>
                     {
                         var resultDataItem = VectorReceivedFromWeb(dataTile);
-                        if (_waitingList.ContainsKey(requestedDataTileId))
-                            _waitingList.Remove(requestedDataTileId);
+                        if (_waitingList.ContainsKey(dataTile.Id))
+                            _waitingList.Remove(dataTile.Id);
                         callback?.Invoke(resultDataItem);
                     });
                 }
-            }, 0);
+            };
         }
 
         private void VectorReceivedFromSqlite(T vectorCacheItemFromSqlite)
@@ -230,21 +231,6 @@ namespace Mapbox.UnityMapService.DataSources
         private T VectorReceivedFromWeb(ByteArrayTile tile)
         {
             tile.AddLog(string.Format("{0} - {1}", Time.unscaledTime, " VectorReceivedHandler"));
-            
-            if (_waitingList.ContainsKey(tile.Id))
-            {
-                _waitingList.Remove(tile.Id);
-            }
-            else
-            {
-                //this can mean bunch of things (like cancellation)
-                //but one case is; data we read from filecache was expired
-                //since we received it first time, it's not in waiting list anymore
-                //then server call for updating the data hits here and it wasn't expected at all
-                //Debug.Log("tile fetched but it isn't expected anymore?");
-                tile.AddLog("tile fetched from web but it isn't expected anymore?");
-            }
-
             if (tile.CurrentTileState != TileState.Loaded)
             {
                 //aborted web requests end up here

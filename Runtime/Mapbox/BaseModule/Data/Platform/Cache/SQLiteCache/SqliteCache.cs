@@ -248,11 +248,10 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 		public virtual void UpdateExpiration(string tilesetName, CanonicalTileId tileId, DateTime expirationDate)
 		{
 			_taskManager.AddTask(
-				new TaskWrapper()
+				new DataTaskWrapper<bool>()
 				{
-					OwnerTileId = tileId,
 					TileId = tileId,
-					Action = () =>
+					DataAction = () =>
 					{
 						lock (_lock)
 						{
@@ -275,45 +274,47 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 							if (1 != rowsAffected)
 							{
 								throw new Exception(string.Format("tile [{0} / {1}] was not updated, rows affected:{2}", tilesetName, tileId, rowsAffected));
+								return false;
 							}
 						}
-					},
-					Info = "SqliteCache.UpdateExpiration"
+						return true;
+					}
 				}, 4);
 		}
 
-		public virtual T Get<T>(string tilesetName, CanonicalTileId tileId) where T : MapboxTileData, new()
+		public virtual T Get<T>(string tilesetName, CanonicalTileId tileId, T data = null) where T : MapboxTileData, new()
 		{
 			lock (_lock)
 			{
 				if (FetchSqliteEntry(tileId, tilesetName, out var tile))
 				{
-					return new T()
+					if (data == null)
 					{
-						TileId = tileId,
-						TilesetId = tilesetName,
-						CacheType = CacheType.SqliteCache,
-						Data = tile.tile_data,
-						ETag = tile.etag,
-						ExpirationDate = tile.expirationDateFormatted
-					};
+						return new T()
+						{
+							TileId = tileId,
+							TilesetId = tilesetName,
+							CacheType = CacheType.SqliteCache,
+							Data = tile.tile_data,
+							ETag = tile.etag,
+							ExpirationDate = tile.expirationDateFormatted
+						};
+					}
+					else
+					{
+						data.TileId = tileId;
+						data.TilesetId = tilesetName;
+						data.CacheType = CacheType.SqliteCache;
+						data.Data = tile.tile_data;
+						data.ETag = tile.etag;
+						data.ExpirationDate = tile.expirationDateFormatted;
+						return data;
+					}
 				}
 				else
 				{
 					return null;
 				}
-			}
-		}
-
-		public virtual void ReadEtagAndExpiration<T>(T data) where T : MapboxTileData
-		{
-			lock (_lock)
-			{
-				if (!FetchSqliteEntry(data.TileId, data.TilesetId, out var tile)) 
-					return;
-
-				data.ETag = tile.etag;
-				data.ExpirationDate = tile.expirationDateFormatted;
 			}
 		}
 		
@@ -471,30 +472,28 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 			}
 			
 			_taskManager.AddTask(
-				new TaskWrapper()
+				new DataTaskWrapper<bool>()
 				{
-					OwnerTileId = tileId,
 					TileId = tileId,
-					Action = () =>
+					DataAction = () =>
 					{
 						lock (_lock)
 						{
 							SyncAdd(tilesetName, tileId, data, path, etag, expirationDate, forceInsert);
 						}
+
+						return true;
 					},
-					ContinueWith = (t) =>
+					DataCompleted = (resultTask, data) =>
 					{
-						if (t.IsCompleted && !t.IsFaulted)
+						if (resultTask.IsCompleted && !resultTask.IsFaulted)
 						{
 						}
 						else
 						{
-							Debug.Log(t.Exception.ToString() + t.Exception.Message);
+							Debug.Log(resultTask.Exception.ToString() + resultTask.Exception.Message);
 						}
-					},
-#if UNITY_EDITOR
-					Info = "SqliteCache.Add"
-#endif
+					}
 				}, 4);
 		}
 		

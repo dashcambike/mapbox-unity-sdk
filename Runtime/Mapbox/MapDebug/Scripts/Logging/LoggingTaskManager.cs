@@ -16,11 +16,10 @@ namespace Mapbox.MapDebug.Scripts.Logging
             TotalTaskCreatedCount++;
             if (EnableLogging)
             {
-                Logs.Add(string.Format("{0,-10} {2,-10} {1, -30}", Time.frameCount, "added", taskWrapper.Info));
+                Logs.Add(string.Format("{0,-10} {2,-10} {1, -30}", Time.frameCount, "added", taskWrapper.GetType().Name));
             }
             taskWrapper.Action();
-            if(taskWrapper.ContinueWith != null)
-                taskWrapper.ContinueWith(Task.CompletedTask);
+            taskWrapper.Completed(Task.CompletedTask);
         }
     }
     
@@ -47,13 +46,13 @@ namespace Mapbox.MapDebug.Scripts.Logging
                 //if (EnableLogging)
                 {
                     //Logs.Add(Time.frameCount + " - " + t.Info);
-
-                    if (!TaskType.ContainsKey(t.Info))
+                    var taskType = t.GetType().Name;
+                    if (!TaskType.ContainsKey(taskType))
                     {
-                        TaskType.Add(t.Info, 0);
+                        TaskType.Add(taskType, 0);
                     }
 
-                    TaskType[t.Info]++;
+                    TaskType[taskType]++;
                 }
             };
         }
@@ -63,7 +62,7 @@ namespace Mapbox.MapDebug.Scripts.Logging
             TotalTaskCreatedCount++;
             if (EnableLogging)
             {
-                Logs.Add(string.Format("{0,-10} {2,-10} {1, -30}", Time.frameCount, "added", taskWrapper.Info));
+                Logs.Add(string.Format("{0,-10} {2,-10} {1, -30}", Time.frameCount, "added", taskWrapper.GetType().Name));
             }
             base.AddTask(taskWrapper, priorityLevel);
         }
@@ -114,7 +113,7 @@ namespace Mapbox.MapDebug.Scripts.Logging
             //Debug.Log(string.Format("{0} {1}-{2} | {3}", Time.frameCount, task.TileId, task.TilesetId, task.Info));
             if (EnableLogging)
             {
-                Logs.Add(string.Format("{0,-10} {1, -30}", Time.frameCount, task.Info));
+                Logs.Add(string.Format("{0,-10} {1, -30}", Time.frameCount, task.GetType().Name));
             }
         }
 
@@ -131,7 +130,7 @@ namespace Mapbox.MapDebug.Scripts.Logging
 
             if (EnableLogging)
             {
-                Logs.Add(string.Format("{0,-10} {1, -30}", Time.frameCount, task.Info));
+                Logs.Add(string.Format("{0,-10} {1, -30}", Time.frameCount, task.GetType().Name));
             }
         }
 

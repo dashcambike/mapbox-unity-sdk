@@ -16,9 +16,11 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
         void SaveBlob(MapboxTileData vectorCacheItem, bool forceInsert);
         void SaveImage(RasterData textureCacheItem, bool forceInsert);
         void GetImageAsync<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new();
-        TaskWrapper GetTileInfoAsync<T>(CanonicalTileId tileId, string tilesetid , Action<TaskWrapper, T> callback, int priority = 1) where T : MapboxTileData, new();
-        TaskWrapper ReadEtagExpiration<T>(T data, Action<TaskWrapper> callback, int priority = 1) where T : MapboxTileData, new();
+        DataTaskWrapper<T> CreateGetTileInfoTask<T>(CanonicalTileId tileId, string tilesetid , int priority = 1) where T : MapboxTileData, new();
+        DataTaskWrapper<T> CreateReadEtagExpirationTask<T>(T data, int priority = 1) where T : MapboxTileData, new();
         void UpdateExpiration(CanonicalTileId tileId, string tilesetId, DateTime date);
+        
+        void AddTask(TaskWrapper task);
     }
 
     public class MapboxCacheManager : IMapboxCacheManager
@@ -108,69 +110,34 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
             }
         }
 
-        public TaskWrapper GetTileInfoAsync<T>(CanonicalTileId tileId, string tilesetid, Action<TaskWrapper, T> callback, int priority = 1) where T : MapboxTileData, new()
+        public DataTaskWrapper<T> CreateGetTileInfoTask<T>(CanonicalTileId tileId, string tilesetid, int priority = 1) where T : MapboxTileData, new()
         {
             if (_sqLiteCache != null)
             {
-                T data = null;
-                var task = new TaskWrapper();
+                var task = new DataTaskWrapper<T>();
 
                 task.TileId = tileId;
-                task.TilesetId = tilesetid;
-                task.Action = () => { data = _sqLiteCache.Get<T>(tilesetid, tileId); };
-                task.ContinueWith = (t) =>
-                {
-                    if (data == null || data.HasError)
-                    {
-                        callback?.Invoke(task, null);
-                    }
-                    else
-                    {
-                        callback?.Invoke(task, data);
-                    }
-                };
-#if UNITY_EDITOR
-                task.Info = "MapboxCacheManager.GetTileInfoAsync";
-#endif
-                
-                _taskManager.AddTask(task, priority);
+                task.DataAction = () => { return _sqLiteCache.Get<T>(tilesetid, tileId); };
                 return task;
             }
             else
             {
-                callback?.Invoke(null, null);
                 return null;
             }
         }
 
-        public TaskWrapper ReadEtagExpiration<T>(T data, Action<TaskWrapper> callback, int priority = 4) where T : MapboxTileData, new()
+        public DataTaskWrapper<T> CreateReadEtagExpirationTask<T>(T data, int priority = 4) where T : MapboxTileData, new()
         {
-            var task = new TaskWrapper();
+            var task = new DataTaskWrapper<T>();
             
             task.TileId = data.TileId;
-            task.TilesetId = data.TilesetId;
-            task.Action = () =>
-            {
-                _sqLiteCache.ReadEtagAndExpiration<T>(data);
-            };
-            task.ContinueWith = (t) =>
-            {
-                if (data.HasError)
-                {
-                    callback?.Invoke(task);
-                }
-                else
-                {
-
-                    callback?.Invoke(task);
-                }
-            };
-#if UNITY_EDITOR
-            task.Info = "MapboxCacheManager.ReadEtagExpiration";
-#endif
-            
-            _taskManager.AddTask(task, priority);
+            task.DataAction = () => { return _sqLiteCache.Get<T>(data.TilesetId, data.TileId, data); };
             return task;
+        }
+
+        public void AddTask(TaskWrapper taskWrapper)
+        {
+            _taskManager.AddTask(taskWrapper);
         }
 
         public void UpdateExpiration(CanonicalTileId tileId, string tilesetId, DateTime date)

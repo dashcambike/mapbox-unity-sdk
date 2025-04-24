@@ -208,11 +208,10 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 
 			//we don't track task here anymore as we don't inted to cancel it
 			//so it's fire and forget task with low priority
-			var task = new TaskWrapper()
+			var task = new DataTaskWrapper<bool>()
 			{
 				TileId = info.TextureCacheItem.TileId,
-				TilesetId = info.TextureCacheItem.TilesetId,
-				Action = () =>
+				DataAction = () =>
 				{
 					try
 					{
@@ -233,15 +232,15 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 					catch (Exception e)
 					{
 						Debug.LogException(e);
+						return false;
 					}
+
+					return true;
 				},
-				ContinueWith = (t) =>
+				DataCompleted = (resultTask, success) =>
 				{
 
-				},
-#if UNITY_EDITOR
-				Info = "FileCache.SaveInfo"
-#endif
+				}
 			};
 			
 			_taskManager.AddTask(task, 4);
