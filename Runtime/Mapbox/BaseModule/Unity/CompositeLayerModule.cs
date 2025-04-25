@@ -49,6 +49,17 @@ public class CompositeLayerModule : ILayerModule
         }
     }
 
+    public IEnumerable<IEnumerator> GetTileCoverCoroutines(IEnumerable<CanonicalTileId> tiles)
+    {
+        foreach (var module in LayerModules)
+        {
+            foreach (var routine in module.GetTileCoverCoroutines(tiles))
+            {
+                yield return routine;
+            }
+        }
+    }
+
     public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles, Dictionary<UnwrappedTileId, UnityMapTile> activeTiles)
     {
         foreach (var module in LayerModules)

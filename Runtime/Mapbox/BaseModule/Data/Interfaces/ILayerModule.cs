@@ -12,6 +12,9 @@ namespace Mapbox.BaseModule.Data.Interfaces
 	{
 		bool LoadInstant(UnityMapTile unityTile);
 		IEnumerator LoadTiles(IEnumerable<CanonicalTileId> tiles);
+		
+		IEnumerable<IEnumerator> GetTileCoverCoroutines(IEnumerable<CanonicalTileId> tiles);
+		
 		bool RetainTiles(HashSet<CanonicalTileId> retainedTiles, Dictionary<UnwrappedTileId, UnityMapTile> activeTiles);
 		IEnumerator Initialize();
 		void OnDestroy();

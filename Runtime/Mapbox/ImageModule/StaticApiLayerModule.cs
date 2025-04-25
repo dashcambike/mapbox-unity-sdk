@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Mapbox.BaseModule.Data.DataFetchers;
 using Mapbox.BaseModule.Data.Interfaces;
 using Mapbox.BaseModule.Data.Tiles;
@@ -88,10 +89,15 @@ namespace Mapbox.ImageModule
 
 		//COROUTINE METHODS only used in initialization so far
 		#region coroutines
-		public virtual IEnumerator LoadTileData(CanonicalTileId tileId, Action<MapboxTileData> callback) => _rasterSource.LoadTileCoroutine(tileId, callback);		
+		public virtual IEnumerator LoadTileData(CanonicalTileId tileId, Action<MapboxTileData> callback = null) => _rasterSource.LoadTileCoroutine(tileId, callback);		
 		public virtual IEnumerator LoadTiles(IEnumerable<CanonicalTileId> tiles)
 		{
 			yield return _rasterSource.LoadTilesCoroutine(tiles);
+		}
+		
+		public IEnumerable<IEnumerator> GetTileCoverCoroutines(IEnumerable<CanonicalTileId> tiles)
+		{
+			return tiles.Select(x => LoadTileData(x));
 		}
 		#endregion
 	}
