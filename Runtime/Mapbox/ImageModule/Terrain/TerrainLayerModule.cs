@@ -26,7 +26,7 @@ namespace Mapbox.ImageModule.Terrain
             _settings = settings;
             _retainedTerrainTiles = new HashSet<CanonicalTileId>();
             _rasterSource = source;
-            _terrainStrategy = new FlatTerrainStrategy(); //new ElevatedTerrainStrategy();
+            _terrainStrategy = new ElevatedTerrainStrategy();
         }
         
         public virtual IEnumerator Initialize()

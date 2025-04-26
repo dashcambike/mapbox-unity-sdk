@@ -10,7 +10,5 @@ namespace Mapbox.ImageModule.Terrain.Settings
 		public bool isActive = false;
 		[Tooltip("Height of side walls.")]
 		public float wallHeight = 10;
-		[Tooltip("Unity material to use for side walls.")]
-		public Material wallMaterial;
 	}
 }

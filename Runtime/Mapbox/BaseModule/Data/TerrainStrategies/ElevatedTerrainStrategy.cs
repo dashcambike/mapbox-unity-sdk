@@ -87,15 +87,15 @@ namespace Mapbox.ImageModule.Terrain.TerrainStrategies
 				sharedMesh.uv = newMesh.Uvs;
 			}
 			
-			if (_elevationOptions.sideWallOptions.isActive)
-			{
-				var firstMat = tile.MeshRenderer.materials[0];
-				tile.MeshRenderer.materials = new Material[2]
-				{
-					firstMat,
-					_elevationOptions.sideWallOptions.wallMaterial
-				};
-			}
+			// if (_elevationOptions.sideWallOptions.isActive)
+			// {
+			// 	var firstMat = tile.MeshRenderer.materials[0];
+			// 	tile.MeshRenderer.materials = new Material[2]
+			// 	{
+			// 		firstMat,
+			// 		_elevationOptions.sideWallOptions.wallMaterial
+			// 	};
+			// }
 
 			if (createElevatedMesh)
 			{
@@ -128,7 +128,6 @@ namespace Mapbox.ImageModule.Terrain.TerrainStrategies
 
 				vertices[i].Set(vertices[i].x, elevation, vertices[i].z);
 			}
-
 			mesh.vertices = vertices;
 		}
 
@@ -285,8 +284,9 @@ namespace Mapbox.ImageModule.Terrain.TerrainStrategies
 			mesh.Vertices = _newVertexList.ToArray();
 			mesh.Normals = _newNormalList.ToArray();
 			mesh.Uvs = _newUvList.ToArray();
+			topQuadTris.AddRange(_newTriangleList.ToArray());
 			mesh.Triangles.Add(topQuadTris.ToArray());
-			mesh.Triangles.Add(_newTriangleList.ToArray());
+			//mesh.Triangles.Add(_newTriangleList.ToArray());
 			return mesh;
 		}
 		#endregion

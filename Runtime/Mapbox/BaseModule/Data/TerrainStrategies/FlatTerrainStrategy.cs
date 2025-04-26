@@ -31,15 +31,15 @@ namespace Mapbox.ImageModule.Terrain.TerrainStrategies
 
 			if (meshFilter.sharedMesh.vertexCount != RequiredVertexCount)
 			{
-				if (_elevationOptions.sideWallOptions.isActive)
-				{
-					var firstMat = tile.MeshRenderer.materials[0];
-					tile.MeshRenderer.materials = new Material[2]
-					{
-						firstMat,
-						_elevationOptions.sideWallOptions.wallMaterial
-					};
-				}
+				// if (_elevationOptions.sideWallOptions.isActive)
+				// {
+				// 	var firstMat = tile.MeshRenderer.materials[0];
+				// 	tile.MeshRenderer.materials = new Material[2]
+				// 	{
+				// 		firstMat,
+				// 		_elevationOptions.sideWallOptions.wallMaterial
+				// 	};
+				// }
 			// }
 			//
 			// if ((int)tile.ElevationType != (int)ElevationLayerType.FlatTerrain)
