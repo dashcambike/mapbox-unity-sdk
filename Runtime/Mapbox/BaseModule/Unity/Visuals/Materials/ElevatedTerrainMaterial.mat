@@ -15,14 +15,17 @@ MonoBehaviour:
   version: 7
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: ElevatedTerrainMaterial
-  m_Shader: {fileID: -6465566751694194690, guid: e6f20eca448696e4eb2a244f2914805d, type: 3}
-  m_ShaderKeywords: 
+  m_Shader: {fileID: -6465566751694194690, guid: e44ed2d518a7c4a20bd9799360a9e7ed, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -31,6 +34,7 @@ Material:
     MotionVector: User
   disabledShaderPasses:
   - MOTIONVECTORS
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -78,6 +82,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - Boolean_d8ca466cd8bb4fb286885becb29145db: 1
     - _AlphaClip: 0
@@ -102,6 +107,7 @@ Material:
     - _SrcBlend: 1
     - _Surface: 0
     - _TileScale: 5
+    - _UsingLinearColorspace: 1
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
