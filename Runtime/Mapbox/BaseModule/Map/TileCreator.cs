@@ -24,8 +24,7 @@ namespace Mapbox.BaseModule.Map
         public UnityMapTile GetTile() => _tilePool.GetObject();
         public void PutTile(UnityMapTile tile) => _tilePool.Put(tile);
 
-        public TileCreator(UnityContext unityContext, TerrainStrategy terrainStrategy,
-            ElevationLayerProperties elevationProperties = null, Material[] tileMaterials = null, int cacheSize = 25)
+        public TileCreator(UnityContext unityContext, Material[] tileMaterials = null, int cacheSize = 25)
         {
             TileMaterials = tileMaterials;
             _unityContext = unityContext;

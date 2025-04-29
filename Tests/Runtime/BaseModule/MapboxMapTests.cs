@@ -61,7 +61,7 @@ namespace Mapbox.BaseModuleTests.DataTests
                 dataManager);
             
             _map = new MapboxMap(mapInfo, unityContext, mapService);
-            var mapVisualizer = new MapboxMapVisualizer(mapInfo, unityContext, new TileCreator(unityContext, new FlatTerrainStrategy()));
+            var mapVisualizer = new MapboxMapVisualizer(mapInfo, unityContext, new TileCreator(unityContext));
             _map.MapVisualizer = mapVisualizer;
         }
 

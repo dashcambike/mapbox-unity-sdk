@@ -145,7 +145,7 @@ namespace Mapbox.Example.Scripts.Map
         {
             var tileCreator = _tileCreatorBehaviour != null
                 ? _tileCreatorBehaviour.GetTileCreator(unityContext)
-                : new TileCreator(unityContext, new ElevatedTerrainStrategy());
+                : new TileCreator(unityContext);
             return new MapboxMapVisualizer(mapInfo, unityContext, tileCreator);
         }
         

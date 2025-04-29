@@ -159,7 +159,7 @@ namespace Mapbox.MapDebug.Scripts.Logging
         {
             var tileCreator = _tileCreatorBehaviour != null
                 ? _tileCreatorBehaviour.GetTileCreator(unityContext)
-                : new TileCreator(unityContext, new ElevatedTerrainStrategy());
+                : new TileCreator(unityContext);
             var mapVis = new LoggingMapVisualizer(mapInfo, unityContext, tileCreator);
             _mapLogger.AddLogger(mapVis);
             return mapVis;

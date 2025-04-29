@@ -14,9 +14,6 @@ namespace Mapbox.Example.Scripts.ModuleBehaviours
         
         [Tooltip("Materials for base map tile mesh and gameobject")]
         public Material[] TileMaterials;
-        
-        [Tooltip("Settings for base map tile mesh")]
-        public ElevationLayerProperties Settings;
 
         public int CacheSize = 25;
     
@@ -24,7 +21,7 @@ namespace Mapbox.Example.Scripts.ModuleBehaviours
         {
             if (_tileCreator != null) return _tileCreator;
 
-            _tileCreator = new TileCreator(unityContext, new ElevatedTerrainStrategy(), Settings, TileMaterials, CacheSize);
+            _tileCreator = new TileCreator(unityContext, TileMaterials, CacheSize);
             return _tileCreator;
         }
     }
