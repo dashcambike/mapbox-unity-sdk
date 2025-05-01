@@ -219,19 +219,16 @@ namespace Mapbox.VectorModule
 						continue;
 					_retainedTiles.Add(targetId);
 				}
-
-				if (_vectorModuleSettings.LoadBackgroundData)
+				
+				if (!_readyTiles.Contains(targetId))
 				{
-					if (!_readyTiles.Contains(targetId))
+					for (int i = targetId.Z; i >= _vectorModuleSettings.RejectTilesOutsideZoom.x; i--)
 					{
-						for (int i = targetId.Z; i >= _vectorModuleSettings.RejectTilesOutsideZoom.x; i--)
+						targetId = targetId.Parent;
+						if (_readyTiles.Contains(targetId))
 						{
-							targetId = targetId.Parent;
-							if (_readyTiles.Contains(targetId))
-							{
-								_retainedTiles.Add(targetId);
-								break;
-							}
+							_retainedTiles.Add(targetId);
+							break;
 						}
 					}
 				}

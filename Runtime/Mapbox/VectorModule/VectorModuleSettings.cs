@@ -10,7 +10,6 @@ namespace Mapbox.VectorModule
     {
         public VectorSourceType SourceType;
         public string CustomSourceId;
-        public bool LoadBackgroundData = false;
         public VectorSourceSettings DataSettings;
         
         [Tooltip("Tile outside this range will be rejected.")]
