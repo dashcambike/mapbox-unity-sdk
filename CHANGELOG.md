@@ -1,5 +1,27 @@
 ## CHANGELOG
 
+### v3.0.3
+
+Fixes
+- Resolved an issue where completed vector mesh generation tasks were not properly cleaned up.
+- Fixed a problem with basic linear/trilinear texture sampling in terrain which caused spikes at certain elevation ranges.
+- Fixed a bug where the initial map loading process fetched an incorrect set of tiles, requiring a second pass to load the correct data.
+- Resolved an issue where tile mesh sidewalls/skirts were not generated correctly.
+- Fixed a bug where the Data Fetching Manager and Cache Manager did not invoke callbacks in some scenarios.
+- Corrected the Vector module’s use of the rejection limit setting for tile level calculations; it now correctly uses the data clamp limit.
+- Addressed compatibility issues with certain core Android libraries that caused errors on older Android devices.
+- Fixed CPU-based terrain generation (disabling the `Use Shader Terrain` setting). While slower than the GPU shader approach, this option remains useful for certain scenarios.
+- 
+Improvements
+- Updated the terrain system: the elevated terrain and its settings have been moved back to the Terrain module. The flat terrain option has been removed—omitting the Terrain module now results in a flat map, while including it generates elevated terrain.
+- Removed the `Load Background Data` setting from the Vector module. It is now always enabled.
+
+Other Changes
+- Removed several debug-related string fields that were no longer in use.
+- Merged the previously separate `get` and `readExpiration` procedures in the SQLite implementation.
+- Restructured and simplified data classes related to the task system.
+- Removed the GPU-based Linear/Gamma colorspace check, which is no longer necessary following terrain shader fixes. 
+
 ### v3.0.2
 Critical fixes and improvements for developers using Windows OS and developers using Unity 6.0 
 
