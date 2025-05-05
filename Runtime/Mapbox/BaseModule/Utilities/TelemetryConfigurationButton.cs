@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Mapbox.BaseModule.Map;
 using UnityEngine;
@@ -6,18 +7,16 @@ using UnityEngine.UI;
 
 namespace Mapbox.BaseModule.Utilities
 {
-	[RequireComponent(typeof(Toggle))]
 	public class TelemetryConfigurationButton : MonoBehaviour
 	{
 		private List<MapBehaviourCore> _core;
 		private List<MapService> _mapServices;
 
-		private Toggle _toggle;
+		public Text KeepParticipatingLabel;
 		private bool _isItEnabled = true;
 
 		protected void Awake()
 		{
-			_toggle = GetComponent<Toggle>();
 			_mapServices = new List<MapService>();
 			var cores = FindObjectsOfType<MapBehaviourCore>().ToList();
 			foreach (var core in cores)
@@ -28,21 +27,22 @@ namespace Mapbox.BaseModule.Utilities
 					{
 						_mapServices.Add(map.MapService);
 						_isItEnabled &= map.MapService.GetTelemetryCollectionState();
-						_toggle.isOn = _isItEnabled;
 					};
 				}
 				else
 				{
 					_mapServices.Add(core.MapboxMap.MapService);
 					_isItEnabled &= core.MapboxMap.MapService.GetTelemetryCollectionState();
-					_toggle.isOn = _isItEnabled;
 				}
 			}
-			
-			_toggle.onValueChanged.AddListener(SetPlayerPref);
 		}
 
-		void SetPlayerPref(bool state)
+		private void OnEnable()
+		{
+			KeepParticipatingLabel.text = _isItEnabled ? "Keep Participating" : "Participate";
+		}
+
+		public void SetTelemState(bool state)
 		{
 			foreach (var mapService in _mapServices)
 			{
