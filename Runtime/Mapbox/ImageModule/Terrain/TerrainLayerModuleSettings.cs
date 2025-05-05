@@ -18,6 +18,6 @@ namespace Mapbox.ImageModule.Terrain
         [Tooltip("Tile outside this range will be rejected.")]
         public Vector2 RejectTilesOutsideZoom = new Vector2(12, 16);
 
-        public ElevationLayerProperties ElevationLayerProperties;
+        public ElevationLayerProperties ElevationLayerProperties = new ElevationLayerProperties();
     }
 }

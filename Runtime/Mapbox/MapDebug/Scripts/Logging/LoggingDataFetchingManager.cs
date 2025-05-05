@@ -12,6 +12,7 @@ namespace Mapbox.MapDebug.Scripts.Logging
     {
         public Queue<FetchInfo> GetFetchingQueue() => _fetchQueue;
         public int FetchQueueCount => _fetchQueue.Count;
+        public int ActiveFetchCount => _globalActiveRequests.Count;
         public bool EnableLogging = false;
         public int AddedCount;
         public int InitializedCount;
