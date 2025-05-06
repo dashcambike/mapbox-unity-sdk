@@ -1,5 +1,4 @@
 using System;
-using Mapbox.BaseModule.Data.DataFetchers;
 using Mapbox.BaseModule.Data.Tiles;
 using UnityEngine;
 using TerrainData = Mapbox.BaseModule.Data.DataFetchers.TerrainData;
@@ -49,38 +48,34 @@ namespace Mapbox.BaseModule.Unity
         private void FixMeshBounds(bool useShaderElevation)
         {
             Mesh mesh = _unityMapTile.MeshFilter.mesh;
-            if (mesh == null)
+            if (mesh != null && useShaderElevation)
             {
-                return;
+                mesh.RecalculateBounds();
+                mesh.bounds = GetBoundsAdjustedForElevation();
             }
-
-            float elevation = useShaderElevation ? GetMaxExtent() : 0f;
-            Vector3 newExtents = mesh.bounds.extents;
-            newExtents.y = elevation;
-            mesh.bounds = new Bounds(mesh.bounds.center, newExtents);
         }
 
-        private float GetMaxExtent()
+        private Bounds GetBoundsAdjustedForElevation()
         {
+            Mesh mesh = _unityMapTile.MeshFilter.mesh;
             if (TerrainData == null || TerrainData.ElevationValues == null)
             {
-                return 0;
+                return mesh.bounds;
             }
 
-            float max = 0;
-            float min = float.MaxValue;
-            for (int i = 0; i < TerrainData.ElevationValues.Length; i++)
+            float maxY = float.MinValue;
+            float minY = float.MaxValue;
+            foreach (float t in TerrainData.ElevationValues)
             {
-                if (TerrainData.ElevationValues[i] > max)
-                {
-                    max = TerrainData.ElevationValues[i];
-                }
-                if (TerrainData.ElevationValues[i] < min)
-                {
-                    min = TerrainData.ElevationValues[i];
-                }
+                float elevationScaled = t * _unityMapTile.TileScale;
+                maxY = Mathf.Max(maxY, elevationScaled);
+                minY = Mathf.Min(minY, elevationScaled);
             }
-            return Mathf.Max(Mathf.Abs(min), max);
+            Vector3 center = mesh.bounds.center;
+            center.y = (maxY + minY) / 2;
+            Vector3 size = mesh.bounds.size;
+            size.y = maxY - minY;
+            return new Bounds(center, size);
         }
 
         public void OnTerrainUpdated()
