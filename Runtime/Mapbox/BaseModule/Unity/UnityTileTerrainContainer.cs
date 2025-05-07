@@ -48,10 +48,13 @@ namespace Mapbox.BaseModule.Unity
         private void FixMeshBounds(bool useShaderElevation)
         {
             Mesh mesh = _unityMapTile.MeshFilter.mesh;
-            if (mesh != null && useShaderElevation)
+            if (mesh != null)
             {
                 mesh.RecalculateBounds();
-                mesh.bounds = GetBoundsAdjustedForElevation();
+                if (useShaderElevation)
+                {
+                    mesh.bounds = GetBoundsAdjustedForElevation();
+                }
             }
         }
 
