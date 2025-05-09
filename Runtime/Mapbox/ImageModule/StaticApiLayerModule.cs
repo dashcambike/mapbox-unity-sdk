@@ -34,7 +34,7 @@ namespace Mapbox.ImageModule
 		
 		public virtual void LoadTempTile(UnityMapTile unityTile)
 		{
-			if (unityTile.CanonicalTileId.Z < _settings.RejectTilesOutsideZoom.X)
+			if (IsZinSupportedRange(unityTile.CanonicalTileId.Z) == false)
 			{
 				//unityTile.ImageContainer.DisableImagery();
 				return;
@@ -54,7 +54,7 @@ namespace Mapbox.ImageModule
 
 		public virtual bool LoadInstant(UnityMapTile unityTile)
 		{
-			if (unityTile.CanonicalTileId.Z < _settings.RejectTilesOutsideZoom.X)
+			if (IsZinSupportedRange(unityTile.CanonicalTileId.Z) == false)
 			{
 				//unityTile.ImageContainer.DisableImagery();
 				return true;
@@ -97,8 +97,13 @@ namespace Mapbox.ImageModule
 		
 		public IEnumerable<IEnumerator> GetTileCoverCoroutines(IEnumerable<CanonicalTileId> tiles)
 		{
-			return tiles.Select(x => LoadTileData(x));
+			return tiles.Where(x => IsZinSupportedRange(x.Z)).Select(x => LoadTileData(x));
 		}
 		#endregion
+		
+		private bool IsZinSupportedRange(int targetZ)
+		{
+			return _settings.RejectTilesOutsideZoom.x <= targetZ && _settings.RejectTilesOutsideZoom.y >= targetZ;
+		}
 	}
 }

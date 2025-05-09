@@ -193,7 +193,7 @@ namespace Mapbox.VectorModule
 
 		public IEnumerable<IEnumerator> GetTileCoverCoroutines(IEnumerable<CanonicalTileId> tiles)
 		{
-			var targetTiles = GetTargetTileId(tiles).Distinct();
+			var targetTiles = tiles.Where(x => IsZinSupportedRange(x.Z)).Select(GetTargetTileId).Distinct();
 			return targetTiles.Select(x => LoadAndProcessTileCoroutine(x));
 		}
 		

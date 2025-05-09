@@ -8,7 +8,6 @@ using Mapbox.BaseModule.Unity;
 using Mapbox.BaseModule.Utilities;
 using Mapbox.ImageModule;
 using UnityEngine;
-using Vector2 = System.Numerics.Vector2;
 
 namespace Mapbox.Example.Scripts.ModuleBehaviours
 {

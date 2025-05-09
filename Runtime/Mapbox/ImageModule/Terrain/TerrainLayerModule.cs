@@ -40,7 +40,7 @@ namespace Mapbox.ImageModule.Terrain
 
         public virtual void LoadTempTile(UnityMapTile unityTile)
         {
-            if (unityTile.CanonicalTileId.Z < _settings.RejectTilesOutsideZoom.x)
+            if (IsZinSupportedRange(unityTile.CanonicalTileId.Z) == false)
             {
                 unityTile.TerrainContainer.DisableTerrain();
                 return;
@@ -62,7 +62,7 @@ namespace Mapbox.ImageModule.Terrain
         
         public virtual bool LoadInstant(UnityMapTile unityTile)
         {
-            if (unityTile.CanonicalTileId.Z < _settings.RejectTilesOutsideZoom.x)
+            if (IsZinSupportedRange(unityTile.CanonicalTileId.Z) == false)
             {
                 unityTile.TerrainContainer.DisableTerrain();
                 return true;
@@ -141,6 +141,11 @@ namespace Mapbox.ImageModule.Terrain
         
         
         //PRIVATE METHODS
+        private bool IsZinSupportedRange(int targetZ)
+        {
+            return _settings.RejectTilesOutsideZoom.x <= targetZ && _settings.RejectTilesOutsideZoom.y >= targetZ;
+        }
+        
         private CanonicalTileId GetDataId(CanonicalTileId tileId)
         {
             var maxZoom = _settings.DataSettings.ClampDataLevelToMax;
@@ -158,7 +163,7 @@ namespace Mapbox.ImageModule.Terrain
         
         public IEnumerable<CanonicalTileId> GetDataId(IEnumerable<CanonicalTileId> tileIdList)
         {
-            return tileIdList.Select(GetDataId).Distinct();
+            return tileIdList.Where(x => IsZinSupportedRange(x.Z)).Select(GetDataId).Distinct();
         }
 
     }
