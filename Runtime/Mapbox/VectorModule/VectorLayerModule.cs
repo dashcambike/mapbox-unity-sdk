@@ -116,7 +116,7 @@ namespace Mapbox.VectorModule
 		public void ReloadTile(CanonicalTileId tile)
 		{
 			var targetId = GetTargetTileId(tile);
-			if (_vectorSource.GetInstantData(targetId, out var instantData))
+			if (_readyTiles.Contains(targetId) && _vectorSource.GetInstantData(targetId, out var instantData))
 			{
 				ClearDisposedDataVisual(targetId);
 				CreateVisual(targetId, instantData);

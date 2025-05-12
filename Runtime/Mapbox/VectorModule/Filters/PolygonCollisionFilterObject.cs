@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Mapbox.BaseModule.Data.Tiles;
-using Mapbox.BaseModule.Map;
 using Mapbox.BaseModule.Utilities;
 using UnityEngine;
 
@@ -25,9 +24,9 @@ namespace Mapbox.VectorModule.Filters
             }
         }
         
-        public void AddMeshCollider8192(List<Vector3> poly, CanonicalTileId tileId, IMapInformation mapInfo)
+        public void AddMeshCollider8192(List<Vector3> poly, CanonicalTileId tileId)
         {
-            _filter.AddMeshCollider8192(poly, tileId, mapInfo);
+            _filter.AddMeshCollider8192(poly, tileId);
         }
     }
     
@@ -35,11 +34,11 @@ namespace Mapbox.VectorModule.Filters
     {
 
         private bool _showDebugLines = false;
-        [NonSerialized] public Dictionary<CanonicalTileId, List<List<Vector3>>> PolygonsPerTile;
+        [NonSerialized] public Dictionary<CanonicalTileId, List<Tuple<Bounds,List<Vector3>>>> PolygonsPerTile;
 
         public PolygonCollisionFilter(bool showDebugLines = false)
         {
-            PolygonsPerTile = new Dictionary<CanonicalTileId, List<List<Vector3>>>();
+            PolygonsPerTile = new Dictionary<CanonicalTileId, List<Tuple<Bounds, List<Vector3>>>>();
             _showDebugLines = showDebugLines;
         }
 
@@ -51,81 +50,45 @@ namespace Mapbox.VectorModule.Filters
                 {
                     foreach (var submesh in feature.Points)
                     {
-                        if (PolygonIntersection2D.ArePolygonsIntersecting(collider, submesh))
-                            return false;
+                        var bounds = BoundsOfVertices(submesh);
+                        if (collider.Item1.Intersects(bounds))
+                        {
+                            if (PolygonIntersection2D.ArePolygonsIntersecting(collider.Item2, submesh))
+                                return false;
+                        }
                     }
                 }
             }
             return true;
         }
         
-        public void AddMeshCollider(Transform tr, Mesh mesh, List<CanonicalTileId> tileList, IMapInformation mapInfo)
-        {
-            //PolygonsPerTile.Clear();
-            foreach (var tileId in tileList)
-            {
-                var vertices = new List<Vector3>();
-                foreach (var vertex in mesh.vertices)
-                {
-                    var pos = tr.TransformPoint(vertex);
-                    var latlng = mapInfo.ConvertPositionToLatLng(pos);
-                    var zeroOnePosition = Conversions.LatitudeLongitudeToInTile01(latlng, tileId);
-                    var localPosition = ZeroOneToLocal(zeroOnePosition);
-                    vertices.Add(new Vector3(localPosition.x, 0, localPosition.y));
-                }
-
-                if(!PolygonsPerTile.ContainsKey(tileId))
-                    PolygonsPerTile.Add(tileId, new List<List<Vector3>>());
-                PolygonsPerTile[tileId].Add(vertices);
-            }
-        }
-
-        public void AddMeshCollider8192(List<Vector3> poly, CanonicalTileId tileId, IMapInformation mapInfo)
+        public void AddMeshCollider8192(List<Vector3> poly, CanonicalTileId tileId)
         {
             if(!PolygonsPerTile.ContainsKey(tileId))
-                PolygonsPerTile.Add(tileId, new List<List<Vector3>>());
-            PolygonsPerTile[tileId].Add(poly);
+                PolygonsPerTile.Add(tileId, new List<Tuple<Bounds, List<Vector3>>>());
+
+            var bounds = BoundsOfVertices(poly);
+            PolygonsPerTile[tileId].Add(Tuple.Create(bounds, poly));
         }
-        
-        public void AddMeshCollider8192(Mesh mesh, CanonicalTileId tileId, IMapInformation mapInfo)
+
+        public Bounds BoundsOfVertices(List<Vector3> vertices)
         {
-            for (int i = 0; i < 4; i++)
+            var minX = float.MaxValue;
+            var minY = float.MaxValue;
+            var maxX = float.MinValue;
+            var maxY = float.MinValue;
+            
+            foreach (var vertex in vertices)
             {
-                var child = tileId.Quadrant(i);
-                var scaleOffset = child.CalculateTopRightScaleOffsetAtZoom(tileId.Z);
-                var vertices = new List<Vector3>();
-                foreach (var vertex in mesh.vertices)
-                {
-                    var newX = (vertex.x - scaleOffset[2]) / scaleOffset[0];
-                    var newY = (vertex.z + scaleOffset[3]) / scaleOffset[1];
-                    vertices.Add(new Vector3(newX, 0, newY));
-                }
-
-                if (_showDebugLines)
-                {
-                    var tilePos = Conversions.TileBoundsInUnitySpace(child, mapInfo.CenterMercator, mapInfo.Scale);
-                    for (int j = 1; j < vertices.Count; j++)
-                    {
-                        var p1 = tilePos.TopLeft.ToVector3xz() + ((float)tilePos.Size.x * vertices[j]);
-                        var p2 = tilePos.TopLeft.ToVector3xz() + ((float)tilePos.Size.x * vertices[j - 1]);
-                        Debug.DrawLine(p1, p2, Color.red, 1000);
-                    }
-                }
-
-                if(!PolygonsPerTile.ContainsKey(child))
-                    PolygonsPerTile.Add(child, new List<List<Vector3>>());
-                PolygonsPerTile[child].Add(vertices);
+                if(vertex.x < minX) minX = vertex.x;
+                if(vertex.x > maxX) maxX = vertex.x;
+                if(vertex.z < minY) minY = vertex.z;
+                if(vertex.z > maxY) maxY = vertex.z;
             }
-        }
-        
-        public float InverseLerpUnclamped(float from, float to, float value)
-        {
-            return (value - from) / (to - from);
-        }
 
-        private Vector2 ZeroOneToLocal(Vector2 pos)
-        {
-            return new Vector2(pos.x, -1 * (1 - pos.y));
+            var center = new Vector3((maxX + minX) / 2, 0, (maxY + minY) / 2);
+            var size = new Vector3(maxX - minX, 1, maxY - minY);
+            return new Bounds(center, size);
         }
     }
     
