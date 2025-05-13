@@ -133,7 +133,7 @@ namespace Mapbox.ImageModule.Terrain
         public IEnumerable<IEnumerator> GetTileCoverCoroutines(IEnumerable<CanonicalTileId> tiles)
         {
             var targetTiles = GetDataId(tiles).Distinct();
-            return targetTiles.Select(x => LoadTileData(x)).Where(x => x != null);
+            return targetTiles.Select(x => _rasterSource.LoadTileCoroutine(x)).Where(x => x != null);
         }
         #endregion
         
