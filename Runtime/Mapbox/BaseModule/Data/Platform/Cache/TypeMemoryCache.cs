@@ -40,20 +40,23 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
             else
             {
                 Prune();
-                
-                var llNode = _cache.AddFirst(data);
-                _cacheHash.Add(data.TileId, llNode);
+
+                if (_cache.Count < CacheSize)
+                {
+                    var llNode = _cache.AddFirst(data);
+                    _cacheHash.Add(data.TileId, llNode);
+                }
             }
         }
 
         private void Prune()
         {
-            if (_cache.Count > CacheSize)
+            if (_cache.Count >= CacheSize)
             {
-                for (int i = 0; i < 20; i++)
+                for (int i = 0; i < Mathf.Min(20, _cache.Count); i++)
                 {
                     var lastItem = _cache.Last;
-                    if (!_previousFrameTiles.Contains(lastItem.Value.TileId))
+                    if (_previousFrameTiles != null && !_previousFrameTiles.Contains(lastItem.Value.TileId))
                     {
                         DropItem(_cache.Last);
                         break;
