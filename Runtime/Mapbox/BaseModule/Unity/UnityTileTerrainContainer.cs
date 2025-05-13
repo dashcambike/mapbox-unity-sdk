@@ -123,24 +123,7 @@ namespace Mapbox.BaseModule.Unity
         {
             if (TerrainData != null && TerrainData.ElevationValues.Length > 0)
             {
-                var width = (int)Mathf.Sqrt(TerrainData.ElevationValues.Length);
-                var sectionWidth = width * _terrainTextureScaleOffset.x - 1;
-                var padding = width * new Vector2(_terrainTextureScaleOffset.z, _terrainTextureScaleOffset.w);
-                
-                var xx = padding.x + (x * sectionWidth);
-                var yy = padding.y + (y * sectionWidth);
-
-                var index = (int) yy * width
-                            + (int) xx;
-                if (TerrainData.ElevationValues.Length <= index)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return TerrainData.ElevationValues[(int) yy * width + (int) xx];
-                }
-
+                return TerrainData.QueryHeightData(_unityMapTile.CanonicalTileId, x, y);
             }
             return 0;
         }
