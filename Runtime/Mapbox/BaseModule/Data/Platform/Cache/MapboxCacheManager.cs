@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using Mapbox.BaseModule.Data.DataFetchers;
@@ -16,6 +17,8 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
         void SaveBlob(MapboxTileData vectorCacheItem, bool forceInsert);
         void SaveImage(RasterData textureCacheItem, bool forceInsert);
         void GetImageAsync<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new();
+
+        IEnumerator GetImageCoroutine<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new();
         DataTaskWrapper<T> CreateGetTileInfoTask<T>(CanonicalTileId tileId, string tilesetid, int priority = 1, T data = null) where T : MapboxTileData, new();
         //DataTaskWrapper<T> CreateReadEtagExpirationTask<T>(T data, int priority = 1) where T : MapboxTileData, new();
         void UpdateExpiration(CanonicalTileId tileId, string tilesetId, DateTime date);
@@ -108,6 +111,11 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
             {
                 callback(null);    
             }
+        }
+
+        public virtual IEnumerator GetImageCoroutine<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new()
+        {
+            yield return _textureFileCache.GetFileCoroutine(tileId, tilesetId, isTextureNonreadable, callback);
         }
 
         public virtual DataTaskWrapper<T> CreateGetTileInfoTask<T>(CanonicalTileId tileId, string tilesetid, int priority = 1, T data = null)
