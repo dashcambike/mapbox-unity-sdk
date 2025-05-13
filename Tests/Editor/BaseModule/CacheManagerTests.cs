@@ -5,6 +5,7 @@ using Mapbox.BaseModule.Data.DataFetchers;
 using Mapbox.BaseModule.Data.Platform.Cache;
 using Mapbox.BaseModule.Data.Tiles;
 using Mapbox.BaseModule.Unity;
+using Mapbox.BaseModule.Utilities;
 using Mapbox.MapDebug.Scripts.Logging;
 using NUnit.Framework;
 using UnityEngine;
@@ -109,6 +110,25 @@ namespace Mapbox.BaseModuleTests
                 resultData = data;
                 isDone = true;
             });
+            while (!isDone) yield return null;
+            
+            Assert.AreEqual(_testRasterData.TilesetId, resultData.TilesetId);
+            Assert.AreEqual(_testRasterData.TileId, resultData.TileId);
+            Assert.AreEqual(_testTexture.GetPixels32(), resultData.Texture.GetPixels32());
+        }
+        
+        [UnityTest]
+        public IEnumerator GetImageCoroutineTest()
+        {
+            yield return SaveImageTest();
+            RasterData resultData = null;
+            bool isDone = false;
+            Runnable.EnableRunnableInEditor();
+            Runnable.Run(_cacheManager.GetImageCoroutine<RasterData>(_testTileId, _testTilesetName, false, data =>
+            {
+                resultData = data;
+                isDone = true;
+            }));
             while (!isDone) yield return null;
             
             Assert.AreEqual(_testRasterData.TilesetId, resultData.TilesetId);
