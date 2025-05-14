@@ -151,7 +151,7 @@ namespace Mapbox.UnityMapService.DataSources
         
         public IEnumerator GetTileData<T1>(CanonicalTileId tileId, string tilesetid, T1 data = null, int priority = 1, Action<T1> callback = null) where T1 : MapboxTileData, new()
         {
-            yield return _cacheManager.GetTileInfoCoroutine<T1>(tileId, tilesetid, priority, data, callback);
+            yield return _cacheManager.GetBlobCoroutine<T1>(tileId, tilesetid, priority, data, callback);
         }
         
         public void UpdateExpiration(CanonicalTileId tileId, string tilesetId, DateTime date)

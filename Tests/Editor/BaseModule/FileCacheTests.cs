@@ -54,22 +54,23 @@ namespace Mapbox.BaseModuleTests
             Assert.IsTrue(_fileCache.TestAvailability());
         }
         
-        [Test]
-        public void AddTileTest()
+        [UnityTest]
+        public IEnumerator AddTileTest()
         {
             var resultFilePath = "";
-            _fileCache.Add(_testRasterData, false, (s) =>
+            yield return _fileCache.AddCoroutine(_testRasterData, (s) =>
             {
                 resultFilePath = s;
             });
+            
             Assert.IsNotEmpty(resultFilePath);
             Assert.True(File.Exists(Path.Combine(_fileCache.PersistantCacheRootFolderPath, resultFilePath)));
         }
 
-        [Test]
-        public void ExistsTest()
+        [UnityTest]
+        public IEnumerator ExistsTest()
         {
-            AddTileTest();
+            yield return AddTileTest();
             Assert.IsTrue(_fileCache.Exists(_testTileId, _testTilesetName));
         }
 
@@ -94,11 +95,11 @@ namespace Mapbox.BaseModuleTests
         [UnityTest]
         public IEnumerator ReadTileCoroutineTest()
         {
-            AddTileTest();
+            yield return AddTileTest();
             RasterData resultData = null;
             bool isWorking = true;
             Runnable.EnableRunnableInEditor();
-            Runnable.Instance.StartCoroutine(_fileCache.GetFileCoroutine<RasterData>(_testTileId, _testTilesetName, true, (data) =>
+            Runnable.Instance.StartCoroutine(_fileCache.GetCoroutine<RasterData>(_testTileId, _testTilesetName, true, (data) =>
             {
                 isWorking = false;
                 resultData = data;
@@ -113,13 +114,13 @@ namespace Mapbox.BaseModuleTests
         [UnityTest]
         public IEnumerator DeleteTileTest()
         {
-            AddTileTest();
+            yield return AddTileTest();
             _fileCache.DeleteTileFile(_testRasterData);
             
             RasterData resultData = null;
             bool isWorking = true;
             Runnable.EnableRunnableInEditor();
-            Runnable.Instance.StartCoroutine(_fileCache.GetFileCoroutine<RasterData>(_testTileId, _testTilesetName, true, (data) =>
+            Runnable.Instance.StartCoroutine(_fileCache.GetCoroutine<RasterData>(_testTileId, _testTilesetName, true, (data) =>
             {
                 isWorking = false;
                 resultData = data;
@@ -138,10 +139,10 @@ namespace Mapbox.BaseModuleTests
             Assert.IsEmpty(_fileCache.GetFileList());
         }
 
-        [Test]
-        public void GetTileListTest()
+        [UnityTest]
+        public IEnumerator GetTileListTest()
         {
-            AddTileTest();
+            yield return AddTileTest();
             var list = _fileCache.GetFileList();
             Assert.IsNotNull(list);
             Assert.IsTrue(list.Count == 1);

@@ -109,7 +109,7 @@ namespace Mapbox.BaseModuleTests.DataTests
                 Assert.NotNull(dataFromSqlite);
                 
                 RasterData dataFromFile = null;
-                coroutine = Runnable.Instance.StartCoroutine(_fileCache.GetFileCoroutine<RasterData>(rasterData.TileId, _imageryTileset.Id, true, data =>
+                coroutine = Runnable.Instance.StartCoroutine(_fileCache.GetCoroutine<RasterData>(rasterData.TileId, _imageryTileset.Id, true, data =>
                 {
                     dataFromFile = data;
                 }));

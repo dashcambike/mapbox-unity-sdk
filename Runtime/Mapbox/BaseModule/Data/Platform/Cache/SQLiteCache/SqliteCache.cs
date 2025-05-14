@@ -153,9 +153,9 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 				.LongCount();
 		}
 		
-		public void Add(MapboxTileData item, bool forceInsert = false)
+		public void Add(MapboxTileData item, bool forceInsert = false, Action<bool> callback = null)
 		{
-			Add(item.TilesetId, item.TileId, item.Data, string.Empty, item.ETag, item.ExpirationDate, forceInsert);
+			Add(item.TilesetId, item.TileId, item.Data, string.Empty, item.ETag, item.ExpirationDate, forceInsert, callback);
 		}
 
 		public void SyncAdd(string tilesetName, CanonicalTileId tileId, byte[] data, string path, string etag, DateTime? expirationDate, bool forceInsert)
@@ -163,9 +163,7 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 			try
 			{
 				// tile exists and we don't want to overwrite -> exit early
-				if (
-					TileExists(tilesetName, tileId)
-					&& !forceInsert
+				if (TileExists(tilesetName, tileId) && !forceInsert
 				)
 				{
 					return;
@@ -463,12 +461,14 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 		
 		
 		
-		protected virtual void Add(string tilesetName, CanonicalTileId tileId, byte[] data, string path, string etag, DateTime? expirationDate, bool forceInsert = false)
+		protected virtual void Add(string tilesetName, CanonicalTileId tileId, byte[] data, string path, string etag,
+			DateTime? expirationDate, bool forceInsert = false, Action<bool> callback = null)
 		{
 			//Debug.Log(string.Format("Sqlite add {0} - {1}", tileId, path));
 			if (expirationDate == null)
 			{
 				Debug.Log("Expiration date shouldn't be null");
+				callback?.Invoke(false);
 			}
 			
 			_taskManager.AddTask(
@@ -488,11 +488,14 @@ CONSTRAINT tileAssignmentConstraint UNIQUE (tileId, mapId)
 					{
 						if (resultTask.IsCompleted && !resultTask.IsFaulted)
 						{
+							callback?.Invoke(true);
 						}
 						else
 						{
 							Debug.Log(resultTask.Exception.ToString() + resultTask.Exception.Message);
+							callback?.Invoke(false);
 						}
+						
 					}
 				}, 4);
 		}

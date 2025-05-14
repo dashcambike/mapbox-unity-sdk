@@ -28,10 +28,10 @@ namespace Mapbox.MapDebug.Scripts.Logging
         }
 
 
-        protected override void Add(string tilesetName, CanonicalTileId tileId, byte[] data, string path, string etag, DateTime? expirationDate, bool forceInsert = false)
+        protected override void Add(string tilesetName, CanonicalTileId tileId, byte[] data, string path, string etag, DateTime? expirationDate, bool forceInsert = false, Action<bool> callback = null)
         {
             _addCount++;
-            base.Add(tilesetName, tileId, data, path, etag, expirationDate, forceInsert);
+            base.Add(tilesetName, tileId, data, path, etag, expirationDate, forceInsert, callback);
         }
 
         public override T Get<T>(string tilesetName, CanonicalTileId tileId, T data = null)

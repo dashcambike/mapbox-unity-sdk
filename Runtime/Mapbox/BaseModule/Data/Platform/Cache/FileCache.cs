@@ -15,13 +15,15 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 		bool TestAvailability();
 		event Action<MapboxTileData, string> FileSaved;
 		void Add(MapboxTileData textureCacheItem, bool forceInsert, Action<string> post);
+		IEnumerator AddCoroutine(MapboxTileData textureCacheItem, Action<string> postSave);
+		
 		//bool GetAsync(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<CacheItem> callback);
 		bool Exists(CanonicalTileId tileId, string mapId);
 		void ClearAll();
 		void DeleteTileFile(MapboxTileData cacheItem);
 		HashSet<string> GetFileList();
 		bool GetAsync<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new();
-		IEnumerator GetFileCoroutine<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new();
+		IEnumerator GetCoroutine<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new();
 		void DeleteByFileRelativePath(string fileRelativePath);
 	}
 
@@ -118,7 +120,24 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 			return info.Exists;
 		}
 		
-		public virtual IEnumerator GetFileCoroutine<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new()
+		public virtual IEnumerator AddCoroutine(MapboxTileData textureCacheItem, Action<string> postSave)
+		{
+			bool isWorking = true;
+			var fileRelativePath = TileToRelativePath(textureCacheItem);
+			var infoWrapper = new InfoWrapper(textureCacheItem, fileRelativePath, (finalPath) =>
+			{
+				isWorking = false;
+				fileRelativePath = finalPath;
+			});
+			SaveInfo(infoWrapper);
+			while (isWorking)
+			{
+				yield return null;
+			}
+			postSave?.Invoke(fileRelativePath);
+		}
+
+		public virtual IEnumerator GetCoroutine<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new()
 		{
 			string relativePath = TileToRelativeFilePath(tileId, tilesetId);
 			var info = new FileInfo(RelativeFilePathToFileInfoExpects(relativePath));

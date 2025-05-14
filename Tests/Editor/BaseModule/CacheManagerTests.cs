@@ -89,22 +89,50 @@ namespace Mapbox.BaseModuleTests
             Assert.AreEqual(_testTexture.GetPixels32(), resultData.Texture.GetPixels32());
         }
         
-        [Test]
-        public void SaveBlobTest()
+        [UnityTest]
+        public IEnumerator SaveImageCoroutineTest()
         {
-            _cacheManager.SaveBlob(_testVectorData, false);
+            yield return _cacheManager.SaveImageCoroutine(_testRasterData, false);
+            Assert.AreEqual(_fileCache.GetFileList().Count, 1);
             Assert.AreEqual(_sqliteCache.GetAllTiles().Count(), 1);
-            var metaData = _sqliteCache.Get<VectorData>(_testTilesetName, _testTileId);
-            Assert.AreEqual(metaData.ETag, _testVectorData.ETag);
-            Assert.AreEqual(metaData.Data, _testVectorData.Data);
+            var metaData = _sqliteCache.Get<RasterData>(_testTilesetName, _testTileId);
+            Assert.AreEqual(metaData.ETag, _testRasterData.ETag); 
+            
+            RasterData resultData = null;
+            bool isDone = false;
+            Runnable.Instance.StartCoroutine(_fileCache.GetCoroutine<RasterData>(_testTileId, _testTilesetName, false,
+                data =>
+                {
+                    isDone = true;
+                    resultData = data;
+                }));
+            while (!isDone) yield return null;
+            Assert.AreEqual(_testTexture.GetPixels32(), resultData.Texture.GetPixels32());
+        }
+        
+        [UnityTest]
+        public IEnumerator SaveBlobTest()
+        {
+            yield return _cacheManager.SaveBlobCoroutine(_testVectorData, false);
+            Assert.AreEqual(_sqliteCache.GetAllTiles().Count(), 1);
+            VectorData vectorData = null;
+            yield return Runnable.Instance.StartCoroutine(_cacheManager.GetBlobCoroutine<VectorData>(_testTileId,
+                _testTilesetName, 1, null,
+                data =>
+                {
+                    vectorData = data;
+                }));
+            Assert.AreEqual(vectorData.ETag, _testVectorData.ETag);
+            Assert.AreEqual(vectorData.Data, _testVectorData.Data);
         }
         
         [UnityTest]
         public IEnumerator GetBlobCoroutine()
         {
-            _cacheManager.SaveBlob(_testVectorData, false);
+            yield return _cacheManager.SaveBlobCoroutine(_testVectorData, false);
             VectorData result = null;
-            yield return Runnable.Instance.StartCoroutine(_cacheManager.GetTileInfoCoroutine<VectorData>(_testTileId, _testTilesetName, 1, null,
+            yield return Runnable.Instance.StartCoroutine(_cacheManager.GetBlobCoroutine<VectorData>(_testTileId,
+                _testTilesetName, 1, null,
                 (data) =>
                 {
                     result = data;
@@ -139,7 +167,7 @@ namespace Mapbox.BaseModuleTests
             RasterData resultData = null;
             bool isDone = false;
             Runnable.EnableRunnableInEditor();
-            Runnable.Run(_cacheManager.GetImageCoroutine<RasterData>(_testTileId, _testTilesetName, false, data =>
+            Runnable.Instance.StartCoroutine(_cacheManager.GetImageCoroutine<RasterData>(_testTileId, _testTilesetName, false, data =>
             {
                 resultData = data;
                 isDone = true;
@@ -151,10 +179,10 @@ namespace Mapbox.BaseModuleTests
             Assert.AreEqual(_testTexture.GetPixels32(), resultData.Texture.GetPixels32());
         }
         
-        [Test]
-        public void GetTileInfoTest()
+        [UnityTest]
+        public IEnumerator GetTileInfoTest()
         {
-            SaveBlobTest();
+            yield return SaveBlobTest();
             VectorData resultData = null;
             bool isDone = false;
             var wrapper = _cacheManager.GetTileInfoTask<VectorData>(_testTileId, _testTilesetName);

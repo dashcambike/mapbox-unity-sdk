@@ -18,7 +18,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 		uint MaxCacheSize { get; }
 		long TileCount(string tilesetName);
 		
-		void Add(MapboxTileData item, bool replaceIfExists);
+		void Add(MapboxTileData item, bool replaceIfExists, Action<bool> callback = null);
 		void SyncAdd(string tilesetName, CanonicalTileId tileId, byte[] data, string path, string etag, DateTime? expirationDate, bool forceInsert);
 		T Get<T>(string tilesetId, CanonicalTileId tileId, T data = null) where T : MapboxTileData, new();
 		void UpdateExpiration(string tilesetId, CanonicalTileId tileId, DateTime date);
