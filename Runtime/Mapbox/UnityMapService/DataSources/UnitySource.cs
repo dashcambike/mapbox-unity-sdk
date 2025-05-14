@@ -135,7 +135,7 @@ namespace Mapbox.UnityMapService.DataSources
 
         private DataTaskWrapper<T1> GetTileData<T1>(CanonicalTileId tileId, string tilesetid, T1 data = null, int priority = 1) where T1 : MapboxTileData, new()
         {
-            var taskWrapper = _cacheManager.CreateGetTileInfoTask<T1>(tileId, tilesetid);
+            var taskWrapper = _cacheManager.GetTileInfoTask<T1>(tileId, tilesetid);
             if (taskWrapper == null) return null;
             if (taskWrapper.IsCompleted)
             {
@@ -147,6 +147,11 @@ namespace Mapbox.UnityMapService.DataSources
                 taskWrapper.DataCompleted += ((resultTask, result) => CompleteTask(taskWrapper));
             }
             return taskWrapper;
+        }
+        
+        public IEnumerator GetTileData<T1>(CanonicalTileId tileId, string tilesetid, T1 data = null, int priority = 1, Action<T1> callback = null) where T1 : MapboxTileData, new()
+        {
+            yield return _cacheManager.GetTileInfoCoroutine<T1>(tileId, tilesetid, priority, data, callback);
         }
         
         public void UpdateExpiration(CanonicalTileId tileId, string tilesetId, DateTime date)

@@ -96,12 +96,14 @@ namespace Mapbox.BaseModuleTests
         {
             AddTileTest();
             RasterData resultData = null;
+            bool isWorking = true;
             Runnable.EnableRunnableInEditor();
-            var coroutine = Runnable.Run(_fileCache.GetFileCoroutine<RasterData>(_testTileId, _testTilesetName, true, (data) =>
+            Runnable.Instance.StartCoroutine(_fileCache.GetFileCoroutine<RasterData>(_testTileId, _testTilesetName, true, (data) =>
             {
+                isWorking = false;
                 resultData = data;
             }));
-            while(Runnable.IsRunning(coroutine)) yield return null;
+            while(isWorking) yield return null;
             
             Assert.IsNotNull(resultData);
             Assert.AreEqual(_testTileId, resultData.TileId);
@@ -115,12 +117,14 @@ namespace Mapbox.BaseModuleTests
             _fileCache.DeleteTileFile(_testRasterData);
             
             RasterData resultData = null;
+            bool isWorking = true;
             Runnable.EnableRunnableInEditor();
-            var coroutine = Runnable.Run(_fileCache.GetFileCoroutine<RasterData>(_testTileId, _testTilesetName, true, (data) =>
+            Runnable.Instance.StartCoroutine(_fileCache.GetFileCoroutine<RasterData>(_testTileId, _testTilesetName, true, (data) =>
             {
+                isWorking = false;
                 resultData = data;
             }));
-            while(Runnable.IsRunning(coroutine)) yield return null;
+            while(isWorking) yield return null;
             
             Assert.IsNull(resultData);
             

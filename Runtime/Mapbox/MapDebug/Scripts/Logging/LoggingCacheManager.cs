@@ -37,11 +37,11 @@ namespace Mapbox.MapDebug.Scripts.Logging
             base.GetImageAsync(tileId, tilesetId, isTextureNonreadable, callback);
         }
 
-        public override DataTaskWrapper<T> CreateGetTileInfoTask<T>(CanonicalTileId tileId, string tilesetid, int priority = 1,
+        public override DataTaskWrapper<T> GetTileInfoTask<T>(CanonicalTileId tileId, string tilesetid, int priority = 1,
             T data = default(T))
         {
             Logs.Add($"Get Data for {tileId} {tilesetid}");
-            return base.CreateGetTileInfoTask(tileId, tilesetid, priority, data);
+            return base.GetTileInfoTask(tileId, tilesetid, priority, data);
         }
 
         public override void UpdateExpiration(CanonicalTileId tileId, string tilesetId, DateTime date)

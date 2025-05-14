@@ -118,20 +118,46 @@ namespace Mapbox.UnityMapService.DataSources
                 {
                     yield return null;
                 }
-                _memoryCache.Get(requestedDataTileId, out resultData);
+                GetInstantData(requestedDataTileId, out resultData);
             }
             else
             {
-                var isDone = false;
-                LoadTileCore(requestedDataTileId, (result) =>
-                {
-                    isDone = true;
-                    resultData = result;
-                });
+                _waitingList[requestedDataTileId] = null;
+                yield return GetTileData<T>(requestedDataTileId, _tilesetId,
+                    null,
+                    1,
+                    (data) =>
+                    {
+                        resultData = data;
+                        _waitingList.Remove(requestedDataTileId);
 
-                while (!isDone)
+                        if (data != null)
+                        {
+                            data.CacheType = CacheType.FileCache;
+                            _memoryCache.Add(data);
+                            CheckExpiration(data);
+                        }
+
+                    });
+                
+                if(resultData == null)
                 {
-                    yield return null;
+                    var dataTile = CreateTile(requestedDataTileId, _tilesetId);
+                    _waitingList[requestedDataTileId] = dataTile;
+                    var working = true;
+                    WebRequestData(dataTile, (fetchingResult) =>
+                    {
+                        _waitingList.Remove(dataTile.Id);
+                        if (dataTile.CurrentTileState == TileState.Loaded)
+                        {
+                            resultData = VectorReceivedFromWeb(dataTile);
+                        }
+                        working = false;
+                    });
+                    while (working)
+                    {
+                        yield return null;
+                    }
                 }
             }
 
@@ -171,6 +197,7 @@ namespace Mapbox.UnityMapService.DataSources
             
             var dataTile = CreateTile(requestedDataTileId, _tilesetId);
             _waitingList[requestedDataTileId] = dataTile;
+            
             var dataTask = GetTileInfoAsync<T>(requestedDataTileId, _tilesetId, 0);
             if (dataTask != null) // can be null if sqlite cache isn't available
             {

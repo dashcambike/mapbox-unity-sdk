@@ -16,6 +16,75 @@ using UnityEngine.TestTools;
 namespace Mapbox.BaseModuleTests
 {
     [TestFixture]
+    internal class PbfSourceTests
+    {
+        private MockSqliteCache _sqliteCache;
+        private MapboxCacheManager _cacheManager;
+        private DataFetchingManager _fetchingManager;
+        private VectorSource _vectorSource;
+
+        private string _testTilesetName = "mapbox.mapbox-streets-v8";
+        private CanonicalTileId _testTileId = new CanonicalTileId(16, 5, 7);
+        private Texture2D _testTexture;
+        private VectorData _testVectorData;
+
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            _testTexture = Texture2D.whiteTexture;
+            _testVectorData = new VectorData()
+            {
+                TilesetId = _testTilesetName,
+                TileId = _testTileId,
+                Data = ImageConversion.EncodeToJPG(_testTexture),
+                ExpirationDate = DateTime.Now.AddHours(1),
+                ETag = "testETAG"
+            };
+
+            var mapboxContext = new MapboxContext();
+            var unityContext = new UnityContext();
+            var taskManager = new MockTaskManager();
+            taskManager.Initialize();
+            unityContext.TaskManager = taskManager;
+            _sqliteCache = new MockSqliteCache(taskManager);
+            _sqliteCache.ReadySqliteDatabase();
+            _cacheManager = new MapboxCacheManager(unityContext, new MemoryCache(), null, _sqliteCache);
+            _fetchingManager =
+                new LoggingDataFetchingManager(mapboxContext.GetAccessToken(), mapboxContext.GetSkuToken);
+            _vectorSource = new VectorSource(_fetchingManager, _cacheManager,
+                new VectorSourceSettings() { TilesetId = _testTilesetName });
+            _vectorSource.Initialize();
+        }
+
+        [SetUp]
+        public void Setup()
+        {
+            _sqliteCache.ClearDatabase();
+            _sqliteCache.ReadySqliteDatabase();
+        }
+
+        [UnityTest]
+        public IEnumerator SaveBlobTest()
+        {
+            _vectorSource.SaveBlob(_testVectorData, false);
+
+            VectorData resultData = null;
+            bool isDone = false;
+            Runnable.Instance.StartCoroutine(_vectorSource.LoadTileCoroutine(_testTileId, data =>
+            {
+                isDone = true;
+                resultData = data;
+            }));
+            while (!isDone) yield return null;
+            
+            Assert.NotNull(resultData);
+            Assert.AreEqual(_testTileId, resultData.TileId);
+            Assert.AreEqual(_testTilesetName, resultData.TilesetId);
+            Assert.AreEqual(_testVectorData.Data, resultData.Data);
+        }
+    }
+
+    [TestFixture]
     internal class ImageSourceTests
     {
         private MockFileCache _fileCache;
@@ -113,14 +182,16 @@ namespace Mapbox.BaseModuleTests
             yield return SaveImageTest();
             
             RasterData resultData = null;
-            bool isDone = false;
-            Runnable.EnableRunnableInEditor();
-            Runnable.Run(_imageSource.GetImageCoroutine<RasterData>(_testTileId, _testTilesetName, false, data =>
-            {
-                resultData = data;
-                isDone = true;
-            }));
-            while (!isDone) yield return null;
+            
+            //doing this inWorking trick because editor tests only supports yield return null
+            bool isWorking = true;
+            Runnable.Instance.StartCoroutine(_imageSource.GetImageCoroutine<RasterData>(_testTileId, _testTilesetName,
+                false, data =>
+                {
+                    isWorking = false;
+                    resultData = data;
+                }));
+            while(isWorking) yield return null;
             
             Assert.AreEqual(_testRasterData.TilesetId, resultData.TilesetId);
             Assert.AreEqual(_testRasterData.TileId, resultData.TileId);
@@ -131,14 +202,15 @@ namespace Mapbox.BaseModuleTests
         public IEnumerator LoadTileCoroutineTestNoPreSaveShouldWeb()
         {
             RasterData resultData = null;
-            bool isDone = false;
-            Runnable.EnableRunnableInEditor();
-            yield return _imageSource.LoadTileCoroutine(_testTileId, data =>
+           
+            //doing this inWorking trick because editor tests only supports yield return null
+            bool isWorking = true; 
+            Runnable.Instance.StartCoroutine(_imageSource.LoadTileCoroutine(_testTileId, data =>
             {
+                isWorking = false;
                 resultData = data;
-                isDone = true;
-            });
-            while (!isDone) yield return null;
+            }));
+            while(isWorking) yield return null;
             
             Assert.AreEqual(_testRasterData.TilesetId, resultData.TilesetId);
             Assert.AreEqual(_testRasterData.TileId, resultData.TileId);
@@ -152,14 +224,15 @@ namespace Mapbox.BaseModuleTests
             yield return SaveImageTest();
             
             RasterData resultData = null;
-            bool isDone = false;
-            Runnable.EnableRunnableInEditor();
-            Runnable.Run(_imageSource.LoadTileCoroutine(_testTileId, data =>
+            
+            //doing this inWorking trick because editor tests only supports yield return null
+            bool isWorking = true; 
+            Runnable.Instance.StartCoroutine(_imageSource.LoadTileCoroutine(_testTileId, data =>
             {
+                isWorking = false;
                 resultData = data;
-                isDone = true;
             }));
-            while (!isDone) yield return null;
+            while(isWorking) yield return null;
             
             Assert.AreEqual(_testRasterData.TilesetId, resultData.TilesetId);
             Assert.AreEqual(_testRasterData.TileId, resultData.TileId);

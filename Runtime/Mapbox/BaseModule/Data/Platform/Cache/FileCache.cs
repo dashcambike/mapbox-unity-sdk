@@ -125,15 +125,12 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 			if (info.Exists)
 			{
 				var fullFilePath = RelativePathToUnityRequestExpects(relativePath);
-				var finished = false;
 				yield return _fileDataFetcher.FetchDataCoroutine<T>(fullFilePath, tileId, tilesetId,
 					isTextureNonreadable,
 					(data) =>
 					{
-						finished = true;
 						callback(data);
 					});
-				while (!finished) yield return null;
 			}
 			else
 			{

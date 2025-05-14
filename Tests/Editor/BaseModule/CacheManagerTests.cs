@@ -16,7 +16,7 @@ namespace Mapbox.BaseModuleTests
     [TestFixture]
     internal class CacheManagerTests
     {
-        private IMapboxCacheManager _cacheManager;
+        private MapboxCacheManager _cacheManager;
         private MockFileCache _fileCache;
         private MockSqliteCache _sqliteCache;
         
@@ -98,6 +98,21 @@ namespace Mapbox.BaseModuleTests
             Assert.AreEqual(metaData.ETag, _testVectorData.ETag);
             Assert.AreEqual(metaData.Data, _testVectorData.Data);
         }
+        
+        [UnityTest]
+        public IEnumerator GetBlobCoroutine()
+        {
+            _cacheManager.SaveBlob(_testVectorData, false);
+            VectorData result = null;
+            yield return Runnable.Instance.StartCoroutine(_cacheManager.GetTileInfoCoroutine<VectorData>(_testTileId, _testTilesetName, 1, null,
+                (data) =>
+                {
+                    result = data;
+                }));
+
+            Assert.NotNull(result);
+            Assert.AreEqual(result.Data, _testVectorData.Data);
+        }
 
         [UnityTest]
         public IEnumerator GetImageTest()
@@ -142,7 +157,7 @@ namespace Mapbox.BaseModuleTests
             SaveBlobTest();
             VectorData resultData = null;
             bool isDone = false;
-            var wrapper = _cacheManager.CreateGetTileInfoTask<VectorData>(_testTileId, _testTilesetName);
+            var wrapper = _cacheManager.GetTileInfoTask<VectorData>(_testTileId, _testTilesetName);
             resultData = wrapper.DataResult;
             // wrapper.DataCompleted += (task, data) =>
             // {
@@ -174,7 +189,7 @@ namespace Mapbox.BaseModuleTests
             Assert.IsNull(resultData.ETag);
             Assert.IsNull(resultData.ExpirationDate);
             isDone = false;
-            var wrapper = _cacheManager.CreateGetTileInfoTask(resultData.TileId, resultData.TilesetId, 1, resultData);
+            var wrapper = _cacheManager.GetTileInfoTask(resultData.TileId, resultData.TilesetId, 1, resultData);
             // wrapper.DataCompleted += (task, data) => isDone = true;
             // _cacheManager.AddTask(wrapper);
             // while (!isDone) yield return null;
@@ -190,7 +205,7 @@ namespace Mapbox.BaseModuleTests
             
             RasterData resultData = null;
             bool isDone = false;
-            var wrapper = _cacheManager.CreateGetTileInfoTask<RasterData>(_testTileId, _testTilesetName, 1);
+            var wrapper = _cacheManager.GetTileInfoTask<RasterData>(_testTileId, _testTilesetName, 1);
             resultData = wrapper.DataResult;
             // wrapper.DataCompleted += (task, data) =>
             // {
@@ -206,7 +221,7 @@ namespace Mapbox.BaseModuleTests
             _cacheManager.UpdateExpiration(_testTileId, _testTilesetName, _testExpirationDate);
             
             isDone = false;
-            var wrapper2 = _cacheManager.CreateGetTileInfoTask<RasterData>(_testTileId, _testTilesetName, 1);
+            var wrapper2 = _cacheManager.GetTileInfoTask<RasterData>(_testTileId, _testTilesetName, 1);
             resultData = wrapper2.DataResult;
             // wrapper2.DataCompleted += (task, data) =>
             // {
