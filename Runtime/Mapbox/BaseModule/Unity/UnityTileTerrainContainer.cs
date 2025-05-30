@@ -45,10 +45,10 @@ namespace Mapbox.BaseModule.Unity
             FixMeshBounds(useShaderElevation);
         }
 
-        private void FixMeshBounds(bool useShaderElevation)
+        public void FixMeshBounds(bool useShaderElevation)
         {
             Mesh mesh = _unityMapTile.MeshFilter.mesh;
-            if (mesh != null)
+            if (mesh != null && mesh.vertexCount != 0)
             {
                 mesh.RecalculateBounds();
                 if (useShaderElevation)

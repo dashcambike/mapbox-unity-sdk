@@ -86,6 +86,7 @@ namespace Mapbox.ImageModule.Terrain.TerrainStrategies
 					sharedMesh.SetTriangles(triangle, i);
 				}
 				sharedMesh.uv = newMesh.Uvs;
+				tile.TerrainContainer.FixMeshBounds(!createElevatedMesh);
 			}
 			
 			// if (_elevationOptions.sideWallOptions.isActive)
