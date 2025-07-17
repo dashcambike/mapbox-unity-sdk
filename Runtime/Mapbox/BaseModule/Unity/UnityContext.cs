@@ -30,11 +30,11 @@ namespace Mapbox.BaseModule.Unity
         
             TaskManager.Initialize();
 
-            BaseTileRoot = new GameObject("BaseTiles").transform;
+            BaseTileRoot = BaseTileRoot == null ? new GameObject("BaseTiles").transform : BaseTileRoot;
             BaseTileRoot.SetParent(MapRoot);
             BaseTileRoot.transform.localPosition = Vector3.zero;
 
-            RuntimeGenerationRoot = new GameObject("RuntimeObjectsRoot").transform;
+            RuntimeGenerationRoot = RuntimeGenerationRoot == null ? new GameObject("RuntimeObjectsRoot").transform : RuntimeGenerationRoot;
             RuntimeGenerationRoot.SetParent(MapRoot);
             RuntimeGenerationRoot.transform.localPosition = Vector3.zero;
         }

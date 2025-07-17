@@ -27,7 +27,6 @@ namespace Mapbox.Example.Scripts.Map
         [SerializeField] protected DataFetchingManagerBehaviour DataFetcher;
         [SerializeField] protected MapboxCacheManagerBehaviour CacheManager;
         private MapService _mapService;
-        private bool _waitForFirstLoadEvent = true;
         
         public bool InitializeOnStart = true;
         public Action<MapService> MapServiceReady = (v) => { };
@@ -51,37 +50,15 @@ namespace Mapbox.Example.Scripts.Map
             _mapService = GetMapService(mapboxContext, UnityContext);
             MapServiceReady(_mapService);
 
-            MapboxMap = new MapboxMap(MapInformation, UnityContext, _mapService);
-            //passing map info to visualizer for root object, default tile material/texture
-            var mapVisualizer = CreateMapVisualizer(MapInformation, UnityContext);
-            foreach (var moduleBaseScript in GetComponents<ModuleConstructorScript>())
-            {
-                if (moduleBaseScript.enabled)
-                {
-                    var layerModule = moduleBaseScript.ConstructModule(_mapService, MapInformation, UnityContext);
-                    mapVisualizer.LayerModules.Add(layerModule);
-                }
-            }
-            MapboxMap.MapVisualizer = mapVisualizer;
+            MapboxMap = CreateMapObject();
             MapboxMap.Initialized += InitializationCompleted;
-             
             StartCoroutine(MapboxMap.Initialize());
         }
-        
+
         private void InitializationCompleted()
         {
             Initialized(MapboxMap);
-            if (!_waitForFirstLoadEvent)
-            {
-                //_readyForUpdates = true;
-            }
-            else
-            {
-                MapboxMap.LoadMapView(() =>
-                {
-                    //_readyForUpdates = true;
-                });
-            }
+            MapboxMap.LoadMapView();
         }
 
         private void Update()
@@ -94,11 +71,11 @@ namespace Mapbox.Example.Scripts.Map
         
         private void OnValidate()
         {
-            if(UnityContext == null)
+            if (UnityContext == null) 
                 UnityContext = new UnityContext();
-            if (UnityContext.MapRoot == null)
+            if (UnityContext.MapRoot == null) 
                 UnityContext.MapRoot = transform;
-            if (UnityContext.CoroutineStarter == null)
+            if (UnityContext.CoroutineStarter == null) 
                 UnityContext.CoroutineStarter = this;
         }
 
@@ -108,11 +85,35 @@ namespace Mapbox.Example.Scripts.Map
             UnityContext.OnDestroy();
         }
 
+        
+        
+        protected virtual MapboxMap CreateMapObject()
+        {
+            MapboxMap = new MapboxMap(MapInformation, UnityContext, _mapService);
+            //passing map info to visualizer for root object, default tile material/texture
+            var mapVisualizer = CreateMapVisualizer(MapInformation, UnityContext);
+            foreach (var moduleBaseScript in GetComponents<ModuleConstructorScript>())
+            {
+                if (!moduleBaseScript.enabled) continue;
+                mapVisualizer.LayerModules.Add(moduleBaseScript.ConstructModule(_mapService, MapInformation, UnityContext));
+            }
+            MapboxMap.MapVisualizer = mapVisualizer;
+            return MapboxMap;
+        }
+        
+        protected virtual MapboxMapVisualizer CreateMapVisualizer(IMapInformation mapInfo, UnityContext unityContext)
+        {
+            var tileCreator = _tileCreatorBehaviour != null
+                ? _tileCreatorBehaviour.GetTileCreator(unityContext)
+                : new TileCreator(unityContext);
+            return new MapboxMapVisualizer(mapInfo, unityContext, tileCreator);
+        }
+
         protected virtual MapService GetMapService(MapboxContext mapboxContext, UnityContext unityContext)
         {
-            var tileProvider = TileProvider != null ? TileProvider.Core : new UnityTileProvider(new UnityTileProviderSettings(Camera.main));
+            var mapCamera = FindCamera();
+            var tileProvider = TileProvider != null ? TileProvider.Core : new UnityTileProvider(new UnityTileProviderSettings(mapCamera));
             var dataFetchingManager = CreateDataFetchingManager(mapboxContext);
-
             var cacheManager = GetCacheManager(unityContext, dataFetchingManager);
 
             return new MapUnityService(
@@ -123,7 +124,7 @@ namespace Mapbox.Example.Scripts.Map
                 dataFetchingManager);
         }
 
-        private MapboxCacheManager GetCacheManager(UnityContext unityContext, DataFetchingManager dataFetchingManager)
+        protected virtual MapboxCacheManager GetCacheManager(UnityContext unityContext, DataFetchingManager dataFetchingManager)
         {
             if (CacheManager != null)
                 return CacheManager.GetCacheManager(unityContext, dataFetchingManager);
@@ -140,20 +141,23 @@ namespace Mapbox.Example.Scripts.Map
                 sqliteCache);
             return cacheManager;
         }
-
-        protected virtual MapboxMapVisualizer CreateMapVisualizer(IMapInformation mapInfo, UnityContext unityContext)
-        {
-            var tileCreator = _tileCreatorBehaviour != null
-                ? _tileCreatorBehaviour.GetTileCreator(unityContext)
-                : new TileCreator(unityContext);
-            return new MapboxMapVisualizer(mapInfo, unityContext, tileCreator);
-        }
         
         protected virtual DataFetchingManager CreateDataFetchingManager(MapboxContext mapboxContext)
         {
             return DataFetcher != null
                 ? DataFetcher.GetDataFetchingManager(mapboxContext.GetAccessToken(), mapboxContext.GetSkuToken)
                 : new DataFetchingManager(mapboxContext.GetAccessToken(), mapboxContext.GetSkuToken);
+        }
+        
+        private Camera FindCamera()
+        {
+            var mapCamera = Camera.main;
+            if (mapCamera == null)
+            {
+                Debug.Log("No camera is tagged as Main Camera. Using the first one found in the scene.");
+            }
+
+            return mapCamera;
         }
     }
 }
