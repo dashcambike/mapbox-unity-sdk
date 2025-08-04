@@ -34,4 +34,3 @@
 #import <MapboxCommon/NSStream+MBXAdditions.h>
 #import <MapboxCommon/MapboxGeofencing_Internal.h>
 #import <MapboxCommon/MapboxMemoryMonitor_Internal.h>
-#import <MapboxCommon/MapboxWssBackend_Internal.h>

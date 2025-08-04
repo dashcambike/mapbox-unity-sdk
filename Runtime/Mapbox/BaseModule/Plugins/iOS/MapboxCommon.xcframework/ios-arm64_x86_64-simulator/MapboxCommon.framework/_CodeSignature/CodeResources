@@ -314,7 +314,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		K7/6DnEUjIVLM6+ewynas5fyJDE=
+		vf0buXn3IyaWqvCiXTfyqOR9+TU=
 		</data>
 		<key>Modules/MapboxCommon.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -587,30 +587,6 @@
 		<key>PrivateHeaders/MBXExperimentalRemoveObserverCallback_Internal.h</key>
 		<data>
 		iLC+kfXpSZ5DwH29BOo3VwHPrKk=
-		</data>
-		<key>PrivateHeaders/MBXExperimentalWssBackendData_Internal.h</key>
-		<data>
-		XJQ+WpmVgiBEDdIYTWTrLXYu8wo=
-		</data>
-		<key>PrivateHeaders/MBXExperimentalWssBackendRequestObserver_Internal.h</key>
-		<data>
-		97GgHBdaGw+tC6oaJTx+sfdBMgA=
-		</data>
-		<key>PrivateHeaders/MBXExperimentalWssBackendRequest_Internal.h</key>
-		<data>
-		tVwrF3wJjHbTPw5ex6YZzzjtfmk=
-		</data>
-		<key>PrivateHeaders/MBXExperimentalWssBackendResponseData_Internal.h</key>
-		<data>
-		X7iCFjIkrzmr7aSyrlMK9bz9HAo=
-		</data>
-		<key>PrivateHeaders/MBXExperimentalWssBackendService_Internal.h</key>
-		<data>
-		YzmcL6vHLsegHiLnvH0S3rRye38=
-		</data>
-		<key>PrivateHeaders/MBXExperimentalWssBackendWsOpCode_Internal.h</key>
-		<data>
-		xUEgmPVVgqOBwLj47gfXiMYsoL0=
 		</data>
 		<key>PrivateHeaders/MBXFeatureTelemetryCounter_Internal.h</key>
 		<data>
@@ -1050,7 +1026,7 @@
 		</data>
 		<key>PrivateHeaders/MapboxCommon_Internal.h</key>
 		<data>
-		mjF+tLRH1Qvnyb4J8FD/ONt5la4=
+		HVgXT2rd+7sRoCIZ9l+fcQC5ucU=
 		</data>
 		<key>PrivateHeaders/MapboxConfigurationService_Internal.h</key>
 		<data>
@@ -1167,10 +1143,6 @@
 		<key>PrivateHeaders/MapboxVersion_Internal.h</key>
 		<data>
 		Zz+FEElVOXzFsm8x0XjjYav0u/c=
-		</data>
-		<key>PrivateHeaders/MapboxWssBackend_Internal.h</key>
-		<data>
-		PtBnKuzmmAFKzw1B8Wur2725zvw=
 		</data>
 		<key>PrivateHeaders/NSStream+MBXAdditions.h</key>
 		<data>
@@ -2194,48 +2166,6 @@
 			XHG8g2o5t0yPO7boqybOIx/5zWUgmt7tmiy8swEISx4=
 			</data>
 		</dict>
-		<key>PrivateHeaders/MBXExperimentalWssBackendData_Internal.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			wf7xF9pVl+OdjiqSWaSzVKK42X/y2huU3mSNLL1xAR8=
-			</data>
-		</dict>
-		<key>PrivateHeaders/MBXExperimentalWssBackendRequestObserver_Internal.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			ntob9cgVOELA4mtvLyFq5YtwrKQioYS2kT8e/xTUKgE=
-			</data>
-		</dict>
-		<key>PrivateHeaders/MBXExperimentalWssBackendRequest_Internal.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			FpeNqiWPkXNXXkhiBsj5VdAVvUBkBZchps1GmEYDbyI=
-			</data>
-		</dict>
-		<key>PrivateHeaders/MBXExperimentalWssBackendResponseData_Internal.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			59DEWcI00Q5YDYes20MYRTbZ5FohDh0he8UrcybwgOc=
-			</data>
-		</dict>
-		<key>PrivateHeaders/MBXExperimentalWssBackendService_Internal.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			ameNc4J2E6PhegXoGFxhO+lKzJbHod2b37h6RsXC7nE=
-			</data>
-		</dict>
-		<key>PrivateHeaders/MBXExperimentalWssBackendWsOpCode_Internal.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			biafgFe+lq98eZVV6afQT4XHJhkBdUGT/fga8cHJam4=
-			</data>
-		</dict>
 		<key>PrivateHeaders/MBXFeatureTelemetryCounter_Internal.h</key>
 		<dict>
 			<key>hash2</key>
@@ -3003,7 +2933,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			LoxPBS6D75etWF8La0lbW94DR9J159wIc9KBoauKRfc=
+			Z9UkUlXuuBgE9S/syrwPu/qqL7ph7Zk09itI4Uyc1ak=
 			</data>
 		</dict>
 		<key>PrivateHeaders/MapboxConfigurationService_Internal.h</key>
@@ -3207,13 +3137,6 @@
 			<key>hash2</key>
 			<data>
 			EahDolIIhdfohOg5M9hQd17pYuIHeY3/ZhNhpnrTzK4=
-			</data>
-		</dict>
-		<key>PrivateHeaders/MapboxWssBackend_Internal.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			kCraOQw5YJxruureFZNaSDRRsoRDKyuiw3Mn8gG9+1U=
 			</data>
 		</dict>
 		<key>PrivateHeaders/NSStream+MBXAdditions.h</key>
