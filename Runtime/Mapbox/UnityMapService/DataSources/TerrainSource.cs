@@ -18,8 +18,8 @@ namespace Mapbox.UnityMapService.DataSources
         {
             _settings = settings;
             _elevationDataExtractionStrategy = SystemInfo.supportsAsyncGPUReadback
-                ? (IElevationDataExtractionStrategy) new AsyncExtractElevationArray()
-                : (IElevationDataExtractionStrategy) new SyncExtractElevationArray();
+                ? new AsyncExtractElevationArray()
+                : new SyncExtractElevationArray();
         }
         
         public override void DownloadAndCacheBaseTiles()
@@ -100,10 +100,7 @@ namespace Mapbox.UnityMapService.DataSources
         protected override void TextureReceivedFromFile(TerrainData cacheItem)
         {
             base.TextureReceivedFromFile(cacheItem);
-            _elevationDataExtractionStrategy.ExtractHeightData(cacheItem.Texture, (elevationArray) =>
-            {
-                cacheItem.SetElevationValues(elevationArray);
-            });
+            _elevationDataExtractionStrategy.ExtractHeightData(cacheItem);
         }
 
         protected override TerrainData TextureReceivedFromWeb(RasterTile tile)
@@ -112,8 +109,7 @@ namespace Mapbox.UnityMapService.DataSources
 
             if (cacheItem != null)
             {
-                _elevationDataExtractionStrategy.ExtractHeightData(cacheItem.Texture,
-                    (elevationArray) => { cacheItem.SetElevationValues(elevationArray); });
+                _elevationDataExtractionStrategy.ExtractHeightData(cacheItem);
             }
 
             return cacheItem;
