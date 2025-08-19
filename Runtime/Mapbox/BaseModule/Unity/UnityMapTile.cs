@@ -58,20 +58,21 @@ namespace Mapbox.BaseModule.Unity
 
 		public bool IsTemporary = false;
 
-		public UnityMapTile()
+		public void Awake()
 		{
-			TerrainContainer = new UnityTileTerrainContainer(this);
 			ImageContainer = new UnityTileImageContainer(this);
 			VectorContainer = new UnityTileVectorContainer(this);
+			TerrainContainer = new UnityTileTerrainContainer(this);
+			TerrainContainer.ElevationValuesUpdated += tile =>
+			{
+				if (_meshFilter == null) return;
+				UpdateMeshBounds();
+			};
 		}
-		
+
 		public void Initialize(UnwrappedTileId tileId, float scale)
 		{
 			TileScale = 1 / scale;
-			//var test = (float) (1 / Conversions.TileBoundsInWebMercator(tileId).Size.x); // * scaleCurve;
-			//var latCompensation = 1 / Mathf.Cos(Mathf.Deg2Rad * (float)Conversions.TileIdToCenterLatitudeLongitude(tileId.X, tileId.Y, tileId.Z).y);
-			//TileScale *= latCompensation;
-
 			UnwrappedTileId = tileId;
 			CanonicalTileId = tileId.Canonical;
 #if UNITY_EDITOR
@@ -79,6 +80,14 @@ namespace Mapbox.BaseModule.Unity
 #endif
 			
 			Material.SetFloat(_tileScaleFieldNameID, TileScale);
+		}
+		
+		public void UpdateMeshBounds()
+		{
+			var centerHeight = (TerrainContainer.TerrainData.MaxElevation + TerrainContainer.TerrainData.MinElevation) / 2 * TileScale;
+			var boxHeight = (TerrainContainer.TerrainData.MaxElevation - TerrainContainer.TerrainData.MinElevation)  * TileScale;
+			_meshFilter.mesh.bounds = new Bounds(new Vector3(.5f, centerHeight, -.5f), new Vector3(1, boxHeight, 1));
+			//Debug.Log($"{CanonicalTileId} {_meshFilter.mesh.bounds.center} {_meshFilter.mesh.bounds.size}");
 		}
 		
 		public void Recycle()

@@ -10,6 +10,9 @@ namespace Mapbox.BaseModule.Data.DataFetchers
         [HideInInspector] public float[] ElevationValues;
         public bool IsElevationDataReady = false;
         public Action ElevationValuesUpdated = () => { };
+        public float MinElevation = 0;
+        public float MaxElevation = 0;
+        
         
         public override void Clear()
         {
@@ -21,6 +24,15 @@ namespace Mapbox.BaseModule.Data.DataFetchers
         {
             ElevationValues = elevationArray;
             IsElevationDataReady = true;
+            ElevationValuesUpdated();
+        }
+        
+        public void SetElevationValues(float[] elevationArray, float min, float max)
+        {
+            ElevationValues = elevationArray;
+            IsElevationDataReady = true;
+            MinElevation = min;
+            MaxElevation = max;
             ElevationValuesUpdated();
         }
         
