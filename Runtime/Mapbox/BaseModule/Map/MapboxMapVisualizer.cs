@@ -43,7 +43,18 @@ namespace Mapbox.BaseModule.Map
 
         public virtual IEnumerator Initialize()
         {
-            yield return _tileCreator.Initialize();
+            var existsTerrainModule = LayerModules.Any(x => x is ITerrainLayerModule);
+
+            if (existsTerrainModule)
+            {
+                yield return _tileCreator.Initialize();
+            }
+            else
+            {
+                var terrainStrategy = new FlatTerrainStrategy();
+                yield return _tileCreator.Initialize(terrainStrategy);
+            }
+            
             yield return LayerModules.Select(x => x.Initialize()).WaitForAll();
         }
         

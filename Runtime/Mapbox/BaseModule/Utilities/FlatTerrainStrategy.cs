@@ -1,22 +1,22 @@
-﻿using Mapbox.BaseModule.Map;
-using Mapbox.BaseModule.Unity;
+﻿using Mapbox.BaseModule.Unity;
 using Mapbox.ImageModule.Terrain.Settings;
+using Mapbox.ImageModule.Terrain.TerrainStrategies;
 using UnityEngine;
 
-namespace Mapbox.ImageModule.Terrain.TerrainStrategies
+namespace Mapbox.BaseModule.Utilities
 {
-	public class FlatTerrainStrategy
+	public class FlatTerrainStrategy : TerrainStrategy
 	{
 		MeshDataArray _cachedQuad;
 
 		public int RequiredVertexCount => 4;
 
-		public void Initialize()
+		public FlatTerrainStrategy()
 		{
 			BuildQuad();
 		}
-
-		public void RegisterTile(UnityMapTile tile)
+		
+		public override void RegisterTile(UnityMapTile tile, bool createElevatedMesh)
 		{
 			var meshFilter = tile.MeshFilter;
 			if (meshFilter.sharedMesh.vertexCount != RequiredVertexCount)

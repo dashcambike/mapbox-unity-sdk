@@ -9,7 +9,7 @@ namespace Mapbox.BaseModule.Map
 {
     public interface ITileCreator
     {
-        IEnumerator Initialize();
+        IEnumerator Initialize(TerrainStrategy terrainStrategy = null);
         UnityMapTile GetTile();
         void PutTile(UnityMapTile tile);
     }
@@ -19,6 +19,8 @@ namespace Mapbox.BaseModule.Map
         private ObjectPool<UnityMapTile> _tilePool;
         private UnityContext _unityContext;
         private int _cacheSize;
+        //private FlatTerrainStrategy _flatTerrainStrategy;
+        private TerrainStrategy _terrainStrategy;
 
         public UnityMapTile GetTile() => _tilePool.GetObject();
         public void PutTile(UnityMapTile tile) => _tilePool.Put(tile);
@@ -30,8 +32,9 @@ namespace Mapbox.BaseModule.Map
             _cacheSize = cacheSize;
         }
 
-        public IEnumerator Initialize()
+        public IEnumerator Initialize(TerrainStrategy terrainStrategy = null)
         {
+            _terrainStrategy = terrainStrategy;
             _tilePool = new ObjectPool<UnityMapTile>(() => CreateTile(_unityContext));
             yield return _tilePool.InitializeItems(_cacheSize);
         }
@@ -52,6 +55,7 @@ namespace Mapbox.BaseModule.Map
 
             tile.Material = tile.MeshRenderer.material;
             tile.gameObject.SetActive(false);
+            _terrainStrategy?.RegisterTile(tile, false);
             return tile;
         }
     }

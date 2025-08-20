@@ -22,6 +22,9 @@ namespace Mapbox.ImageModule.Terrain.TerrainStrategies
 
 	public class ElevatedTerrainStrategy : TerrainStrategy, IElevationBasedTerrainStrategy
 	{
+		[SerializeField]
+		protected ElevationLayerProperties _elevationOptions = new ElevationLayerProperties();
+		
 		private MeshDataArray _baseMesh;
 		private List<Vector3> _newVertexList;
 		private List<Vector3> _newNormalList;
@@ -47,7 +50,10 @@ namespace Mapbox.ImageModule.Terrain.TerrainStrategies
 
 		public override void Initialize(ElevationLayerProperties elOptions)
 		{
-			base.Initialize(elOptions);
+			if (elOptions != null)
+			{
+				_elevationOptions = elOptions;
+			}
 
 			_useTileSkirts = elOptions.sideWallOptions.isActive;
 			 _sideVertexCount = _useTileSkirts 
@@ -59,7 +65,7 @@ namespace Mapbox.ImageModule.Terrain.TerrainStrategies
 			_newNormalList = new List<Vector3>(_requiredVertexCount);
 			_newUvList = new List<Vector2>(_requiredVertexCount);
 			
-			_baseMesh = CreateBaseMesh(TileSize, _sideVertexCount);
+			_baseMesh = CreateBaseMesh(_elevationOptions.TileMeshSize, _sideVertexCount);
 			_requiredVertexCount = _baseMesh.Vertices.Length;
 		}
 
