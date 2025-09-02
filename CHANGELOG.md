@@ -1,7 +1,34 @@
 ## CHANGELOG
 
-### v3.0.3
+### v3.0.4
+Performance (cpu and memory usage) improvements, bug fixes, library and Android/iOS compatibility updates, improved test coverage
 
+Fixes
+- Fix terrain shader (ElevatedTerrainShader) to create normals for terrain in runtime
+- Fix a bug where VectorModule.GetTileCoverCoroutines only covered the data load but not the visual creation
+- Fix file data fetcher to set data status properly
+- Fix a bug where texture non-readable flag set wrong
+- Fix a bug where settings memory cache size to zero didn't work
+- Fix UnityContext to use BaseTileRoot and RuntimeGenerationRoot settings properly
+- Fix an issue where static and terrain layer modules didn't do a complete tile rejection check like vector module does.
+- Fix MapVisualizer to handle null coroutine pointers
+
+Improvements
+- Change Mapbox shaders to support built-in rendering pipeline and HDRP along with URP
+- Remove type parameter from IMapVisualizer.TryGetLayerModule method
+- Refine Temp/Final tile creation process and methods
+- Refine cache manager methods both for clarity and support better testing
+- Update Mapbox Attribution prefab for clarity
+- Rework polygon collision filter and meshOnLine modifier
+- Remove terrain strategy from tile creator script (it's back to terrain module)
+- Change elevated terrain strategy script to update tile mesh bounds after elevation is applied
+- Change elevated terrain strategy script and terrain data script to keep track of min and max elevation values in the tile
+- Restructure elevation data extraction scripts for clarity and easier usage
+
+Other Changes
+- Update Mapbox Common Library to 24.10.2 to support latest xCode
+- 
+### v3.0.3
 Fixes
 - Resolved an issue where completed vector mesh generation tasks were not properly cleaned up.
 - Fixed a problem with basic linear/trilinear texture sampling in terrain which caused spikes at certain elevation ranges.
