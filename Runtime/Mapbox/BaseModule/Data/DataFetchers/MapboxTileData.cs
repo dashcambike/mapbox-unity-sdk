@@ -16,9 +16,9 @@ namespace Mapbox.BaseModule.Data.DataFetchers
 
         public virtual void Dispose()
         {
-            OnDispose();
+            OnDispose?.Invoke();
         }
-        
-        public Action OnDispose = () => { };
+
+        public Action OnDispose;
     }
 }
