@@ -31,6 +31,14 @@ namespace Mapbox.BaseModule.Map
             _latitudeLongitudeString = latitudeLongitudeString;
         }
         
+        public MapInformation(string latitudeLongitudeString, float pitch, float scale, float zoom)
+        {
+            _latitudeLongitudeString = latitudeLongitudeString;
+            _pitch = pitch;
+            _scale = scale;
+            _zoom = zoom;
+        }
+        
         public virtual void Initialize()
         {
             if(_isInitialized) return;
