@@ -16,6 +16,9 @@ namespace Mapbox.Example.Scripts.MapInput
  
 		private void Awake()
 		{
+			if (MapBehaviour == null) MapBehaviour = FindObjectOfType<MapBehaviourCore>();
+			if(Camera == null) Camera = Camera.main;
+			
 			MapBehaviour.Initialized += (map) =>
 			{
 				_map = map;
