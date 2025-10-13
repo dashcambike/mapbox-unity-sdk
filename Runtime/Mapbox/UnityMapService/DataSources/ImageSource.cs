@@ -224,7 +224,7 @@ namespace Mapbox.UnityMapService.DataSources
         
         private void LoadTileCore(CanonicalTileId requestedDataTileId, Action<T> callback = null)
         {
-            if (_waitingList.ContainsKey(requestedDataTileId))
+            if (IsInProgress(requestedDataTileId))
             {
                 callback?.Invoke(null);
                 return;
@@ -407,6 +407,11 @@ namespace Mapbox.UnityMapService.DataSources
             {
                 //Debug.Log("doesnt needs an update");
             }
+        }
+        
+        protected bool IsInProgress(CanonicalTileId requestedDataTileId)
+        {
+            return _waitingList.ContainsKey(requestedDataTileId) || IsActiveRequest(requestedDataTileId);
         }
     }
     
