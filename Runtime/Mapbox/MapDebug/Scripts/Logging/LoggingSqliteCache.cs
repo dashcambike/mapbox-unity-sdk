@@ -19,7 +19,6 @@ namespace Mapbox.MapDebug.Scripts.Logging
     {
         private int _addCount = 0;
         private int _getCount = 0;
-        private int _getExpirationCount = 0;
         private int _updateCount = 0;
         private int _removeCount = 0;
         
@@ -56,7 +55,6 @@ namespace Mapbox.MapDebug.Scripts.Logging
         {
             _addCount = 0;
             _getCount = 0;
-            _getExpirationCount = 0;
             _updateCount = 0;
             _removeCount = 0;
         }
@@ -68,7 +66,7 @@ namespace Mapbox.MapDebug.Scripts.Logging
 
         public string PrintScreen()
         {
-            return string.Format("Sqlite Cache | C:{0} R:{1}, U:{2}, D:{3}, Exp:{4}", _addCount, _getCount, _updateCount, _removeCount, _getExpirationCount);
+            return string.Format("Sqlite Cache | C:{0} R:{1}, U:{2}, D:{3}", _addCount, _getCount, _updateCount, _removeCount);
         }
     }
 }

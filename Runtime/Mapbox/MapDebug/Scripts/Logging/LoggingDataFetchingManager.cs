@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Mapbox.BaseModule.Data.DataFetchers;
+using Mapbox.BaseModule.Data.Platform;
 using Mapbox.BaseModule.Data.Platform.TileJSON;
 using Mapbox.BaseModule.Data.Tiles;
 using Newtonsoft.Json.Linq;
@@ -10,6 +11,7 @@ namespace Mapbox.MapDebug.Scripts.Logging
 {
     public class LoggingDataFetchingManager : DataFetchingManager, ILogWriter
     {
+        public LoggingResilientWebRequestFileSource FileSource => _fileSource as LoggingResilientWebRequestFileSource;
         public Queue<FetchInfo> GetFetchingQueue() => _fetchQueue;
         public int FetchQueueCount => _fetchQueue.Count;
         public int ActiveFetchCount => _globalActiveRequests.Count;
@@ -22,6 +24,7 @@ namespace Mapbox.MapDebug.Scripts.Logging
 		
         public LoggingDataFetchingManager(string getAccessToken, Func<string> getSkuToken) : base(getAccessToken, getSkuToken)
         {
+            _fileSource = new LoggingResilientWebRequestFileSource(getAccessToken, getSkuToken);
             _infosByTileset = new Dictionary<string, HashSet<FetchInfo>>();
             Records = new Dictionary<FetchInfo, InfoRecord>();
 			

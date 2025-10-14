@@ -1,38 +1,91 @@
-using Mapbox.MapDebug.Scripts.Logging;
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 
-[CustomEditor(typeof(LoggingDataFetchingManagerBehaviour))]
-public class LoggingDataFetchingManagerBehaviourEditor : Editor
+namespace Mapbox.MapDebug.Scripts.Logging.Editor
 {
-    public override void OnInspectorGUI()
+    [CustomEditor(typeof(LoggingDataFetchingManagerBehaviour))]
+    public class LoggingDataFetchingManagerBehaviourEditor : UnityEditor.Editor
     {
-        // Draw default inspector first (shows Fetcher field and others)
-        DrawDefaultInspector();
-
-        var behaviour = (LoggingDataFetchingManagerBehaviour)target;
-        var fetcher = behaviour.Fetcher;
-
-        // Add some space and a header
-        EditorGUILayout.Space(10);
-        EditorGUILayout.LabelField("Logging Data Fetching Info", EditorStyles.boldLabel);
-
-        if (fetcher == null)
+        private bool _dataFetcherFoldout;
+        private bool _fileSourceFoldout;
+    
+        public override void OnInspectorGUI()
         {
-            EditorGUILayout.HelpBox("Fetcher is not initialized (null). Run the scene to see runtime stats.", MessageType.Info);
-        }
-        else
-        {
-            // Show the requested properties
-            EditorGUILayout.LabelField("Added Count", fetcher.AddedCount.ToString());
-            EditorGUILayout.LabelField("Initialized Count", fetcher.InitializedCount.ToString());
-            EditorGUILayout.LabelField("Cancelled Count", fetcher.CancelledCount.ToString());
+            // Draw default inspector first (shows Fetcher field and others)
+            DrawDefaultInspector();
+
+            var behaviour = (LoggingDataFetchingManagerBehaviour)target;
+            var fetcher = behaviour.Fetcher;
+
+            // Add some space and a header
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField("Logging Data Fetching Info", EditorStyles.boldLabel);
+
+
+            DataFetcherSection(fetcher);
+
+            FileSourceSection(fetcher);
+
+            // Refresh the inspector during play mode
+            if (Application.isPlaying)
+            {
+                Repaint();
+            }
         }
 
-        // Refresh the inspector during play mode
-        if (Application.isPlaying)
+        private void FileSourceSection(LoggingDataFetchingManager fetcher)
         {
-            Repaint();
+            _fileSourceFoldout = EditorGUILayout.Foldout(_fileSourceFoldout, "Web Source", true);
+            if (!_fileSourceFoldout)
+                return;
+
+            EditorGUI.indentLevel++;
+        
+            if (fetcher == null)
+            {
+                EditorGUILayout.HelpBox("Web file source is null. Run the scene to inspect it.", MessageType.Info);
+                EditorGUI.indentLevel--;
+                return;
+            }
+        
+            var fileSource = fetcher.FileSource;
+        
+            UIHelpers.DrawWideLabel("Image Request Count", fileSource.MapboxImageRequestCount.ToString());
+            UIHelpers.DrawWideLabel("Data Request Count", fileSource.MapboxDataRequestCount.ToString());
+            UIHelpers.DrawWideLabel("Aborted Request Count", fileSource.AbortedCount.ToString());
+
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField("Web response codes", EditorStyles.boldLabel);
+            foreach (var codes in fileSource.ResponseCodeCounts)
+            {
+                UIHelpers.DrawWideLabel(codes.Key.ToString(), codes.Value.ToString() ?? "0");
+            }
+
+            EditorGUI.indentLevel--;
         }
+
+        private void DataFetcherSection(LoggingDataFetchingManager fetcher)
+        {
+            _dataFetcherFoldout = EditorGUILayout.Foldout(_dataFetcherFoldout, "Data Fetcher", true);
+            if (!_dataFetcherFoldout)
+                return;
+
+            EditorGUI.indentLevel++;
+        
+            if (fetcher == null)
+            {
+                EditorGUILayout.HelpBox("Data fetcher is null. Run the scene to inspect it.", MessageType.Info);
+                EditorGUI.indentLevel--;
+                return;
+            }
+        
+            UIHelpers.DrawWideLabel("Added Count", fetcher.AddedCount.ToString());
+            UIHelpers.DrawWideLabel("Initialized Count", fetcher.InitializedCount.ToString());
+            UIHelpers.DrawWideLabel("Cancelled Count", fetcher.CancelledCount.ToString());
+
+            EditorGUI.indentLevel--;
+        }
+    
+    
     }
 }

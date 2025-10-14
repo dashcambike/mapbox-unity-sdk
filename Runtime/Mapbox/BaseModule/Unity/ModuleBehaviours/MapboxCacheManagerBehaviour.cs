@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mapbox.Example.Scripts.ModuleBehaviours
 {
-    public class MapboxCacheManagerBehaviour : MonoBehaviour
+    public class RuntimeCacheManagerBehaviour : MapboxCacheManagerBehaviour
     {
         public MapboxCacheManager CacheManager;
         public MemoryCache MemoryCache;
@@ -16,7 +16,7 @@ namespace Mapbox.Example.Scripts.ModuleBehaviours
         public bool CreateSqliteCache = true;
         public bool CreateFileCache = true;
         
-        public MapboxCacheManager GetCacheManager(UnityContext unityContext, DataFetchingManager dataFetchingManager)
+        public override MapboxCacheManager GetCacheManager(UnityContext unityContext, DataFetchingManager dataFetchingManager)
         {
             if (CacheManager == null)
             {
@@ -35,5 +35,10 @@ namespace Mapbox.Example.Scripts.ModuleBehaviours
 
             return CacheManager;
         }
+    }
+
+    public abstract class MapboxCacheManagerBehaviour : MonoBehaviour
+    {
+        public abstract MapboxCacheManager GetCacheManager(UnityContext unityContext, DataFetchingManager dataFetchingManager);
     }
 }
