@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -61,9 +62,24 @@ namespace Mapbox.MapDebug.Scripts.Logging.Editor
                 UIHelpers.DrawWideLabel(codes.Key.ToString(), codes.Value.ToString() ?? "0");
             }
 
+            if (GUILayout.Button("Copy request logs to Clipboard"))
+            {
+                CopyListToClipboard(fileSource.Logs);
+            }
+
             EditorGUI.indentLevel--;
         }
+        
+        public static void CopyListToClipboard(List<string> lines)
+        {
+            if (lines == null || lines.Count == 0)
+                return;
 
+            string joined = string.Join("\n", lines);
+            GUIUtility.systemCopyBuffer = joined;
+            Debug.Log($"Copied {lines.Count} lines to clipboard.");
+        }
+        
         private void DataFetcherSection(LoggingDataFetchingManager fetcher)
         {
             _dataFetcherFoldout = EditorGUILayout.Foldout(_dataFetcherFoldout, "Data Fetcher", true);

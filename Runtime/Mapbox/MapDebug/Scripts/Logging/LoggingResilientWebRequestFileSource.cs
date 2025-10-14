@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Mapbox.BaseModule.Data.Platform;
 using Mapbox.BaseModule.Data.Platform.Cache;
 using Mapbox.BaseModule.Utilities;
@@ -21,7 +22,10 @@ public class LoggingResilientWebRequestFileSource : IFileSource
 		public int MapboxDataRequestCount = 0;
 		public int AbortedCount = 0;
 		public Dictionary<long, int> ResponseCodeCounts = new Dictionary<long, int>();
-
+		public List<string> Logs = new List<string>();
+		private string _logFormat = "{0,4} {1,6:0.000} - {2,6:0.000} : {3,40}     {4,2}{5,6}{6,6}      {7}";
+		private Regex regex = new Regex(@"v4/([^/]+)/(\d+)/(\d+)/(\d+)");
+		
 		public LoggingResilientWebRequestFileSource(string accessToken, Func<string> getMapsSkuToken)
 		{
 			_accessToken = accessToken;
@@ -57,6 +61,7 @@ public class LoggingResilientWebRequestFileSource : IFileSource
 		
 		protected virtual IEnumerator FetchWebData(ResilientWebRequest webRequest, Action<WebRequestResponse> callback)
 		{
+			var start = Time.realtimeSinceStartup;
 			//requests are getting lost, data fetching manager is filled with dead requests, callback not working
 
 			_activeRequests.Add(webRequest);
@@ -67,7 +72,21 @@ public class LoggingResilientWebRequestFileSource : IFileSource
 				using (webRequest.Ready())
 				{
 					yield return webRequest.SendWebRequest();
+
+					if (webRequest.Core != null)
+					{
+						var end = Time.realtimeSinceStartup;
+						var leftUri = webRequest.Core.uri.GetLeftPart(UriPartial.Path);
+						var match = regex.Match(leftUri);
+						Logs.Add(string.Format(_logFormat, webRequest.responseCode, start, end,
+							match.Groups[1].Value,
+							match.Groups[2].Value,
+							match.Groups[3].Value,
+							match.Groups[4].Value,
+							leftUri));
+					}
 					
+
 					_activeRequests.Remove(webRequest);
 					if (webRequest.IsAborted)
 					{
