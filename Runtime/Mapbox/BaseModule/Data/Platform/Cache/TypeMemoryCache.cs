@@ -12,6 +12,8 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
     //retainTiles method provides in-use support; not sound but good enough
     public class TypeMemoryCache<T> : ITypeCache where T : MapboxTileData
     {
+        int mainThreadId;
+        
         public Action<CanonicalTileId> CacheItemDisposed = (t) => { };
         
         private readonly int _inactiveCapacity;
@@ -31,6 +33,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
         
         public TypeMemoryCache(int cacheSize = 100)
         {
+            mainThreadId = Thread.CurrentThread.ManagedThreadId;
             if (cacheSize <= 0)
                 throw new ArgumentException("Inactive capacity must be > 0");
 
@@ -53,6 +56,8 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
         /// </summary>
         public void Add(T data)
         {
+            if(Thread.CurrentThread.ManagedThreadId != mainThreadId)
+                Debug.Log("Trying to add data to memory cache from a worker thread. This shouldn't be happening.");
             _active[data.TileId] = data;
         }
         
@@ -66,11 +71,14 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
 
             if (_inactiveMap.TryGetValue(key, out var node))
             {
-                // Promote to active
-                _inactiveList.Remove(node);
-                _inactiveMap.Remove(key);
+                if (Thread.CurrentThread.ManagedThreadId == mainThreadId) //do not write while on worker threads
+                {
+                    // Promote to active
+                    _inactiveList.Remove(node);
+                    _inactiveMap.Remove(key);
+                    _active[key] = node.Value.value;
+                }
 
-                _active[key] = node.Value.value;
                 outData = node.Value.value;
                 return true;
             }
