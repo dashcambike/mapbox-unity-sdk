@@ -265,27 +265,30 @@ namespace Mapbox.VectorModule
 			{
 				_meshGenerationUnit.MeshGeneration(vectorData, (result =>
 				{
-					if (result != null && result.ResultType == TaskResultType.Success)
+					if (result != null)
 					{
-						_readyTiles.Add(tileId);
-						OnVectorMeshCreated(result.GeneratedObjects);
-						_meshGenerationUnit.UpdateForView(tileId, _mapInformation);
-					}
-					else if (result.ResultType == TaskResultType.DataProcessingFailure)
-					{
-						_vectorSource.InvalidateData(vectorData.TileId);
-						Debug.Log(result.ExceptionsAsString);
-					}
-					else if (result.ResultType == TaskResultType.Cancelled)
-					{
-						if (result.GeneratedObjects != null)
+						switch (result.ResultType)
 						{
-							foreach (var gameObject in result.GeneratedObjects)
+							case TaskResultType.Success:
+								_readyTiles.Add(tileId);
+								OnVectorMeshCreated(result.GeneratedObjects);
+								_meshGenerationUnit.UpdateForView(tileId, _mapInformation);
+								break;
+							case TaskResultType.DataProcessingFailure or TaskResultType.MeshGenerationFailure:
+								_vectorSource.InvalidateData(vectorData.TileId);
+								Debug.Log(result.ExceptionsAsString);
+								break;
+							case TaskResultType.Cancelled:
 							{
-								GameObject.Destroy(gameObject);
+								foreach (var gameObject in result?.GeneratedObjects)
+								{
+									GameObject.Destroy(gameObject);
+								}
+								break;
 							}
 						}
 					}
+
 					callback?.Invoke(result);;
 				}));
 			}
