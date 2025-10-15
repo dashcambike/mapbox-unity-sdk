@@ -189,7 +189,7 @@ namespace Mapbox.UnityMapService.DataSources
         
         private void LoadTileCore(CanonicalTileId requestedDataTileId, Action<T> callback = null)
         {
-            if (_waitingList.ContainsKey(requestedDataTileId))
+            if (IsInProgress(requestedDataTileId))
             {
                 callback?.Invoke(null);
                 return;
@@ -234,11 +234,14 @@ namespace Mapbox.UnityMapService.DataSources
 
         private void CreateWebRequest(Action<T> callback, ByteArrayTile dataTile)
         {
+            _waitingList[dataTile.Id] = dataTile;
             WebRequestData(dataTile, (fetchingResult) =>
             {
                 var resultDataItem = VectorReceivedFromWeb(dataTile);
                 if (_waitingList.ContainsKey(dataTile.Id))
+                {
                     _waitingList.Remove(dataTile.Id);
+                }
                 callback?.Invoke(resultDataItem);
             });
         }
@@ -296,6 +299,11 @@ namespace Mapbox.UnityMapService.DataSources
             {
                 //Debug.Log(cacheItem.TileId + " doesnt needs an update");
             }
+        }
+        
+        protected bool IsInProgress(CanonicalTileId requestedDataTileId)
+        {
+            return _waitingList.ContainsKey(requestedDataTileId) || IsActiveRequest(requestedDataTileId);
         }
     }
 }

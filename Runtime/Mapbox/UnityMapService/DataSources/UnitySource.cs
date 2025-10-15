@@ -188,6 +188,8 @@ namespace Mapbox.UnityMapService.DataSources
             }
         }
         
+        protected bool IsActiveRequest(CanonicalTileId tileId) => _activeTasks.ContainsKey(tileId);
+        
         public Action<string, CanonicalTileId> TileExpired = (tilesetid, tileId) => { };
         public Action<string, CanonicalTileId> TileUpdated = (tilesetid, tileId) => { };
     }
