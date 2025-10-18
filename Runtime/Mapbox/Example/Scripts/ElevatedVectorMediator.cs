@@ -27,7 +27,7 @@ namespace Mapbox.Example.Scripts.ModuleBehaviours
         public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles,
             Dictionary<UnwrappedTileId, UnityMapTile> activeTiles)
         {
-            return _terrainLayer.RetainTiles(retainedTiles, activeTiles) && _vectorLayer.RetainTiles(retainedTiles, activeTiles);
+            return _terrainLayer.RetainTiles(retainedTiles) && _vectorLayer.RetainTiles(retainedTiles);
         }
     }
 }

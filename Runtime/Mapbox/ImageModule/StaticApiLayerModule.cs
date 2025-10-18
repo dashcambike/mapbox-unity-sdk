@@ -68,8 +68,7 @@ namespace Mapbox.ImageModule
 			return false;
 		}
 		
-		public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles,
-			Dictionary<UnwrappedTileId, UnityMapTile> activeTiles)
+		public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles)
 		{
 			_retainedTiles = retainedTiles;
 			var isReady = _rasterSource.RetainTiles(_retainedTiles);

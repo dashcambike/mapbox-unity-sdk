@@ -56,7 +56,7 @@ namespace Mapbox.Example.Scripts
         public void Update()
         {
             _style.fontSize = TileIdFontSize;
-            
+            _style2.fontSize = TileIdFontSize;
             
             if (_map == null)
                 return;

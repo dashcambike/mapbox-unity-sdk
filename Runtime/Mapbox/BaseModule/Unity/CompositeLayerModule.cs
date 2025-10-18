@@ -66,11 +66,11 @@ public class CompositeLayerModule : ILayerModule
         }
     }
 
-    public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles, Dictionary<UnwrappedTileId, UnityMapTile> activeTiles)
+    public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles)
     {
         foreach (var module in LayerModules)
         {
-            module.RetainTiles(retainedTiles, activeTiles);
+            module.RetainTiles(retainedTiles);
         }
 
         return true;

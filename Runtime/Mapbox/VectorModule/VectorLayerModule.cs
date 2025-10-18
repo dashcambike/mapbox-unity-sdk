@@ -23,14 +23,12 @@ namespace Mapbox.VectorModule
 		private Dictionary<CanonicalTileId, TaskWrapper> _activeTasks;
 		private Dictionary<string, IVectorLayerVisualizer> _layerVisualizers;
 		
-		
-		
 		private Source<VectorData> _vectorSource;
 		private VectorModuleSettings _vectorModuleSettings;
 		private IMapInformation _mapInformation;
 		
+		//tiles we need to cover the ideal tile list
 		private HashSet<CanonicalTileId> _retainedTiles;
-		private HashSet<CanonicalTileId> _activeTiles;
 		private HashSet<CanonicalTileId> _readyTiles;
 		
 		public VectorLayerModule(IMapInformation mapInformation, Source<VectorData> source, UnityContext unityContext, Dictionary<string, IVectorLayerVisualizer> layerVisualizers, VectorModuleSettings vectorModuleSettings = null) : base()
@@ -43,7 +41,6 @@ namespace Mapbox.VectorModule
 			_readyTiles = new HashSet<CanonicalTileId>();
 			_vectorSource.CacheItemDisposed += ClearDisposedDataVisual;
 			_retainedTiles = new HashSet<CanonicalTileId>();
-			_activeTiles = new HashSet<CanonicalTileId>();
 			_activeTasks = new Dictionary<CanonicalTileId, TaskWrapper>();
 		}
 
@@ -84,15 +81,14 @@ namespace Mapbox.VectorModule
 			return false;
 		}
 
-		public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles, Dictionary<UnwrappedTileId, UnityMapTile> activeTiles)
+		public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles)
 		{
 			UpdateRetainedTiles(retainedTiles);
-			UpdateActiveTileList(activeTiles);
 			
 			var toRemove = new List<CanonicalTileId>();
 			foreach (var tileId in _readyTiles)
 			{
-				var isActive = _activeTiles.Contains(tileId) || _retainedTiles.Contains(tileId);
+				var isActive = _retainedTiles.Contains(tileId);
 				foreach (var visualizer in _layerVisualizers)
 				{
 					visualizer.Value.SetActive(tileId, isActive, _mapInformation);
@@ -114,24 +110,24 @@ namespace Mapbox.VectorModule
 				ClearDisposedDataVisual(tileId);
 			}
 
+			//cancel tasks for tiles we no longer need
+			//this prevents flickers from buildings appearing in temp tiles
+			//while we are waiting for the final real tile
+			foreach (var task in _activeTasks)
+			{
+				if(!_retainedTiles.Contains(task.Key))
+					task.Value.Cancel();
+			}
+
 			var isReady = _vectorSource.RetainTiles(_retainedTiles);
 			return isReady;
-		}
-
-		private void UpdateActiveTileList(Dictionary<UnwrappedTileId, UnityMapTile> activeTiles)
-		{
-			_activeTiles.Clear();
-			foreach (var mapTile in activeTiles)
-			{
-				_activeTiles.Add(GetTargetTileId(mapTile.Key.Canonical));
-			}
 		}
 
 		public virtual void UpdatePositioning(IMapInformation information)
 		{
 			foreach (var tileId in _readyTiles)
 			{
-				var isRetained = _activeTiles.Contains(tileId) || _retainedTiles.Contains(tileId);
+				var isRetained = _retainedTiles.Contains(tileId);
 				if (isRetained)
 				{
 					UpdateForView(tileId, _mapInformation);
@@ -255,8 +251,22 @@ namespace Mapbox.VectorModule
 					_retainedTiles.Add(targetId);
 				}
 				
+				//this helps when it tries to load new higher level tiles when it isn't loaded yet
+				//but we want to keep its existing around and not get recycled until children loads
 				if (!_readyTiles.Contains(targetId))
 				{
+					//checking direct children for smoother zoom out
+					//this replaces the old activeTiles list and logic
+					//if you remove this, you'll see building continuity broken in example switching from z15 to z14
+					for (int i = 0; i < 4; i++)
+					{
+						var child = targetId.Quadrant(i);
+						if (_readyTiles.Contains(child))
+						{
+							_retainedTiles.Add(child);
+						}
+					}
+					
 					for (int i = targetId.Z; i >= _vectorModuleSettings.RejectTilesOutsideZoom.x; i--)
 					{
 						targetId = targetId.Parent;
@@ -349,6 +359,10 @@ namespace Mapbox.VectorModule
 
 		private void ClearDisposedDataVisual(CanonicalTileId tileId)
 		{
+			if (_activeTasks.TryGetValue(tileId, out var task))
+			{
+				task.Cancel();
+			}
 			_readyTiles.Remove(tileId);
 			foreach (var visualizer in _layerVisualizers)
 			{
@@ -449,9 +463,16 @@ namespace Mapbox.VectorModule
                 {
                     if (!_isActive)
                         return;
-					
+                    
                     _activeTasks.Remove(data.TileId);
 					
+                    if (taskResult.ResultType == TaskResultType.Cancelled || task.IsCanceled)
+                    {
+	                    var failResult = new MeshGenerationTaskResult(TaskResultType.Cancelled);
+	                    callback(failResult);
+	                    return;
+                    }
+                    
                     if (taskResult.ResultType == TaskResultType.MeshGenerationFailure)
                     {
                         var failResult = new MeshGenerationTaskResult(taskResult.ResultType);
@@ -464,12 +485,7 @@ namespace Mapbox.VectorModule
                         callback(failResult);
                         return;
                     }
-                    else if (taskResult.ResultType == TaskResultType.Cancelled)
-                    {
-                        var failResult = new MeshGenerationTaskResult(TaskResultType.Cancelled);
-                        callback(failResult);
-                        return;
-                    }
+                    
 					
                     var resultGameObjects = new List<GameObject>();
                     foreach (var layerName in data.VectorTileData.LayerNames())
@@ -483,7 +499,7 @@ namespace Mapbox.VectorModule
                             var layerGameObjects = layerVisualizer.CreateGo(data.TileId, tileMeshData);
                             foreach (var gameObject in layerGameObjects)
                             {
-                                gameObject.SetActive(true);
+                                gameObject.SetActive(false);
                                 resultGameObjects.Add(gameObject);
                             }
                         }
