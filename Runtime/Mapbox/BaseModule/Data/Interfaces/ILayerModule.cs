@@ -15,7 +15,7 @@ namespace Mapbox.BaseModule.Data.Interfaces
 		
 		IEnumerable<IEnumerator> GetTileCoverCoroutines(IEnumerable<CanonicalTileId> tiles);
 		
-		bool RetainTiles(HashSet<CanonicalTileId> retainedTiles, Dictionary<UnwrappedTileId, UnityMapTile> activeTiles);
+		bool RetainTiles(HashSet<CanonicalTileId> retainedTiles);
 		IEnumerator Initialize();
 		void OnDestroy();
 		void UpdatePositioning(IMapInformation mapInfo);

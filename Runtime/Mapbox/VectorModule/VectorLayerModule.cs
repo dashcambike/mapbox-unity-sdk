@@ -17,31 +17,40 @@ namespace Mapbox.VectorModule
 {
 	public class VectorLayerModule : ILayerModule
 	{
+		//mesh gen
+		private bool _isActive = true;
+		private UnityContext _unityContext;
+		private Dictionary<CanonicalTileId, TaskWrapper> _activeTasks;
+		private Dictionary<string, IVectorLayerVisualizer> _layerVisualizers;
+		
 		private Source<VectorData> _vectorSource;
-		private MeshGenerationUnit _meshGenerationUnit;
 		private VectorModuleSettings _vectorModuleSettings;
 		private IMapInformation _mapInformation;
 		
+		//tiles we need to cover the ideal tile list
 		private HashSet<CanonicalTileId> _retainedTiles;
-		private HashSet<CanonicalTileId> _activeTiles;
 		private HashSet<CanonicalTileId> _readyTiles;
 		
-		public VectorLayerModule(IMapInformation mapInformation, Source<VectorData> source, MeshGenerationUnit meshGenerator, VectorModuleSettings vectorModuleSettings = null) : base()
+		public VectorLayerModule(IMapInformation mapInformation, Source<VectorData> source, UnityContext unityContext, Dictionary<string, IVectorLayerVisualizer> layerVisualizers, VectorModuleSettings vectorModuleSettings = null) : base()
 		{
+			_unityContext = unityContext;
+			_layerVisualizers = layerVisualizers;
 			_mapInformation = mapInformation;
 			_vectorSource = source;
-			_meshGenerationUnit = meshGenerator;
 			_vectorModuleSettings = vectorModuleSettings ?? new VectorModuleSettings();
 			_readyTiles = new HashSet<CanonicalTileId>();
 			_vectorSource.CacheItemDisposed += ClearDisposedDataVisual;
 			_retainedTiles = new HashSet<CanonicalTileId>();
-			_activeTiles = new HashSet<CanonicalTileId>();
+			_activeTasks = new Dictionary<CanonicalTileId, TaskWrapper>();
 		}
 
 		public virtual IEnumerator Initialize()
 		{
 			yield return _vectorSource.Initialize();
-			yield return _meshGenerationUnit.Initialize();
+			foreach (var visualizer in _layerVisualizers.Values)
+			{
+				yield return visualizer.Initialize();
+			}
 		}
 
 		public virtual void LoadTempTile(UnityMapTile tile)
@@ -63,7 +72,7 @@ namespace Mapbox.VectorModule
 			if (_vectorSource.GetInstantData(targetId, out var instantData) && 
 			    unityTile.TerrainContainer.State == TileContainerState.Final)
 			{
-				if(!_meshGenerationUnit.IsInWork(targetId))
+				if(!IsMeshGenInWork(targetId))
 				{
 					CreateVisual(targetId, instantData);
 				}
@@ -72,45 +81,67 @@ namespace Mapbox.VectorModule
 			return false;
 		}
 
-		public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles, Dictionary<UnwrappedTileId, UnityMapTile> activeTiles)
+		public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles)
 		{
 			UpdateRetainedTiles(retainedTiles);
-			UpdateActiveTileList(activeTiles);
 			
+			var toRemove = new List<CanonicalTileId>();
 			foreach (var tileId in _readyTiles)
 			{
-				_meshGenerationUnit.SetVisualActive(tileId, _activeTiles.Contains(tileId) || _retainedTiles.Contains(tileId), _mapInformation);
+				var isActive = _retainedTiles.Contains(tileId);
+				foreach (var visualizer in _layerVisualizers)
+				{
+					visualizer.Value.SetActive(tileId, isActive, _mapInformation);
+				}
+				
+				if (!isActive)
+				{
+					toRemove.Add(tileId);
+					if (_activeTasks.TryGetValue(tileId, out var task))
+					{
+						_activeTasks.Remove(tileId);
+						task.Cancel();
+					}
+				}
 			}
 
-			_meshGenerationUnit.RetainTiles(_retainedTiles);
+			foreach (var tileId in toRemove)
+			{
+				ClearDisposedDataVisual(tileId);
+			}
+
+			//cancel tasks for tiles we no longer need
+			//this prevents flickers from buildings appearing in temp tiles
+			//while we are waiting for the final real tile
+			foreach (var task in _activeTasks)
+			{
+				if(!_retainedTiles.Contains(task.Key))
+					task.Value.Cancel();
+			}
+
 			var isReady = _vectorSource.RetainTiles(_retainedTiles);
 			return isReady;
-		}
-
-		private void UpdateActiveTileList(Dictionary<UnwrappedTileId, UnityMapTile> activeTiles)
-		{
-			_activeTiles.Clear();
-			foreach (var mapTile in activeTiles)
-			{
-				_activeTiles.Add(GetTargetTileId(mapTile.Key.Canonical));
-			}
 		}
 
 		public virtual void UpdatePositioning(IMapInformation information)
 		{
 			foreach (var tileId in _readyTiles)
 			{
-				var isRetained = _activeTiles.Contains(tileId) || _retainedTiles.Contains(tileId);
+				var isRetained = _retainedTiles.Contains(tileId);
 				if (isRetained)
 				{
-					_meshGenerationUnit.UpdateForView(tileId, information);
+					UpdateForView(tileId, _mapInformation);
 				}
 			}
 		}
 		
 		public virtual void OnDestroy()
 		{
-			_meshGenerationUnit.OnDestroy();
+			_isActive = false;
+			foreach (var visualizer in _layerVisualizers)
+			{
+				visualizer.Value.OnDestroy();
+			}
 		}
 
 		public void ReloadTile(CanonicalTileId tile)
@@ -130,7 +161,7 @@ namespace Mapbox.VectorModule
 
 		public bool TryGetLayerVisualizer(string name, out IVectorLayerVisualizer visualizer)
 		{
-			return _meshGenerationUnit.TryGetLayerVisualizer(name, out visualizer);
+			return _layerVisualizers.TryGetValue(name, out visualizer);
 		}
 		
 		public IEnumerable<CanonicalTileId> GetDataId(IEnumerable<CanonicalTileId> tileIdList)
@@ -220,8 +251,22 @@ namespace Mapbox.VectorModule
 					_retainedTiles.Add(targetId);
 				}
 				
+				//this helps when it tries to load new higher level tiles when it isn't loaded yet
+				//but we want to keep its existing around and not get recycled until children loads
 				if (!_readyTiles.Contains(targetId))
 				{
+					//checking direct children for smoother zoom out
+					//this replaces the old activeTiles list and logic
+					//if you remove this, you'll see building continuity broken in example switching from z15 to z14
+					for (int i = 0; i < 4; i++)
+					{
+						var child = targetId.Quadrant(i);
+						if (_readyTiles.Contains(child))
+						{
+							_retainedTiles.Add(child);
+						}
+					}
+					
 					for (int i = targetId.Z; i >= _vectorModuleSettings.RejectTilesOutsideZoom.x; i--)
 					{
 						targetId = targetId.Parent;
@@ -261,9 +306,9 @@ namespace Mapbox.VectorModule
 			{
 				callback?.Invoke(new MeshGenerationTaskResult(TaskResultType.Success));
 			}
-			else if (!_meshGenerationUnit.IsInWork(vectorData.TileId))
+			else if (!IsMeshGenInWork(vectorData.TileId))
 			{
-				_meshGenerationUnit.MeshGeneration(vectorData, (result =>
+				MeshGeneration(vectorData, (result =>
 				{
 					if (result != null)
 					{
@@ -272,7 +317,7 @@ namespace Mapbox.VectorModule
 							case TaskResultType.Success:
 								_readyTiles.Add(tileId);
 								OnVectorMeshCreated(result.GeneratedObjects);
-								_meshGenerationUnit.UpdateForView(tileId, _mapInformation);
+								UpdateForView(tileId, _mapInformation);
 								break;
 							case TaskResultType.DataProcessingFailure or TaskResultType.MeshGenerationFailure:
 								_vectorSource.InvalidateData(vectorData.TileId);
@@ -280,10 +325,14 @@ namespace Mapbox.VectorModule
 								break;
 							case TaskResultType.Cancelled:
 							{
-								foreach (var gameObject in result?.GeneratedObjects)
+								if (result != null && result.GeneratedObjects != null)
 								{
-									GameObject.Destroy(gameObject);
+									foreach (var gameObject in result?.GeneratedObjects)
+									{
+										GameObject.Destroy(gameObject);
+									}
 								}
+
 								break;
 							}
 						}
@@ -310,14 +359,158 @@ namespace Mapbox.VectorModule
 
 		private void ClearDisposedDataVisual(CanonicalTileId tileId)
 		{
+			if (_activeTasks.TryGetValue(tileId, out var task))
+			{
+				task.Cancel();
+			}
 			_readyTiles.Remove(tileId);
-			_meshGenerationUnit.ClearDisposedDataVisual(tileId);
-
+			foreach (var visualizer in _layerVisualizers)
+			{
+				visualizer.Value.UnregisterTile(tileId);
+			}
 		}
 
 		public Action<IEnumerable<GameObject>> OnVectorMeshCreated = list => { };
 		public Action<GameObject> OnVectorMeshDestroyed = go => { };
 		public Action<GameObject> OnVectorMeshTurnVisible = go => { };
 		public Action<GameObject> OnVectorMeshTurnInvisible = go => { };
+		
+		public bool IsMeshGenInWork(CanonicalTileId tileId) { return _activeTasks.ContainsKey(tileId); }
+		
+		public void MeshGenRetainTiles(HashSet<CanonicalTileId> retainedTiles)
+		{
+			if (_activeTasks.Count == 0)
+				return;
+            
+			var toRemove = new List<KeyValuePair<CanonicalTileId, TaskWrapper>>();
+			foreach (var task in _activeTasks)
+			{
+				if (!retainedTiles.Contains(task.Key))
+				{
+					toRemove.Add(task);
+				}
+			}
+
+			foreach (var pair in toRemove)
+			{
+				_activeTasks.Remove(pair.Key);
+				pair.Value.Cancel();
+				//_unityContext.TaskManager.CancelTask(pair.Value);
+				
+			}
+		}
+		
+		public void UpdateForView(CanonicalTileId tileId, IMapInformation information)
+		{
+			foreach (var visualizer in _layerVisualizers)
+			{
+				visualizer.Value.UpdateForView(tileId, information);
+			}
+		}
+		
+		public void MeshGeneration(VectorData data, Action<MeshGenerationTaskResult> callback)
+        {
+            if (data.Data == null)
+            {
+                callback(new MeshGenerationTaskResult(TaskResultType.Success));
+            }
+
+            var meshTask = new MeshGenTaskWrapper()
+            {
+                TileId = data.TileId,
+                DataAction = () =>
+                {
+                    var result = new MeshGenTaskWrapperResult();
+                    try
+                    {
+                        var decompressed = Compression.Decompress(data.Data);
+                        data.VectorTileData = new Mapbox.VectorTile.VectorTile(decompressed);
+                    }
+                    catch (Exception e)
+                    {
+                        result.ResultType = TaskResultType.DataProcessingFailure;
+                        result.AddException(e);
+                        return result;
+                    }
+
+                    try
+                    {
+                        var layers = data.VectorTileData.LayerNames();
+                        foreach (var layerName in layers)
+                        {
+                            if (_layerVisualizers.TryGetValue(layerName, out var layerVisualizer))
+                            {
+                                if(layerVisualizer.ContainsVisualFor(data.TileId))
+                                    continue;
+                                if (layerVisualizer.Active)
+                                {
+                                    result.Data.Add(layerName, layerVisualizer.CreateMesh(data.TileId, data.VectorTileData.GetLayer(layerName)));
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        result.ResultType = TaskResultType.MeshGenerationFailure;
+                        result.AddException(e);
+                        return result;
+                    }
+
+                    result.ResultType = TaskResultType.Success;
+                    return result;
+                },
+                DataCompleted = (task, taskResult) => //task may be null
+                {
+                    if (!_isActive)
+                        return;
+                    
+                    _activeTasks.Remove(data.TileId);
+					
+                    if (taskResult.ResultType == TaskResultType.Cancelled || task.IsCanceled)
+                    {
+	                    var failResult = new MeshGenerationTaskResult(TaskResultType.Cancelled);
+	                    callback(failResult);
+	                    return;
+                    }
+                    
+                    if (taskResult.ResultType == TaskResultType.MeshGenerationFailure)
+                    {
+                        var failResult = new MeshGenerationTaskResult(taskResult.ResultType);
+                        foreach (var e in taskResult.GetExceptions())
+                        {
+                            failResult.AddException(e);
+                        }
+                        //Debug.Log(string.Format("{0} mesh gen exception: {1}", data.TileId, task.Exception.Message));
+                        failResult.AddException(new Exception(string.Format("{0} mesh gen exception: {1}", data.TileId, taskResult.ExceptionsAsString)));
+                        callback(failResult);
+                        return;
+                    }
+                    
+					
+                    var resultGameObjects = new List<GameObject>();
+                    foreach (var layerName in data.VectorTileData.LayerNames())
+                    {
+                        if (!taskResult.Data.ContainsKey(layerName))
+                            continue;
+
+                        if (_layerVisualizers.TryGetValue(layerName, out var layerVisualizer))
+                        {
+                            var tileMeshData = taskResult.Data[layerName];
+                            var layerGameObjects = layerVisualizer.CreateGo(data.TileId, tileMeshData);
+                            foreach (var gameObject in layerGameObjects)
+                            {
+                                gameObject.SetActive(false);
+                                resultGameObjects.Add(gameObject);
+                            }
+                        }
+                    }
+                    callback(new MeshGenerationTaskResult(TaskResultType.Success, resultGameObjects));
+                    
+                }
+            };
+
+            _activeTasks.Add(data.TileId, meshTask);
+            _unityContext.TaskManager.AddTask(meshTask, 0);
+        }
 	}
 }

@@ -103,9 +103,16 @@ namespace Mapbox.Example.Scripts.Map
         
         protected virtual MapboxMapVisualizer CreateMapVisualizer(IMapInformation mapInfo, UnityContext unityContext)
         {
-            var tileCreator = _tileCreatorBehaviour != null
-                ? _tileCreatorBehaviour.GetTileCreator(unityContext)
-                : new TileCreator(unityContext);
+            ITileCreator tileCreator;
+            if (_tileCreatorBehaviour != null)
+            {
+                tileCreator = _tileCreatorBehaviour.GetTileCreator(unityContext);
+            }
+            else
+            {
+                var defaultMapboxTerrainMaterial = new Material(Shader.Find(Constants.Map.DefaultTerrainShaderName));
+                tileCreator = new TileCreator(unityContext, new[] { defaultMapboxTerrainMaterial });
+            }
             return new MapboxMapVisualizer(mapInfo, unityContext, tileCreator);
         }
 

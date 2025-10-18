@@ -79,7 +79,7 @@ namespace Mapbox.ImageModule.Terrain
             return false;
         }
 
-        public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles, Dictionary<UnwrappedTileId, UnityMapTile> activeTiles)
+        public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles)
         {
             var isReady = true;
             _retainedTerrainTiles.Clear();

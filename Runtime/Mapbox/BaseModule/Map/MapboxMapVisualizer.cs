@@ -150,7 +150,7 @@ namespace Mapbox.BaseModule.Map
             
             foreach (var visualization in LayerModules)
             {
-                visualization.RetainTiles(_retainedTiles, ActiveTiles);
+                visualization.RetainTiles(_retainedTiles);
             }
         }
 

@@ -46,8 +46,7 @@ namespace Mapbox.VectorModule.Unity
 				vectorModuleSettings.DataSettings.TilesetId = vectorModuleSettings.CustomSourceId;
 			}
 			
-			var meshGen = new MeshGenerationUnit(unityContext, dictionary);	
-			return new VectorLayerModule(mapInformation, service.GetVectorSource(vectorModuleSettings.DataSettings), meshGen, vectorModuleSettings);
+			return new VectorLayerModule(mapInformation, service.GetVectorSource(vectorModuleSettings.DataSettings), unityContext, dictionary, vectorModuleSettings);
 		}
 
 		public override void OnDestroy()

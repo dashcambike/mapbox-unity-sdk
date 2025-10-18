@@ -24,9 +24,9 @@ namespace Mapbox.VectorModule.MeshGeneration.GameObjectModifiers
             }
             else
             {
-                var renderer = ve.GameObject.GetComponent<MeshRenderer>();
-                if(renderer != null)
-                    renderer.materials = _material;
+                ve.MeshRenderer = ve.GameObject.AddComponent<MeshRenderer>();
+                if(ve.MeshRenderer != null)
+                    ve.MeshRenderer.materials = _material;
             }
         }
     }

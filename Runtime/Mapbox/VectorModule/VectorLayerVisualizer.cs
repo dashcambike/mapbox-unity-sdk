@@ -25,14 +25,13 @@ namespace Mapbox.VectorModule
         public string VectorLayerName => _vectorLayerName;
         public bool Active { get; set; }
 
-        private VectorLayerVisualizerSettings _settings;
-        private string _vectorLayerName;
-        private UnityContext _unityContext;
-        private Dictionary<int, ModifierStack> _stackList;
-        private Dictionary<CanonicalTileId, List<VectorEntity>> _results;
-        private IMapInformation _mapInformation;
-        
-        private Transform _layerRootObject;
+        protected VectorLayerVisualizerSettings _settings;
+        protected string _vectorLayerName;
+        protected UnityContext _unityContext;
+        protected Dictionary<int, ModifierStack> _stackList;
+        protected Dictionary<CanonicalTileId, List<VectorEntity>> _results;
+        protected IMapInformation _mapInformation;
+        protected Transform _layerRootObject;
         
         public VectorLayerVisualizer(string name, IMapInformation mapInformation, UnityContext unityContext = null, VectorLayerVisualizerSettings settings = null)
         {
@@ -51,7 +50,7 @@ namespace Mapbox.VectorModule
             _layerRootObject.transform.position += _settings.Offset;
         }
 
-        public void UpdateForView(CanonicalTileId canonicalTileId, IMapInformation information)
+        public virtual void UpdateForView(CanonicalTileId canonicalTileId, IMapInformation information)
         {
             if (_results.TryGetValue(canonicalTileId, out var visuals))
             {
@@ -67,17 +66,25 @@ namespace Mapbox.VectorModule
             }
         }
 
-        public void SetActive(CanonicalTileId canonicalTileId, bool isActive, IMapInformation mapInformation)
+        public virtual void SetActive(CanonicalTileId canonicalTileId, bool isActive, IMapInformation mapInformation)
         {
-            if (_results.TryGetValue(canonicalTileId, out var visuals))
+            if (isActive)
             {
-                foreach (var entity in visuals)
+                if (_results.TryGetValue(canonicalTileId, out var visuals))
                 {
-                    if (_stackList.TryGetValue(entity.StackId, out var stack))
+                    foreach (var entity in visuals)
                     {
-                        entity.GameObject.SetActive(isActive && stack.IsZinSupportedRange(_mapInformation.AbsoluteZoom));
+                        if (_stackList.TryGetValue(entity.StackId, out var stack))
+                        {
+                            var isVisible = stack.IsZinSupportedRange(_mapInformation.AbsoluteZoom);
+                            entity.GameObject.SetActive(isVisible);
+                        }
                     }
                 }
+            }
+            else
+            {
+                UnregisterTile(canonicalTileId);
             }
         }
         
@@ -136,6 +143,7 @@ namespace Mapbox.VectorModule
                     OnVectorMeshDestroyed(entity.GameObject);
                 }
 
+                _results[tileId].Clear();
                 _results.Remove(tileId);
             }
 

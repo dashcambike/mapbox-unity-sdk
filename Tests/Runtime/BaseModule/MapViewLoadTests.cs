@@ -102,7 +102,8 @@ namespace Mapbox.BaseModuleTests.DataTests
             _vectorLayer = new VectorLayerModule(
                 mapInfo, 
                 _vectorSource, 
-                new MeshGenerationUnit(unityContext, new Dictionary<string, IVectorLayerVisualizer>()), 
+                unityContext, 
+                new Dictionary<string, IVectorLayerVisualizer>(), 
                 new VectorModuleSettings() { DataSettings = vectorSourceSettings});
             mapVisualizer.LayerModules.Add(_imageLayer);
             mapVisualizer.LayerModules.Add(_terrainLayer);

@@ -28,6 +28,7 @@ namespace Mapbox.BaseModule.Utilities
 			/// <summary> Epsilon to comapre floating point numbers</summary>
 			public const float EpsilonFloatingPoint = 1E-05f;
 
+			public const string DefaultTerrainShaderName = "Shader Graphs/ElevatedTerrainShader";
 		}
 		
 		public static class Path

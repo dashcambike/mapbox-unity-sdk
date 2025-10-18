@@ -12,8 +12,8 @@ namespace Mapbox.VectorModule.Unity
 	public class VectorLayerVisualizerObject : ScriptableObject
 	{
 		[SerializeField] private string _vectorLayerName;
+		[SerializeField] private LayerTypeEnum LayerType;
 		public string VectorLayerName => _vectorLayerName;
-		public bool IsActive = true;
 
 		[SerializeField] private VectorLayerVisualizerSettings _settings;
 		[SerializeField] private List<ModifierStackObject> _modifierStackObjects;
@@ -26,8 +26,10 @@ namespace Mapbox.VectorModule.Unity
 		
 		public IVectorLayerVisualizer ConstructLayerVisualizer(IMapInformation mapInformation, UnityContext unityContext)
 		{
-			_layerVisualizer = new VectorLayerVisualizer(VectorLayerName, mapInformation, unityContext, _settings);
-			_layerVisualizer.Active = IsActive;
+			_layerVisualizer = LayerType is LayerTypeEnum.Polygon or LayerTypeEnum.Line
+				? new VectorLayerVisualizer(VectorLayerName, mapInformation, unityContext, _settings)
+				: new PointLayerVisualizer(_vectorLayerName, mapInformation, unityContext, _settings);
+			_layerVisualizer.Active = true;
 			
 			foreach (var modifierStackObject in _modifierStackObjects.Where(x => x != null))
 			{
@@ -43,5 +45,12 @@ namespace Mapbox.VectorModule.Unity
 
 		public Action<GameObject> OnVectorMeshCreated = list => { };
 		public Action<GameObject> OnVectorMeshDestroyed = go => { };
+		
+		private enum LayerTypeEnum
+		{
+			Polygon,
+			Line,
+			Point
+		}
 	}
 }

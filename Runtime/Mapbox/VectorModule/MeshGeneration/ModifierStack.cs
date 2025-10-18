@@ -108,17 +108,17 @@ namespace Mapbox.VectorModule.MeshGeneration
             var go = new GameObject("pool item");
             if(layerRootObject != null) 
                 go.transform.SetParent(layerRootObject, false);
-            var mf = go.AddComponent<MeshFilter>();
-            mf.sharedMesh = new Mesh();
-            mf.sharedMesh.name = "feature";
-            var mr = go.AddComponent<MeshRenderer>();
+            // var mf = go.AddComponent<MeshFilter>();
+            // mf.sharedMesh = new Mesh();
+            // mf.sharedMesh.name = "feature";
+            //var mr = go.AddComponent<MeshRenderer>();
             var tempVectorEntity = new VectorEntity()
             {
                 GameObject = go,
                 Transform = go.transform,
-                MeshFilter = mf,
-                MeshRenderer = mr,
-                Mesh = mf.sharedMesh
+                //MeshFilter = mf,
+                //MeshRenderer = mr,
+                //Mesh = mf.sharedMesh
             };
             return tempVectorEntity;
         }
@@ -135,11 +135,21 @@ namespace Mapbox.VectorModule.MeshGeneration
                 return null;
             }
 
+            if (meshData.Vertices.Count > 0)
+            {
+                if (tempVectorEntity.MeshFilter == null)
+                {
+                    tempVectorEntity.MeshFilter = tempVectorEntity.GameObject.AddComponent<MeshFilter>();
+                    tempVectorEntity.Mesh = new Mesh();
+                    tempVectorEntity.MeshFilter.mesh = tempVectorEntity.Mesh;
+                }
+                
+                tempVectorEntity.Mesh.Clear();
+                tempVectorEntity.Mesh.SetMeshValues(meshData);
+            }
+            
             tempVectorEntity.GameObject.name = "go";
             tempVectorEntity.GameObject.SetActive(false);
-            tempVectorEntity.Mesh.Clear();
-            tempVectorEntity.Mesh.SetMeshValues(meshData);
-
             tempVectorEntity.Transform.localPosition = meshData.PositionInTile;
 
             return tempVectorEntity;
