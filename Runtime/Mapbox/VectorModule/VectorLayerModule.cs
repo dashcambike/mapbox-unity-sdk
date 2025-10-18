@@ -369,38 +369,10 @@ namespace Mapbox.VectorModule
 				visualizer.Value.UnregisterTile(tileId);
 			}
 		}
-
-		public Action<IEnumerable<GameObject>> OnVectorMeshCreated = list => { };
-		public Action<GameObject> OnVectorMeshDestroyed = go => { };
-		public Action<GameObject> OnVectorMeshTurnVisible = go => { };
-		public Action<GameObject> OnVectorMeshTurnInvisible = go => { };
 		
-		public bool IsMeshGenInWork(CanonicalTileId tileId) { return _activeTasks.ContainsKey(tileId); }
+		private bool IsMeshGenInWork(CanonicalTileId tileId) { return _activeTasks.ContainsKey(tileId); }
 		
-		public void MeshGenRetainTiles(HashSet<CanonicalTileId> retainedTiles)
-		{
-			if (_activeTasks.Count == 0)
-				return;
-            
-			var toRemove = new List<KeyValuePair<CanonicalTileId, TaskWrapper>>();
-			foreach (var task in _activeTasks)
-			{
-				if (!retainedTiles.Contains(task.Key))
-				{
-					toRemove.Add(task);
-				}
-			}
-
-			foreach (var pair in toRemove)
-			{
-				_activeTasks.Remove(pair.Key);
-				pair.Value.Cancel();
-				//_unityContext.TaskManager.CancelTask(pair.Value);
-				
-			}
-		}
-		
-		public void UpdateForView(CanonicalTileId tileId, IMapInformation information)
+		private void UpdateForView(CanonicalTileId tileId, IMapInformation information)
 		{
 			foreach (var visualizer in _layerVisualizers)
 			{
@@ -408,7 +380,7 @@ namespace Mapbox.VectorModule
 			}
 		}
 		
-		public void MeshGeneration(VectorData data, Action<MeshGenerationTaskResult> callback)
+		private void MeshGeneration(VectorData data, Action<MeshGenerationTaskResult> callback)
         {
             if (data.Data == null)
             {
@@ -512,5 +484,10 @@ namespace Mapbox.VectorModule
             _activeTasks.Add(data.TileId, meshTask);
             _unityContext.TaskManager.AddTask(meshTask, 0);
         }
+		
+		public Action<IEnumerable<GameObject>> OnVectorMeshCreated = list => { };
+		public Action<GameObject> OnVectorMeshDestroyed = go => { };
+		public Action<GameObject> OnVectorMeshTurnVisible = go => { };
+		public Action<GameObject> OnVectorMeshTurnInvisible = go => { };
 	}
 }
