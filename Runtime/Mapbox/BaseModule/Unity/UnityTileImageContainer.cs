@@ -8,30 +8,38 @@ namespace Mapbox.BaseModule.Unity
     [Serializable]
     public class UnityTileImageContainer
     {
-        public Action OnDispose = () => { };
-        public TileContainerState State = TileContainerState.Final;
+        public TileContainerState State { get; private set; } = TileContainerState.Final;
+        [field: SerializeField] public RasterData ImageData { get; private set; }
+        
+        private Action _onDispose;
         private UnityMapTile _unityMapTile;
-        private string _mainTexFieldNameID = "_MainTex";
-        private string _mainTexStFieldNameID = "_MainTex_ST";
-        private string _mainTextureChangeTimeFieldNameID = "_MainTextureChangeTime";
-        [SerializeField] public RasterData ImageData;
 
-        public UnityTileImageContainer(UnityMapTile unityMapTile)
+        private const string MainTexFieldNameID = "_MainTex";
+        private const string MainTexStFieldNameID = "_MainTex_ST";
+        private const string MainTextureChangeTimeFieldNameID = "_MainTextureChangeTime";
+        
+        private static readonly int MainTex = Shader.PropertyToID(MainTexFieldNameID);
+        private static readonly int MainTexSt = Shader.PropertyToID(MainTexStFieldNameID);
+        private static readonly int MainTextureChangeTime = Shader.PropertyToID(MainTextureChangeTimeFieldNameID);
+
+        public UnityTileImageContainer(UnityMapTile unityMapTile, Action onDispose)
         {
             _unityMapTile = unityMapTile;
+            _onDispose = onDispose;
         }
 
         public void SetImageData(RasterData imageData, TileContainerState state = TileContainerState.Final)
         {
-            if(ImageData != null) ImageData.OnDispose -= OnDispose;
-            
+            ImageData?.SetDisposeCallback(null);
+
             State = state;
             if (imageData.Texture == null || imageData.TileId.Z == 0)
             {
                 Debug.Log("no texture?");
             }
+
             ImageData = imageData;
-            ImageData.OnDispose += OnDispose;
+            ImageData.SetDisposeCallback(_onDispose);
             OnImageryUpdated();
         }
 
@@ -39,12 +47,12 @@ namespace Mapbox.BaseModule.Unity
         {
             if (ImageData == null)
                 return;
-        
+
             var scaleOffset = _unityMapTile.CanonicalTileId.CalculateScaleOffsetAtZoom(ImageData.TileId.Z);
-            
-            _unityMapTile.Material.SetTexture(_mainTexFieldNameID, ImageData.Texture);
-            _unityMapTile.Material.SetVector(_mainTexStFieldNameID, scaleOffset);
-            _unityMapTile.Material.SetFloat(_mainTextureChangeTimeFieldNameID, Time.time);
+
+            _unityMapTile.Material.SetTexture(MainTex, ImageData.Texture);
+            _unityMapTile.Material.SetVector(MainTexSt, scaleOffset);
+            _unityMapTile.Material.SetFloat(MainTextureChangeTime, Time.time);
         }
 
         public RasterData GetAndClearImageData()
@@ -52,9 +60,9 @@ namespace Mapbox.BaseModule.Unity
             if (ImageData == null)
                 return null;
 
-            _unityMapTile.Material.SetTexture(_mainTexFieldNameID, Texture2D.blackTexture);
+            _unityMapTile.Material.SetTexture(MainTex, Texture2D.blackTexture);
             var rd = ImageData;
-            ImageData.OnDispose -= OnDispose;
+            ImageData.SetDisposeCallback(null);
             ImageData = null;
             return rd;
         }
@@ -62,9 +70,9 @@ namespace Mapbox.BaseModule.Unity
         public void DisableImagery()
         {
             State = TileContainerState.Final;
-            _unityMapTile.Material.SetTexture(_mainTexFieldNameID, null);
+            _unityMapTile.Material.SetTexture(MainTex, null);
         }
-        
+
         public void OnDestroy()
         {
             //anything to finalize here?

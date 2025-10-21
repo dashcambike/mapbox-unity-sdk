@@ -13,12 +13,17 @@ namespace Mapbox.BaseModule.Data.DataFetchers
         public DateTime? ExpirationDate;
         public bool HasError = false;
         [HideInInspector] public byte[] Data;
+        
+        private Action _onDispose;
 
         public virtual void Dispose()
         {
-            OnDispose();
+            _onDispose?.Invoke();
         }
-        
-        public Action OnDispose = () => { };
+
+        internal void SetDisposeCallback(Action callback)
+        {
+            _onDispose = callback;
+        }
     }
 }
