@@ -316,7 +316,7 @@ namespace Mapbox.VectorModule
 						{
 							case TaskResultType.Success:
 								_readyTiles.Add(tileId);
-								OnVectorMeshCreated(result.GeneratedObjects);
+								OnVectorMeshCreated(tileId, result.GeneratedObjects);
 								UpdateForView(tileId, _mapInformation);
 								break;
 							case TaskResultType.DataProcessingFailure or TaskResultType.MeshGenerationFailure:
@@ -368,6 +368,8 @@ namespace Mapbox.VectorModule
 			{
 				visualizer.Value.UnregisterTile(tileId);
 			}
+
+			OnVectorMeshDestroyed(tileId);
 		}
 		
 		private bool IsMeshGenInWork(CanonicalTileId tileId) { return _activeTasks.ContainsKey(tileId); }
@@ -485,9 +487,7 @@ namespace Mapbox.VectorModule
             _unityContext.TaskManager.AddTask(meshTask, 0);
         }
 		
-		public Action<IEnumerable<GameObject>> OnVectorMeshCreated = list => { };
-		public Action<GameObject> OnVectorMeshDestroyed = go => { };
-		public Action<GameObject> OnVectorMeshTurnVisible = go => { };
-		public Action<GameObject> OnVectorMeshTurnInvisible = go => { };
+		public Action<CanonicalTileId, IEnumerable<GameObject>> OnVectorMeshCreated = (tileId, gameobjects) => {};
+		public Action<CanonicalTileId> OnVectorMeshDestroyed = (tileId) => {};
 	}
 }

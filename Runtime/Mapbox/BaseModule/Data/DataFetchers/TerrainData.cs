@@ -9,10 +9,14 @@ namespace Mapbox.BaseModule.Data.DataFetchers
     {
         [HideInInspector] public float[] ElevationValues;
         public bool IsElevationDataReady = false;
-        public Action ElevationValuesUpdated = () => { };
+        public Action ElevationValuesUpdated;
         public float MinElevation = 0;
         public float MaxElevation = 0;
-        
+
+        public void SetElevationChangedCallback(Action callback)
+        {
+            ElevationValuesUpdated = callback;
+        }
         
         public override void Clear()
         {
@@ -24,7 +28,7 @@ namespace Mapbox.BaseModule.Data.DataFetchers
         {
             ElevationValues = elevationArray;
             IsElevationDataReady = true;
-            ElevationValuesUpdated();
+            ElevationValuesUpdated?.Invoke();
         }
         
         public void SetElevationValues(float[] elevationArray, float min, float max)
@@ -33,7 +37,7 @@ namespace Mapbox.BaseModule.Data.DataFetchers
             IsElevationDataReady = true;
             MinElevation = min;
             MaxElevation = max;
-            ElevationValuesUpdated();
+            ElevationValuesUpdated?.Invoke();
         }
         
         public float QueryHeightData(CanonicalTileId requestingSubTileId, float x, float y)
