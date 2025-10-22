@@ -136,6 +136,7 @@ public class MapTest : MonoBehaviour
     public IEnumerator LoadMapView()
     {
         LoadMap(_helsinkiLatitudeLongitudeString);
+        yield return _map.Initialize();
         
         var tileCover = new TileCover();
         _map.MapService.TileCover(_map.MapInformation, tileCover);

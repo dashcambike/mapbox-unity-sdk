@@ -36,6 +36,7 @@ namespace Mapbox.UnityMapService.DataSources
             _dataFetchingManager = dataFetchingManager;
             _cacheManager = cacheManager;
             _activeRequests = new Dictionary<CanonicalTileId, FetchInfo>();
+            _sourceZoomRange = new[] {0, 22};
         }
         
         public override IEnumerator Initialize()

@@ -160,8 +160,7 @@ namespace Mapbox.UnityMapService.DataSources
             else
             {
                 _waitingList[requestedDataTileId] = null;
-                yield return GetImageCoroutine<T>(requestedDataTileId, _tilesetId,
-                    _settings.UseNonReadableTextures,
+                yield return GetImageCoroutine<T>(requestedDataTileId, _tilesetId, _settings.UseNonReadableTextures,
                     (data) =>
                     {
                         resultData = data;
