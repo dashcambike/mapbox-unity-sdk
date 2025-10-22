@@ -63,7 +63,7 @@ namespace Mapbox.BaseModule.Map
             tile.Material = tile.MeshRenderer.material;
             tile.gameObject.SetActive(false);
             _terrainStrategy?.RegisterTile(tile, false);
-            tile.OnDataDispose += OnTileBroken;
+            tile.OnDataDisposed += OnTileBroken;
             
             return tile;
         }

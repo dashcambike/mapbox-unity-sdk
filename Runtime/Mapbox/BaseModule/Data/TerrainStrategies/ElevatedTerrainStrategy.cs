@@ -91,7 +91,7 @@ namespace Mapbox.ImageModule.Terrain.TerrainStrategies
 				}
 				sharedMesh.uv = newMesh.Uvs;
 				tile.MeshVertexCount = newMesh.Vertices.Length;
-				tile.UpdateMeshBounds();
+				tile.ElevationUpdatedCallback();
 			}
 			
 			if (createElevatedMesh)

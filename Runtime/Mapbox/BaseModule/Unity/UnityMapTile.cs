@@ -8,7 +8,8 @@ namespace Mapbox.BaseModule.Unity
 {
 	public class UnityMapTile : MonoBehaviour
 	{
-		public Action<UnwrappedTileId> OnDataDispose = (t) => { };
+		private Action<UnityMapTile> OnElevationValuesUpdated = (t) => { };
+		public Action<UnwrappedTileId> OnDataDisposed = (t) => { };
 		public UnwrappedTileId UnwrappedTileId { get; private set; }
 		public CanonicalTileId CanonicalTileId { get; private set; }
 		public float TileScale { get; private set; }
@@ -21,40 +22,11 @@ namespace Mapbox.BaseModule.Unity
 		private string _tileScaleFieldNameID = "_TileScale";
 		
 		private MeshRenderer _meshRenderer;
-		public MeshRenderer MeshRenderer
-		{
-			get
-			{
-				if (_meshRenderer == null)
-				{
-					_meshRenderer = GetComponent<MeshRenderer>();
-					if (_meshRenderer == null)
-					{
-						_meshRenderer = gameObject.AddComponent<MeshRenderer>();
-					}
-				}
-				return _meshRenderer;
-			}
-		}
+		public MeshRenderer MeshRenderer => _meshRenderer;
 
 		public Material Material;
 		private MeshFilter _meshFilter;
-		public MeshFilter MeshFilter
-		{
-			get
-			{
-				if (_meshFilter == null)
-				{
-					_meshFilter = GetComponent<MeshFilter>();
-					if (_meshFilter == null)
-					{
-						_meshFilter = gameObject.AddComponent<MeshFilter>();
-						_meshFilter.sharedMesh = new Mesh();
-					}
-				}
-				return _meshFilter;
-			}
-		}
+		public MeshFilter MeshFilter => _meshFilter;
 		public int MeshVertexCount = 0;
 
 		public bool IsTemporary = false;
@@ -63,12 +35,11 @@ namespace Mapbox.BaseModule.Unity
 		{
 			ImageContainer = new UnityTileImageContainer(this, DataDisposed);
 			VectorContainer = new UnityTileVectorContainer(this);
-			TerrainContainer = new UnityTileTerrainContainer(this, DataDisposed);
-			TerrainContainer.ElevationValuesUpdated += tile =>
-			{
-				if (_meshFilter == null) return;
-				UpdateMeshBounds();
-			};
+			TerrainContainer = new UnityTileTerrainContainer(this, ElevationUpdatedCallback, DataDisposed);
+			
+			_meshRenderer = gameObject.AddComponent<MeshRenderer>();
+			_meshFilter = gameObject.AddComponent<MeshFilter>();
+			_meshFilter.sharedMesh = new Mesh();
 		}
 
 		public void Initialize(UnwrappedTileId tileId, float scale)
@@ -83,12 +54,15 @@ namespace Mapbox.BaseModule.Unity
 			Material.SetFloat(_tileScaleFieldNameID, TileScale);
 		}
 		
-		public void UpdateMeshBounds()
+		public void ElevationUpdatedCallback()
 		{
-			var centerHeight = (TerrainContainer.TerrainData.MaxElevation + TerrainContainer.TerrainData.MinElevation) / 2 * TileScale;
-			var boxHeight = (TerrainContainer.TerrainData.MaxElevation - TerrainContainer.TerrainData.MinElevation)  * TileScale;
-			_meshFilter.mesh.bounds = new Bounds(new Vector3(.5f, centerHeight, -.5f), new Vector3(1, boxHeight, 1));
-			//Debug.Log($"{CanonicalTileId} {_meshFilter.mesh.bounds.center} {_meshFilter.mesh.bounds.size}");
+			if (MeshFilter != null)
+			{
+				var centerHeight = (TerrainContainer.TerrainData.MaxElevation + TerrainContainer.TerrainData.MinElevation) / 2 * TileScale;
+				var boxHeight = (TerrainContainer.TerrainData.MaxElevation - TerrainContainer.TerrainData.MinElevation)  * TileScale;
+				_meshFilter.mesh.bounds = new Bounds(new Vector3(.5f, centerHeight, -.5f), new Vector3(1, boxHeight, 1));
+			}
+			OnElevationValuesUpdated(this);
 		}
 		
 		public void Recycle()
@@ -101,7 +75,7 @@ namespace Mapbox.BaseModule.Unity
 
 		private void DataDisposed()
 		{
-			OnDataDispose(this.UnwrappedTileId);
+			OnDataDisposed(this.UnwrappedTileId);
 		}
 		
 		private void OnDestroy()
