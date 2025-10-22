@@ -12,28 +12,40 @@ namespace Mapbox.BaseModule.Unity
         public TileContainerState State = TileContainerState.Final;
         public Action<UnityMapTile> ElevationValuesUpdated = (t) => { };
         
-        private string _elevationMultiplierFieldNameID = "_ElevationMultiplier";
-        private string _elevationChangeTimerFieldNameID = "_ElevationChangeTime";
-        private string _shaderElevationTextureScaleOffsetFieldNameID = "_HeightTexture_ST";
-        private string _shaderElevationTextureFieldNameID = "_HeightTexture";
+        private Action _onDispose;
+        private const string ElevationMultiplierFieldNameID = "_ElevationMultiplier";
+        private const string ElevationChangeTimerFieldNameID = "_ElevationChangeTime";
+        private const string ShaderElevationTextureScaleOffsetFieldNameID = "_HeightTexture_ST";
+        private const string ShaderElevationTextureFieldNameID = "_HeightTexture";
 		
+        private static readonly int ElevationMultiplier = Shader.PropertyToID(ElevationMultiplierFieldNameID);
+        private static readonly int ElevationChangeTime = Shader.PropertyToID(ElevationChangeTimerFieldNameID);
+        private static readonly int HeightTextureST = Shader.PropertyToID(ShaderElevationTextureScaleOffsetFieldNameID);
+        private static readonly int HeightTexture = Shader.PropertyToID(ShaderElevationTextureFieldNameID);
+        
+        
         private UnityMapTile _unityMapTile;
         [SerializeField] public TerrainData TerrainData;
         private Vector4 _terrainTextureScaleOffset;
 
-        public UnityTileTerrainContainer(UnityMapTile unityMapTile)
+        public UnityTileTerrainContainer(UnityMapTile unityMapTile, Action onDispose)
         {
             _unityMapTile = unityMapTile;
+            _onDispose = onDispose;
         }
 
         public void SetTerrainData(TerrainData terrainData, bool useShaderElevation, TileContainerState state = TileContainerState.Final)
         {
+            terrainData?.SetDisposeCallback(null);
+            
             State = state;
             if (terrainData.Texture == null || terrainData.TileId.Z == 0)
             {
                 Debug.Log("no texture?");
             }
             TerrainData = terrainData;
+            TerrainData.SetDisposeCallback(_onDispose);
+            
             OnTerrainUpdated();
             if (TerrainData.IsElevationDataReady)
             {
@@ -42,7 +54,7 @@ namespace Mapbox.BaseModule.Unity
 
             TerrainData.ElevationValuesUpdated += OnElevationValuesUpdated;
 
-            _unityMapTile.Material.SetFloat(_elevationMultiplierFieldNameID, useShaderElevation ? 1 : 0);
+            _unityMapTile.Material.SetFloat(ElevationMultiplier, useShaderElevation ? 1 : 0);
         }
 
         public void OnTerrainUpdated()
@@ -52,12 +64,12 @@ namespace Mapbox.BaseModule.Unity
         
             _terrainTextureScaleOffset = _unityMapTile.CanonicalTileId.CalculateScaleOffsetAtZoom(TerrainData.TileId.Z);
             
-            _unityMapTile.Material.SetVector(_shaderElevationTextureScaleOffsetFieldNameID, _terrainTextureScaleOffset);
-            _unityMapTile.Material.SetTexture(_shaderElevationTextureFieldNameID, TerrainData.Texture);
+            _unityMapTile.Material.SetVector(HeightTextureST, _terrainTextureScaleOffset);
+            _unityMapTile.Material.SetTexture(HeightTexture, TerrainData.Texture);
 
             //_unityMapTile._material.SetFloat(_tileScaleFieldNameID, _unityMapTile.TileScale);
             _unityMapTile.Material.SetFloat("_IsFallbackTexture", 0);
-            _unityMapTile.Material.SetFloat(_elevationChangeTimerFieldNameID, Time.time);
+            _unityMapTile.Material.SetFloat(ElevationChangeTime, Time.time);
         }
 
         public void OnElevationValuesUpdated()
@@ -77,7 +89,7 @@ namespace Mapbox.BaseModule.Unity
                 return null;
 
             TerrainData.ElevationValuesUpdated -= OnElevationValuesUpdated;
-            _unityMapTile.Material.SetTexture(_shaderElevationTextureFieldNameID, Texture2D.grayTexture);
+            _unityMapTile.Material.SetTexture(HeightTexture, Texture2D.grayTexture);
             var rd = TerrainData;
             TerrainData = null;
             return rd;
@@ -112,7 +124,7 @@ namespace Mapbox.BaseModule.Unity
         public void DisableTerrain()
         {
             State = TileContainerState.Final;
-            _unityMapTile.Material.SetFloat(_elevationMultiplierFieldNameID, 0);
+            _unityMapTile.Material.SetFloat(ElevationMultiplier, 0);
         }
 
         public void OnDestroy()

@@ -63,7 +63,7 @@ namespace Mapbox.BaseModule.Unity
 		{
 			ImageContainer = new UnityTileImageContainer(this, DataDisposed);
 			VectorContainer = new UnityTileVectorContainer(this);
-			TerrainContainer = new UnityTileTerrainContainer(this);
+			TerrainContainer = new UnityTileTerrainContainer(this, DataDisposed);
 			TerrainContainer.ElevationValuesUpdated += tile =>
 			{
 				if (_meshFilter == null) return;
