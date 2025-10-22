@@ -155,7 +155,14 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
         
         public virtual IEnumerator GetImageCoroutine<T>(CanonicalTileId tileId, string tilesetId, bool isTextureNonreadable, Action<T> callback) where T : RasterData, new()
         {
-            yield return _textureFileCache.GetCoroutine(tileId, tilesetId, isTextureNonreadable, callback);
+            if (_textureFileCache != null)
+            {
+                yield return _textureFileCache.GetCoroutine(tileId, tilesetId, isTextureNonreadable, callback);
+            }
+            else
+            {
+                callback(null);
+            }
         }
 
         public virtual IEnumerator GetBlobCoroutine<T>(CanonicalTileId tileId, string tilesetid, int priority = 1, T data = null, Action<T> callback = null) where T : MapboxTileData, new()
