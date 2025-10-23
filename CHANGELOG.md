@@ -1,5 +1,41 @@
 ## CHANGELOG
 
+### v3.0.5
+Bug fixes, performance improvements, vector module changes, and core library updates for Android 16KB page size compatibility.
+
+#### Fixes
+- Fixed a bug in Cache Manager where it didn't fail safely when no file cache was available.
+- Fixed low-performing events and callbacks in UnityMapTile class and its data container objects.
+- Fixed an issue where the memory cache failed when runtime mesh generation on worker threads modified non-thread-safe lists.
+- Fixed a bug where Source classes did not fully verify if requested data was already being processed.
+- Fixed a bug where the Vector Module did not handle all mesh generation task results properly.
+
+#### Improvements
+- Updated MapboxCommon library to ndk27-24.10.0 for 16KB page size support.
+- Improved performance in the CanonicalTileId struct.
+- Refined the Modifier Stack inspector UI.
+- Changed the default map script to start with sample location and view parameters for an easier setup.
+- Updated the default map script and tile creator to use the default Mapbox terrain shader without requiring manual assignment.
+- Refined Vector Module’s tile retention and unloading logic.
+- Added a new Layer Visualizer setting `Layer Type` to define positioning and scaling strategies for runtime-generated meshes.
+- Added `PointLayerVisualizer` class for better handling of point-type data (such as POIs).
+- Improved the UI and debugging tools of `LoggingDataFetchingManagerBehaviour` and `LoggingCacheManagerBehaviour` scripts.
+- Enhanced the inspector UI for `LayerModifier` and introduced the new `TagModifier` GameObject modifier.
+- Moved the LatitudeLongitude struct to its own file and added proper equality methods.
+
+#### Documentation
+- Added new starter guides:
+  - Getting Started with MapboxMap Object
+  - Coordinate Conversions
+  - Working with Modules
+  - Working with POIs
+
+#### Vector Module Changes
+- Merged `MeshGenerationUnit` back into the Vector Module as it no longer provided value.
+- Updated Vector Module behavior to avoid caching GameObjects outside of the current view.
+- Vector Module now dynamically creates and destroys objects as they enter or leave the camera frustum for improved memory and cache management.
+- Removed `OnVectorMeshTurnVisible` and `OnVectorMeshTurnInvisible` events, and fixed `OnVectorMeshCreated` and `OnVectorMeshDestroyed` events.
+
 ### v3.0.4
 Performance (cpu and memory usage) improvements, bug fixes, library and Android/iOS compatibility updates, improved test coverage
 
