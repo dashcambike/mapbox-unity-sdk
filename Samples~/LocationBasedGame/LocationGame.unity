@@ -3229,6 +3229,10 @@ PrefabInstance:
       propertyPath: TileProvider.Transform
       value: 
       objectReference: {fileID: 4601729577895354}
+    - target: {fileID: 7512784584146348565, guid: 5cfb21e958bce467e966040b1be49240, type: 3}
+      propertyPath: _tileCreatorBehaviour
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7512784584146348567, guid: 5cfb21e958bce467e966040b1be49240, type: 3}
       propertyPath: m_Name
       value: Map
@@ -3281,7 +3285,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7512784584146348569, guid: 5cfb21e958bce467e966040b1be49240, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

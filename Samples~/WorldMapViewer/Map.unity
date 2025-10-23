@@ -341,6 +341,16 @@ MonoBehaviour:
       CacheSize: 100
       ClampDataLevelToMax: 14
     RejectTilesOutsideZoom: {x: 10, y: 25}
+    ElevationLayerProperties:
+      modificationOptions:
+        SimplificationFactor: 1
+      unityLayerOptions:
+        addToLayer: 0
+        layerId: 0
+      sideWallOptions:
+        isActive: 0
+        wallHeight: 0.1
+      TileMeshSize: 1
 --- !u!1 &745711774
 GameObject:
   m_ObjectHideFlags: 0
@@ -630,7 +640,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1316629400}
   - component: {fileID: 1316629399}
-  - component: {fileID: 1316629398}
   - component: {fileID: 1316629405}
   - component: {fileID: 1316629401}
   m_Layer: 0
@@ -640,32 +649,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1316629398
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1316629397}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fa13573d971f40649081b02ffc8366c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  TileMaterials:
-  - {fileID: 2100000, guid: a6a681001a245ce4089aea4634eee2b8, type: 2}
-  Settings:
-    modificationOptions:
-      SimplificationFactor: 2
-    unityLayerOptions:
-      addToLayer: 0
-      layerId: 0
-    sideWallOptions:
-      isActive: 0
-      wallHeight: 10
-      wallMaterial: {fileID: 2100000, guid: a6a681001a245ce4089aea4634eee2b8, type: 2}
-    TileMeshSize: 1
-  CacheSize: 25
 --- !u!114 &1316629399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -686,9 +669,9 @@ MonoBehaviour:
     _zoom: 16
   UnityContext:
     MapRoot: {fileID: 1316629400}
-    BaseTileRoot: {fileID: 1316629400}
+    BaseTileRoot: {fileID: 1808235830}
     RuntimeGenerationRoot: {fileID: 0}
-  _tileCreatorBehaviour: {fileID: 1316629398}
+  _tileCreatorBehaviour: {fileID: 0}
   TileProvider: {fileID: 2054936219}
   DataFetcher: {fileID: 0}
   CacheManager: {fileID: 0}
@@ -706,6 +689,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1808235830}
   - {fileID: 2054936215}
   - {fileID: 1213052036}
   m_Father: {fileID: 0}
@@ -746,6 +730,38 @@ MonoBehaviour:
       UseNonReadableTextures: 1
       CacheSize: 100
       ClampDataLevelToMax: 25
+    RejectTilesOutsideZoom: {x: 2, y: 25}
+--- !u!1 &1808235829
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1808235830}
+  m_Layer: 0
+  m_Name: BaseTiles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1808235830
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808235829}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1316629400}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1956110472
 GameObject:
   m_ObjectHideFlags: 0
@@ -778,7 +794,6 @@ MonoBehaviour:
   vectorModuleSettings:
     SourceType: 0
     CustomSourceId: 
-    LoadBackgroundData: 1
     DataSettings:
       CacheSize: 100
       ClampDataLevelToMax: 15
