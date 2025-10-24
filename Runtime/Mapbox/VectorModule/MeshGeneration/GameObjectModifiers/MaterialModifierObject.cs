@@ -1,9 +1,11 @@
+using System.ComponentModel;
 using Mapbox.BaseModule.Unity;
 using Mapbox.VectorModule.MeshGeneration.Unity;
 using UnityEngine;
 
 namespace Mapbox.VectorModule.MeshGeneration.GameObjectModifiers
 {
+	[DisplayName("Material Modifier")]
 	[CreateAssetMenu(menuName = "Mapbox/Modifiers/Material Modifier")]
 	public class MaterialModifierObject : ScriptableGameObjectModifierObject
 	{

@@ -1,10 +1,12 @@
 using System;
+using System.ComponentModel;
 using Mapbox.BaseModule.Unity;
 using Mapbox.VectorModule.MeshGeneration.Unity;
 using UnityEngine;
 
 namespace Mapbox.VectorModule.MeshGeneration.GameObjectModifiers
 {
+	[DisplayName("Prefab Modifier")]
 	[CreateAssetMenu(menuName = "Mapbox/Modifiers/Prefab Modifier")]
 	public class PrefabModifierObject : ScriptableGameObjectModifierObject
 	{

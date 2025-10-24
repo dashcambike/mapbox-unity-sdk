@@ -1,9 +1,11 @@
+using System.ComponentModel;
 using Mapbox.BaseModule.Unity;
 using Mapbox.VectorModule.MeshGeneration.Unity;
 using UnityEngine;
 
 namespace Mapbox.VectorModule.MeshGeneration.GameObjectModifiers
 {
+	[DisplayName("Collider Modifier")]
 	[CreateAssetMenu(menuName = "Mapbox/Modifiers/Collider Modifier")]
 	public class ColliderModifierObject : ScriptableGameObjectModifierObject
 	{

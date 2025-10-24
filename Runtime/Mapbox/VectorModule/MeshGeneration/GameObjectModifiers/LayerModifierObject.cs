@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Mapbox.BaseModule.Unity;
 using Mapbox.BaseModule.Utilities.Attributes;
 using Mapbox.VectorModule.MeshGeneration.Unity;
@@ -5,6 +6,7 @@ using UnityEngine;
 
 namespace Mapbox.VectorModule.MeshGeneration.GameObjectModifiers
 {
+    [DisplayName("Layer Mask Modifier")]
     [CreateAssetMenu(menuName = "Mapbox/Modifiers/LayerMask Modifier")]
     public class LayerModifierObject : ScriptableGameObjectModifierObject
     {

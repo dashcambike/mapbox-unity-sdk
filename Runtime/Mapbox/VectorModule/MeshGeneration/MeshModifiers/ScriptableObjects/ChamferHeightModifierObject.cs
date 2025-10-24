@@ -1,9 +1,11 @@
+using System.ComponentModel;
 using Mapbox.BaseModule.Unity;
 using Mapbox.VectorModule.MeshGeneration.Unity;
 using UnityEngine;
 
 namespace Mapbox.VectorModule.MeshGeneration.MeshModifiers.ScriptableObjects
 {
+    [DisplayName("Chamfer Height Modifier")]
     [CreateAssetMenu(menuName = "Mapbox/Modifiers/Chamfer Height Modifier")]
     public class ChamferHeightModifierObject : ScriptableMeshModifierObject
     {

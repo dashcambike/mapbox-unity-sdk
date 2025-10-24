@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Mapbox.Editor;
 using Mapbox.VectorModule.Editor;
@@ -194,7 +196,7 @@ public class ModifierStackEditor : Editor
         EditorGUILayout.Space(4);
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("Add Modifier", (GUIStyle)"minibuttonleft"))
+            if (GUILayout.Button("  Add Modifier  ", (GUIStyle)"minibuttonleft"))
             {
                 AddPassMenu(property, type);
             }
@@ -216,13 +218,10 @@ public class ModifierStackEditor : Editor
         TypeCache.TypeCollection types = TypeCache.GetTypesDerivedFrom(modType);
         foreach (Type type in types)
         {
-            var data = target as VectorFilterStackObject;
-            // if (data.DuplicateFeatureCheck(type))
-            // {
-            //     continue;
-            // }
-
-            string path = type.Name;
+            var displayName = type
+                .GetCustomAttributes(typeof(DisplayNameAttribute), true)
+                .FirstOrDefault() as DisplayNameAttribute;
+            string path = (displayName != null) ? displayName.DisplayName : type.Name;
             menu.AddItem(new GUIContent(path), false, (o) => AddComponent(property, o), type.Name);
         }
         menu.ShowAsContext();

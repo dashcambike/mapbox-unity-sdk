@@ -1,10 +1,12 @@
-﻿using Mapbox.BaseModule.Unity;
+﻿using System.ComponentModel;
+using Mapbox.BaseModule.Unity;
 using Mapbox.BaseModule.Utilities.Attributes;
 using Mapbox.VectorModule.MeshGeneration.Unity;
 using UnityEngine;
 
 namespace Mapbox.VectorModule.MeshGeneration.GameObjectModifiers
 {
+    [DisplayName("Tag Modifier")]
     [CreateAssetMenu(menuName = "Mapbox/Modifiers/Tag Modifier")]
     public class TagModifierObject : ScriptableGameObjectModifierObject
     {
