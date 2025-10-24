@@ -12,6 +12,7 @@ Bug fixes, performance improvements, vector module changes, and core library upd
 
 #### Improvements
 - Updated MapboxCommon library to ndk27-24.10.0 for 16KB page size support.
+- Updated SDK license to Mapbox License.
 - Improved performance in the CanonicalTileId struct.
 - Refined the Modifier Stack inspector UI.
 - Changed the default map script to start with sample location and view parameters for an easier setup.
