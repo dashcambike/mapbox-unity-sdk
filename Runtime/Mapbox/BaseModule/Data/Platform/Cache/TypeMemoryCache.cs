@@ -24,12 +24,9 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
         private readonly Dictionary<CanonicalTileId, LinkedListNode<(CanonicalTileId key, T value)>> _inactiveMap;
         private readonly LinkedList<(CanonicalTileId key, T value)> _inactiveList;
         
-        //public readonly int CacheSize;
         private Dictionary<CanonicalTileId, T> _fallbackDatas;
-        //private Dictionary<CanonicalTileId, LinkedListNode<T>> _cacheHash;
-        //private LinkedList<T> _cache;
-        //private Thread mainThread;
         private HashSet<CanonicalTileId> _previousFrameTiles;
+        private HashSet<CanonicalTileId> _tilesToDemote;
         
         public TypeMemoryCache(int cacheSize = 100)
         {
@@ -41,13 +38,7 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
             _active = new Dictionary<CanonicalTileId, T>();
             _inactiveMap = new Dictionary<CanonicalTileId, LinkedListNode<(CanonicalTileId, T)>>();
             _inactiveList = new LinkedList<(CanonicalTileId, T)>();
-            
-            //mainThread = System.Threading.Thread.CurrentThread;
-            //CacheSize = cacheSize;
-            // _cacheHash = new Dictionary<CanonicalTileId, LinkedListNode<T>>();
-            // _cache = new LinkedList<T>();
-            // _datas = new Dictionary<CanonicalTileId, T>();
-            // _trackedDatas = new Queue<CanonicalTileId>();
+            _tilesToDemote = new HashSet<CanonicalTileId>();
             _fallbackDatas = new Dictionary<CanonicalTileId, T>();
         }
 		
@@ -127,14 +118,14 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
         /// </summary>
         public void RetainTiles(HashSet<CanonicalTileId> currentActiveKeys)
         {
-            var toDemote = new List<CanonicalTileId>();
+            _tilesToDemote.Clear();
             foreach (var key in _active.Keys)
             {
                 if (!currentActiveKeys.Contains(key))
-                    toDemote.Add(key);
+                    _tilesToDemote.Add(key);
             }
 
-            foreach (var key in toDemote)
+            foreach (var key in _tilesToDemote)
             {
                 var value = _active[key];
                 _active.Remove(key);
@@ -206,135 +197,6 @@ namespace Mapbox.BaseModule.Data.Platform.Cache
             _inactiveMap.Clear();
             _fallbackDatas.Clear();
         }
-        
-        // public void Add(T data)
-        // {
-        //     if (_cacheHash.TryGetValue(data.TileId, out var node))
-        //     {
-        //         _cache.Remove(node);
-        //         _cache.AddFirst(node);
-        //     }
-        //     else
-        //     {
-        //         Prune();
-        //
-        //         if (_cache.Count < CacheSize)
-        //         {
-        //             var llNode = _cache.AddFirst(data);
-        //             _cacheHash.Add(data.TileId, llNode);
-        //         }
-        //     }
-        // }
-        //
-        // private void Prune()
-        // {
-        //     if (_cache.Count >= CacheSize)
-        //     {
-        //         for (int i = 0; i < Mathf.Min(20, _cache.Count); i++)
-        //         {
-        //             var lastItem = _cache.Last;
-        //             if (_previousFrameTiles != null && !_previousFrameTiles.Contains(lastItem.Value.TileId))
-        //             {
-        //                 DropItem(_cache.Last);
-        //                 break;
-        //             }
-        //             else
-        //             {
-        //                 _cache.RemoveLast();
-        //                 _cache.AddFirst(lastItem);
-        //             }
-        //         }
-        //     }
-        // }
-        //
-        // private void DropItem(LinkedListNode<T> node)
-        // {
-        //     _cache.Remove(node);
-        //     var disposedTileId = node.Value.TileId;
-        //     _cacheHash.Remove(disposedTileId);
-        //     node.Value.Dispose();
-        //     CacheItemDisposed(disposedTileId);
-        // }
-        //
-        // public bool Exists(CanonicalTileId tileId)
-        // {
-        //     return _cacheHash.ContainsKey(tileId) || _fallbackDatas.ContainsKey(tileId);
-        //     //return _datas.ContainsKey(tileId) || _fallbackDatas.ContainsKey(tileId);
-        // }
-        //
-        // public bool Get(CanonicalTileId tileId, out T outData)
-        // {
-        //     outData = null;
-        //     if (_cacheHash.TryGetValue(tileId, out var linkedNode))
-        //     {
-        //         outData = linkedNode.Value;
-        //         if (mainThread.Equals(System.Threading.Thread.CurrentThread))
-        //         {
-        //             _cache.Remove(linkedNode);
-        //             _cache.AddFirst(linkedNode);
-        //         }
-        //
-        //         return true;
-        //     }
-        //
-        //     if (_fallbackDatas.TryGetValue(tileId, out var data))
-        //     {
-        //         outData = data;
-        //         return true;
-        //     }
-        //     
-        //     return false;
-        // }
-        //
-        // public IEnumerable<T> GetAllDatas()
-        // {
-        //     return _cacheHash.Values.Select(x => x.Value);
-        // }
-        //
-        // public void Remove(CanonicalTileId tileId)
-        // {
-        //     if (_cacheHash.TryGetValue(tileId, out var linkedListNode))
-        //     {
-        //         DropItem(linkedListNode);
-        //     }
-        // }
-        //
-        //
-        // public void RetainTiles(HashSet<CanonicalTileId> retainedTiles)
-        // {
-        //     _previousFrameTiles = retainedTiles;
-        // }
-        //
-        // public void MarkFallback(CanonicalTileId dataTileId)
-        // {
-        //     if (_cacheHash.TryGetValue(dataTileId, out var data))
-        //     {
-        //         _cacheHash.Remove(dataTileId);
-        //         _cache.Remove(data);
-        //         _fallbackDatas.Add(dataTileId, data.Value);
-        //     }
-        // }
-        //
-        // public Action<CanonicalTileId> CacheItemDisposed = (t) => { };
-        //
-        // public void OnDestroy()
-        // {
-        //     foreach (var tileData in _cacheHash.Values)
-        //     {
-        //         tileData.Value.Dispose();
-        //     }
-        //     _cacheHash.Clear();
-        //     _cacheHash = null;
-        //     foreach (var fallbackData in _fallbackDatas.Values)
-        //     {
-        //         fallbackData.Dispose();
-        //     }
-        //     _fallbackDatas.Clear();
-        //     _fallbackDatas = null;
-        //     _cache.Clear();
-        //     _cache = null;
-        // }
-        
         
         public int ActiveCount => _active.Count;
         public int InactiveCount => _inactiveMap.Count;

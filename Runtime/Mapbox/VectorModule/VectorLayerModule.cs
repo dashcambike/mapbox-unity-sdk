@@ -30,6 +30,7 @@ namespace Mapbox.VectorModule
 		//tiles we need to cover the ideal tile list
 		private HashSet<CanonicalTileId> _retainedTiles;
 		private HashSet<CanonicalTileId> _readyTiles;
+		private List<CanonicalTileId> _tilesToRemove;
 		
 		public VectorLayerModule(IMapInformation mapInformation, Source<VectorData> source, UnityContext unityContext, Dictionary<string, IVectorLayerVisualizer> layerVisualizers, VectorModuleSettings vectorModuleSettings = null) : base()
 		{
@@ -42,6 +43,7 @@ namespace Mapbox.VectorModule
 			_vectorSource.CacheItemDisposed += ClearDisposedDataVisual;
 			_retainedTiles = new HashSet<CanonicalTileId>();
 			_activeTasks = new Dictionary<CanonicalTileId, TaskWrapper>();
+			_tilesToRemove = new List<CanonicalTileId>(10);
 		}
 
 		public virtual IEnumerator Initialize()
@@ -84,8 +86,8 @@ namespace Mapbox.VectorModule
 		public virtual bool RetainTiles(HashSet<CanonicalTileId> retainedTiles)
 		{
 			UpdateRetainedTiles(retainedTiles);
-			
-			var toRemove = new List<CanonicalTileId>();
+
+			_tilesToRemove.Clear();
 			foreach (var tileId in _readyTiles)
 			{
 				var isActive = _retainedTiles.Contains(tileId);
@@ -96,7 +98,7 @@ namespace Mapbox.VectorModule
 				
 				if (!isActive)
 				{
-					toRemove.Add(tileId);
+					_tilesToRemove.Add(tileId);
 					if (_activeTasks.TryGetValue(tileId, out var task))
 					{
 						_activeTasks.Remove(tileId);
@@ -105,7 +107,7 @@ namespace Mapbox.VectorModule
 				}
 			}
 
-			foreach (var tileId in toRemove)
+			foreach (var tileId in _tilesToRemove)
 			{
 				ClearDisposedDataVisual(tileId);
 			}
