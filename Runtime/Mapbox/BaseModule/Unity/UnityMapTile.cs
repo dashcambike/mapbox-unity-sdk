@@ -67,11 +67,12 @@ namespace Mapbox.BaseModule.Unity
 		
 		public void Recycle()
 		{
-			if (gameObject != null)
+			if (this == null)
 			{
 				// If called during the destroy cycle
-				gameObject.SetActive(false);
+				return;
 			}
+			gameObject.SetActive(false);
 			ImageContainer.GetAndClearImageData();
 			TerrainContainer.GetAndClearTerrainData();
 			VectorContainer.GetAndClearVectorData();

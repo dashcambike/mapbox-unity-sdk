@@ -137,6 +137,11 @@ namespace Mapbox.BaseModule.Map
             
             MapService.TileCover(MapInformation, TileCover);
             yield return MapVisualizer.LoadTileCoverToMemory(TileCover);
+            if (MapVisualizer == null)
+            {
+                // Happens if left scene before the coroutine completes
+                yield break;
+            }
             MapVisualizer.LoadSnapshot(TileCover);
             
             LoadViewCompleted();
