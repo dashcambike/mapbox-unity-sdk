@@ -33,6 +33,7 @@ namespace Mapbox.BaseModule.Unity
             BaseTileRoot = BaseTileRoot == null ? new GameObject("BaseTiles").transform : BaseTileRoot;
             BaseTileRoot.SetParent(MapRoot);
             BaseTileRoot.transform.localPosition = Vector3.zero;
+            BaseTileRoot.gameObject.layer = MapRoot.gameObject.layer;
 
             RuntimeGenerationRoot = RuntimeGenerationRoot == null ? new GameObject("RuntimeObjectsRoot").transform : RuntimeGenerationRoot;
             RuntimeGenerationRoot.SetParent(MapRoot);
