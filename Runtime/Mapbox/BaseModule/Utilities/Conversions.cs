@@ -25,10 +25,11 @@ namespace Mapbox.BaseModule.Utilities
 		private const double InitialResolution = 2 * Math.PI * EarthRadius / TileSize;
 		private const double OriginShift = 2 * Math.PI * EarthRadius / 2;
 
-		private static readonly int[] PowerTable2 = new int[24]
+		private static readonly int[] PowerTable2 =
 		{
-			1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576,2097152,4194304,8388608
+			1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216, 33554432, 67108864, 134217728, 268435456, 536870912, 1073741824
 		};
+
 		
 		/// <summary>
 		/// Converts <see cref="T:Mapbox.Utils.Vector2d"/> struct, WGS84
@@ -241,12 +242,18 @@ namespace Mapbox.BaseModule.Utilities
 			return new RectD((min - worldCenter)/scale, (max - min)/scale);
 		}
 		
-		public static float TileEdgeSizeInMercator(CanonicalTileId unwrappedTileId)
+		[Obsolete("This overload is obsolete, please use TileEdgeSizeInMercator instead")]
+		public static float CalculateTileEdgeSizeInMercator(CanonicalTileId unwrappedTileId)
 		{
 			var res = InitialResolution / PowerTable2[unwrappedTileId.Z];
 			var first = unwrappedTileId.X * TileSize * res - OriginShift;
 			var second = (unwrappedTileId.X + 1) * TileSize * res - OriginShift;
 			return (float)(second - first);
+		}
+
+		public static float TileEdgeSizeInMercator(CanonicalTileId unwrappedTileId)
+		{
+			return (40075017f / PowerTable2[unwrappedTileId.Z]);
 		}
 
 		public static RectD TileBoundsInUnitySpace(UnwrappedTileId unwrappedTileId, Vector2d worldCenter, float scale)
