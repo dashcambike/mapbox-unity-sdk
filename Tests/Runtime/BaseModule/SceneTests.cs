@@ -43,20 +43,20 @@ namespace Mapbox.BaseModuleTests.PlayModeTests
         {
             get
             {
-                yield return new TestCaseData(TestSceneName, 41.8336152, -87.896769, 16).Returns(null);
-                yield return new TestCaseData(TestSceneName, 60.1711822, 24.9422687, 16).Returns(null);
-                yield return new TestCaseData(TestSceneName, 52.5165309, 13.3777779, 16).Returns(null);
-                yield return new TestCaseData(TestSceneName, 48.8584642, 2.3097613, 16).Returns(null);
-                yield return new TestCaseData(TestSceneName, 37.7873314, -122.4080894, 16).Returns(null);
-                yield return new TestCaseData(TestSceneName, 46.85264466, -121.75710321, 12).Returns(null);
+                yield return new TestCaseData(TestSceneName, 41.8336152,  -87.896769, 16, 90,  0, 1000).Returns(null);
+                yield return new TestCaseData(TestSceneName, 60.1711822,  24.9422687, 18, 34, 13,    1).Returns(null);
+                yield return new TestCaseData(TestSceneName, 52.5165309,  13.3777779, 16, 90,  0, 1000).Returns(null);
+                yield return new TestCaseData(TestSceneName, 48.8584642,  2.30976131, 16, 90,  0, 1000).Returns(null);
+                yield return new TestCaseData(TestSceneName, 37.7873314, -122.408089, 16, 90,  0, 1000).Returns(null);
+                yield return new TestCaseData(TestSceneName, 46.8526446, -121.757103, 12, 90,  0, 1000).Returns(null);
             }
         }
 
         [UnityTest]
         [TestCaseSource(nameof(LatLngTestSource))]
-        public IEnumerator GroupTest(string sceneName, double lat, double lon, int zoom)
+        public IEnumerator GroupTest(string sceneName, double lat, double lon, int zoom, float pitch = 90, float bearing = 0, float scale = 1000)
         {
-            yield return TestScene(sceneName, lat, lon, zoom);
+            yield return TestScene(sceneName, lat, lon, zoom, pitch, bearing, scale);
         }
         
         //[UnityTest]
@@ -73,14 +73,14 @@ namespace Mapbox.BaseModuleTests.PlayModeTests
         //     }
         // }
 
-        public IEnumerator TestScene(string sceneName, double lat, double lon, int zoom)
+        public IEnumerator TestScene(string sceneName, double lat, double lon, int zoom, float pitch = 0, float bearing = 0, float scale = 1000)
         {
             yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-            yield return ProcessScene(sceneName, lat, lon, zoom);
+            yield return ProcessScene(sceneName, lat, lon, zoom, pitch, bearing, scale);
             yield return SceneManager.UnloadSceneAsync(sceneName);
         }
         
-        private IEnumerator ProcessScene(string sceneName, double lat, double lon, int zoom)
+        private IEnumerator ProcessScene(string sceneName, double lat, double lon, int zoom, float pitch = 0, float bearing = 0, float scale = 1000)
         {
             var camera = Camera.main;
             var mapCore = GameObject.FindObjectOfType<MapBehaviourCore>();
@@ -91,7 +91,7 @@ namespace Mapbox.BaseModuleTests.PlayModeTests
                 {
                     _map = map;
                 };
-                mapCore.MapInformation.SetInformation(new LatitudeLongitude(lat, lon), zoom);
+                mapCore.MapInformation.SetInformation(new LatitudeLongitude(lat, lon), zoom, pitch, bearing, scale);
                 mapCore.Initialize();
             }
             else
