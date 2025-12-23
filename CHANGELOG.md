@@ -1,5 +1,17 @@
 ## CHANGELOG
 
+### v3.0.7
+
+#### Changes
+- Added new documentation.
+- Added a new demo scene demonstrating how to use POI information.
+- Introduced new inspector scripts to improve editor UI/UX.
+- Reorganized and cleaned up the Mapbox context menu used for creating Mapbox ScriptableObjects.
+
+#### Fixes
+- Fixed an issue where vector layer range limits were not applied correctly during data processing.
+- Fixed incorrect limit validation and bounds checking in the `LatitudeLongitude` struct.
+
 ### v3.0.6
 
 #### Fixes

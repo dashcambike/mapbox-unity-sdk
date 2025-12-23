@@ -1,6 +1,6 @@
 {
     "name": "com.mapbox.sdk",
-    "version": "3.0.6",
+    "version": "3.0.7",
     "displayName": "Mapbox Unity SDK",
     "description": "Mapbox Unity SDK",
     "unity": "2022.3",
