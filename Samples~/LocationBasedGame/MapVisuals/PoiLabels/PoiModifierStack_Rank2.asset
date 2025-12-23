@@ -17,22 +17,6 @@ MonoBehaviour:
     checkOperation: 3
     PropertyName: filterrank
     FilterValue: 2
---- !u!114 &-1817874707872846981
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebbc802d14e142cc890713fc96059d95, type: 3}
-  m_Name: PoiLabelModifierObject
-  m_EditorClassIdentifier: 
-  m_Active: 1
-  Settings:
-    Prefab: {fileID: 3387480027705797073, guid: 80bbcf25b750245058c73c9cbf225860, type: 3}
-    ScalePrefabToWorld: 1
 --- !u!114 &-1111098508876544791
 MonoBehaviour:
   m_ObjectHideFlags: 0
