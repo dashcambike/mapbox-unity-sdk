@@ -2,7 +2,7 @@ using Mapbox.Example.Scripts.Map;
 using UnityEditor;
 using UnityEngine;
 
-namespace Mapbox.Example.Scripts.Editor
+namespace Mapbox.Example.Editor
 {
     [CustomEditor(typeof(MapboxMapBehaviour))]
     public class MapboxMapBehaviourEditor : UnityEditor.Editor

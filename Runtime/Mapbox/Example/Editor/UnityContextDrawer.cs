@@ -2,7 +2,7 @@ using Mapbox.BaseModule.Unity;
 using UnityEditor;
 using UnityEngine;
 
-namespace Mapbox.Example.Scripts.Editor
+namespace Mapbox.Example.Editor
 {
     [CustomPropertyDrawer(typeof(UnityContext))]
     public class UnityContextDrawer : PropertyDrawer

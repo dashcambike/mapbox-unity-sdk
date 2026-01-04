@@ -2,7 +2,7 @@ using Mapbox.BaseModule.Map;
 using UnityEditor;
 using UnityEngine;
 
-namespace Mapbox.Example.Scripts.Editor
+namespace Mapbox.Example.Editor
 {
     [CustomPropertyDrawer(typeof(MapInformation))]
     public class MapInformationDrawer : PropertyDrawer
