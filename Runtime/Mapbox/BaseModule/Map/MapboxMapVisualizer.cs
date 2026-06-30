@@ -169,7 +169,7 @@ namespace Mapbox.BaseModule.Map
                 UnityMapTile unityMapTile = null;
                 if (!CreateTileInstant(tileId, out unityMapTile)) //if we can't fully load the tile
                     CreateTempTile(tileId, out unityMapTile); //we load it whatever data we can find
-                
+
                 ShowTile(unityMapTile);
             }
         }

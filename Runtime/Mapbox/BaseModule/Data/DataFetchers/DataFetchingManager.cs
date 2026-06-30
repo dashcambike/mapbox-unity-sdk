@@ -49,7 +49,11 @@ namespace Mapbox.BaseModule.Data.DataFetchers
 		public virtual void EnqueueForFetching(FetchInfo info)
 		{
 			info.QueueTime = Time.time;
-			_fetchQueue.Enqueue(info);
+			// TODO -- null check added by Armin to potentially mitigate an NPE, 2026-03-30
+			if (_fetchQueue != null)
+			{
+				_fetchQueue.Enqueue(info);
+			}
 		}
 
 		public virtual TileJSON GetTileJSON(int timeout = 10)
