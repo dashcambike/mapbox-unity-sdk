@@ -74,7 +74,11 @@ namespace Mapbox.BaseModule.Data.DataFetchers
 		{
 			while (!_isDestroying)
 			{
-				while (_fetchQueue.Count > 0 &&
+				// Guard against OnDestroy() (which sets _isDestroying then nulls _fetchQueue) racing
+				// this coroutine mid-tick -- e.g. a scene reload/teardown between tests. Checking
+				// _isDestroying first short-circuits before _fetchQueue is dereferenced.
+				while (!_isDestroying &&
+				       _fetchQueue.Count > 0 &&
 				       _globalActiveRequests.Count < _activeRequestLimit)
 				{
 					var info = _fetchQueue.Peek(); //we just peek first as we might want to hold it until delay timer runs out

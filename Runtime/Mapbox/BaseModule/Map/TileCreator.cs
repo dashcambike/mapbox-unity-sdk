@@ -16,6 +16,12 @@ namespace Mapbox.BaseModule.Map
         void PutTile(UnityMapTile tile);
 
         /// <summary>
+        /// Destroy and drop every pooled tile. Call when the map is torn down (scene leave /
+        /// re-init) so a pool that outlives the tiles can't hand back a destroyed one.
+        /// </summary>
+        void ClearPool();
+
+        /// <summary>
         /// Some tile elements are destroyed so tile isn't good for use/reuse anymore
         /// </summary>
         event Action<UnwrappedTileId> OnTileBroken;
@@ -31,6 +37,25 @@ namespace Mapbox.BaseModule.Map
 
         public UnityMapTile GetTile() => _tilePool.GetObject();
         public void PutTile(UnityMapTile tile) => _tilePool.Put(tile);
+
+        public void ClearPool()
+        {
+            if (_tilePool == null)
+            {
+                return;
+            }
+
+            // Destroy any still-alive pooled tiles (Unity's == skips ones already destroyed by a
+            // scene unload), then empty the queue so nothing stale can be handed out later.
+            foreach (UnityMapTile tile in _tilePool.GetQueue())
+            {
+                if (tile != null)
+                {
+                    UnityEngine.Object.Destroy(tile.gameObject);
+                }
+            }
+            _tilePool.Clear();
+        }
 
         public TileCreator(UnityContext unityContext, Material[] tileMaterials = null, int cacheSize = 25)
         {

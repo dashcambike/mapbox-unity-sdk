@@ -180,6 +180,12 @@ namespace Mapbox.BaseModule.Map
             {
                 layerModule.OnDestroy();
             }
+
+            // Clear the tile pool on teardown. The pool can outlive the map (it is reused across
+            // re-inits / scene re-entry), so without this it hands back tiles the teardown
+            // destroyed -- a MissingReferenceException on GetMapTile, seen in tests and in prod
+            // when leaving and re-entering the map scene.
+            _tileCreator?.ClearPool();
         }
 
         /// <summary>
